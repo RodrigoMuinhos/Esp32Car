@@ -12,6 +12,10 @@ Fechar a janela encerra o app em alguns segundos e desliga os relés. Se uma cor
 
 Para gerar o instalador de novo após mudanças: `powershell -ExecutionPolicy Bypass -File scripts\build-installer.ps1` (usa Node, o Python de `.venv-controle`, PyInstaller e Inno Setup 6). O app fica em `build\pyinstaller\dist` e o instalador em `installer\`.
 
+## Versão portátil (pen drive)
+
+`powershell -ExecutionPolicy Bypass -File scriptsuild-usb.ps1 -Drive D:` copia o app para o pen drive (pasta `RC Racing`, atalho `RC Racing.bat` na raiz, ícone da unidade e `LEIA-ME RC Racing.txt`). Em qualquer PC com Windows 10/11: conecte o pen drive, a placa e o volante e dê dois cliques em `RC Racing.bat`. Nada é instalado; a porta do ESP32 é detectada sozinha. Use `-Rebuild` para gerar o app de novo antes de copiar. O Windows não abre programas sozinho ao conectar um pen drive (proteção contra vírus), por isso o duplo clique.
+
 ## Modo desenvolvimento
 
 `abrir_cockpit.bat` / `abrir_controle.bat` continuam funcionando e abrem a mesma tela em **http://127.0.0.1:8080** usando o código-fonte.
