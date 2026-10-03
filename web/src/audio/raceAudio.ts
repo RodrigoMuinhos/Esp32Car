@@ -2,7 +2,7 @@
  * Synthesized race sounds (Web Audio API, no audio files): a NASCAR-style V8
  * that follows RPM and load, tire squeal under braking, starter/ignition,
  * F1-style start beeps, GO and a checkered-flag fanfare. The countdown is also
- * called by a recorded voice (public/voice, pt-BR neural voice "Antonio").
+ * called by a recorded voice (public/voice, en-US neural voice "Guy").
  */
 export type VoiceClip = "3" | "2" | "1" | "go";
 const VOICE_CLIPS: VoiceClip[] = ["3", "2", "1", "go"];

@@ -76,7 +76,7 @@ export function useRaceAudio({
     };
   }, []);
 
-  // Countdown beeps and voice (3, 2, 1, vai), GO, finish fanfare and cancel blip.
+  // Countdown beeps and voice (three, two, one, go), GO, finish fanfare and cancel blip.
   const previous = useRef({ state, second: 0 });
   useEffect(() => {
     const sfx = audio.current!;
