@@ -5,6 +5,8 @@ import { RaceAudio } from "./raceAudio";
 const GEAR_TOPS = [9, 17, 25, 33, 41]; // km/h at the top of each virtual gear
 const IDLE_RPM = 0.16;
 const STORAGE_KEY = "rc-racing-sound";
+/** Starter cranking before the engine catches, when A starts the countdown. */
+export const IGNITION_SECONDS = 1;
 
 /** Engine RPM for the imaginary speed: it climbs in each gear and drops on upshift. */
 export function gearRpm(speed: number) {
@@ -25,8 +27,9 @@ function readMuted() {
 }
 
 /**
- * Plays the race soundtrack. The engine runs from the countdown until the race
- * ends: revving with the throttle while stopped, following the gears when moving.
+ * Plays the race soundtrack. A cranks the starter, then the engine runs until
+ * the race ends: revving with the throttle while stopped, following the gears
+ * when moving. Braking while moving squeals the tires.
  * Returns the current RPM (0..1) for the on-screen sound meter.
  */
 export function useRaceAudio({
@@ -34,20 +37,23 @@ export function useRaceAudio({
   countdown,
   status,
   throttle,
+  brake,
   speed,
 }: {
   state: RaceState;
   countdown: number | null;
   status: string;
   throttle: number;
+  brake: number;
   speed: number;
 }) {
   const audio = useRef<RaceAudio | null>(null);
   audio.current ??= new RaceAudio();
   const [muted, setMuted] = useState(readMuted);
   const meter = useRef<HTMLElement | null>(null);
-  const live = useRef({ state, throttle, speed });
-  live.current = { state, throttle, speed };
+  const live = useRef({ state, throttle, brake, speed });
+  live.current = { state, throttle, brake, speed };
+  const ignitedAt = useRef(0);
 
   useEffect(() => {
     audio.current!.setMuted(muted);
@@ -75,6 +81,10 @@ export function useRaceAudio({
     const sfx = audio.current!;
     const second = countdown === null ? 0 : Math.ceil(countdown);
     const was = previous.current;
+    if (state === "countdown" && was.state !== "countdown") {
+      sfx.ignition(IGNITION_SECONDS);
+      ignitedAt.current = performance.now();
+    }
     if (state === "countdown" && second > 0 && second !== was.second) sfx.countdownBeep();
     if (state === "running" && was.state !== "running") sfx.go();
     if (state === "finished" && was.state === "running") sfx.finish();
@@ -96,9 +106,12 @@ export function useRaceAudio({
       const now = performance.now();
       const dt = Math.min((now - last) / 1000, 0.2);
       last = now;
-      const { state, throttle, speed } = live.current;
-      const on = state === "countdown" || state === "starting" || state === "running";
-      if (on && !wasOn) rpm = 0.55; // starter: a quick rev before settling to idle
+      const { state, throttle, brake, speed } = live.current;
+      const cranking =
+        state === "countdown" && now - ignitedAt.current < IGNITION_SECONDS * 1000;
+      const on =
+        (state === "countdown" && !cranking) || state === "starting" || state === "running";
+      if (on && !wasOn) rpm = 0.45; // the engine catches with a quick rev, then settles
       wasOn = on;
       const load = throttle / 100;
       const free = IDLE_RPM + load * 0.78; // revving while stopped
@@ -109,11 +122,15 @@ export function useRaceAudio({
           : free;
       rpm += (target - rpm) * Math.min(1, dt * (target > rpm ? 7 : 3));
       audio.current!.engineUpdate(on, rpm, on ? load : 0);
+      audio.current!.brakeUpdate(
+        state === "running" && brake > 10 ? (brake / 100) * Math.min(1, speed / 15) : 0,
+      );
       meter.current?.style.setProperty("--rpm", (on ? rpm : 0).toFixed(3));
     }, 33);
     return () => {
       window.clearInterval(id);
       audio.current!.engineUpdate(false, 0, 0);
+      audio.current!.brakeUpdate(0);
     };
   }, []);
 

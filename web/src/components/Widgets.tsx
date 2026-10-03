@@ -288,7 +288,9 @@ export function StartSequence({
   const second = countdown === null ? 0 : Math.max(1, Math.ceil(countdown));
   const [title, detail, light, count] =
     state === "countdown"
-      ? ["PREPARE-SE", "Carrinho liberado no GO · B cancela", 3 - second, String(second)]
+      ? second === 3
+        ? ["IGNIÇÃO LIGADA", "Motor dando partida · B cancela", 0, "3"]
+        : ["PREPARE-SE", "Carrinho liberado no GO · B cancela", 3 - second, String(second)]
       : state === "starting"
         ? ["MANTENHA O ACELERADOR", "Solte para cancelar", 1, "0,5"]
         : state === "running"

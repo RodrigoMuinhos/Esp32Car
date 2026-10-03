@@ -113,8 +113,9 @@ test("botão A conta 3-2-1 e larga, simulação reage, volta é registrada e ESC
   const throttle = page.getByRole("slider", { name: "Teste acelerador", exact: true });
   await expect(page.locator(".power-readout")).toContainText("BLOQUEADA");
   await page.getByRole("button", { name: "INICIAR (A)" }).click();
-  await expect(page.locator(".start-card")).toContainText("PREPARE-SE");
+  await expect(page.locator(".start-card")).toContainText("IGNIÇÃO LIGADA");
   await expect(page.locator(".hud-count")).toHaveText("3");
+  await expect(page.locator(".start-card")).toContainText("PREPARE-SE", { timeout: 2000 });
   await expect(page.locator(".power-readout")).toContainText("BLOQUEADA");
   await expect(page.locator(".hud-count")).toHaveText("1", { timeout: 3000 });
   await expect(page.locator(".power-readout")).toContainText("LIBERADA", {

@@ -1,23 +1,29 @@
 /**
- * Synthesized race sounds (Web Audio API, no audio files): an engine that follows
- * RPM and load, F1-style start beeps, GO and a checkered-flag fanfare.
+ * Synthesized race sounds (Web Audio API, no audio files): a NASCAR-style V8
+ * that follows RPM and load, tire squeal under braking, starter/ignition,
+ * F1-style start beeps, GO and a checkered-flag fanfare.
  */
 type Engine = {
-  oscs: OscillatorNode[];
-  lfo: OscillatorNode;
-  noise: AudioBufferSourceNode;
-  whine: OscillatorNode;
+  banks: OscillatorNode[];
+  lope: OscillatorNode;
+  lopeDepth: GainNode;
   filter: BiquadFilterNode;
   noiseFilter: BiquadFilterNode;
   noiseGain: GainNode;
-  whineGain: GainNode;
   out: GainNode;
 };
+type Squeal = { filter: BiquadFilterNode; gain: GainNode };
+
+const MASTER_LEVEL = 0.42;
+const IDLE_RPM = 950;
+const MAX_RPM = 9000;
 
 export class RaceAudio {
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
+  private noise: AudioBuffer | null = null;
   private engine: Engine | null = null;
+  private squeal: Squeal | null = null;
   private muted = false;
 
   /** Creates the audio graph on first use and resumes it if the browser paused it. */
@@ -27,10 +33,10 @@ export class RaceAudio {
       if (!Ctx) return null;
       this.ctx = new Ctx();
       const comp = this.ctx.createDynamicsCompressor();
-      comp.threshold.value = -14;
-      comp.ratio.value = 4;
+      comp.threshold.value = -18;
+      comp.ratio.value = 5;
       this.master = this.ctx.createGain();
-      this.master.gain.value = this.muted ? 0 : 0.8;
+      this.master.gain.value = this.muted ? 0 : MASTER_LEVEL;
       this.master.connect(comp).connect(this.ctx.destination);
     }
     if (this.ctx.state === "suspended") void this.ctx.resume().catch(() => {});
@@ -44,76 +50,83 @@ export class RaceAudio {
   setMuted(muted: boolean) {
     this.muted = muted;
     if (this.ctx && this.master)
-      this.master.gain.setTargetAtTime(muted ? 0 : 0.8, this.ctx.currentTime, 0.05);
+      this.master.gain.setTargetAtTime(muted ? 0 : MASTER_LEVEL, this.ctx.currentTime, 0.05);
   }
 
-  // ---------- engine ----------
+  private noiseSource(ctx: AudioContext) {
+    if (!this.noise) {
+      this.noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const data = this.noise.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    }
+    const source = ctx.createBufferSource();
+    source.buffer = this.noise;
+    source.loop = true;
+    return source;
+  }
+
+  // ---------- V8 engine ----------
+
+  /**
+   * One oscillator per bank runs at camshaft speed (rpm / 120). Its harmonics put
+   * the firing order (8th) on top, with uneven half orders around it: that
+   * imbalance is the cross-plane V8 "burble".
+   */
+  private v8Wave(ctx: AudioContext) {
+    const n = 40;
+    const real = new Float32Array(n);
+    const imag = new Float32Array(n);
+    const shape: Record<number, number> = { 1: 0.35, 2: 0.55, 3: 0.3, 4: 0.8, 5: 0.25, 6: 0.45, 7: 0.3, 8: 1, 9: 0.28, 10: 0.4, 12: 0.5, 16: 0.55, 24: 0.25, 32: 0.15 };
+    for (let h = 1; h < n; h++) imag[h] = shape[h] ?? 0.06 / Math.sqrt(h);
+    return ctx.createPeriodicWave(real, imag);
+  }
 
   private buildEngine(ctx: AudioContext): Engine {
     const out = ctx.createGain();
     out.gain.value = 0;
     out.connect(this.master!);
 
-    // Saturation gives the exhaust its grit.
     const shaper = ctx.createWaveShaper();
     const curve = new Float32Array(1024);
     for (let i = 0; i < curve.length; i++) {
       const x = (i / (curve.length - 1)) * 2 - 1;
-      curve[i] = Math.tanh(2.6 * x);
+      curve[i] = Math.tanh(3 * x);
     }
     shaper.curve = curve;
     const filter = ctx.createBiquadFilter();
     filter.type = "lowpass";
-    filter.Q.value = 3;
+    filter.Q.value = 1.2;
     shaper.connect(filter).connect(out);
 
-    // Firing pulses: the mix is amplitude-modulated at half the base frequency.
-    const firing = ctx.createGain();
-    firing.gain.value = 0.7;
-    firing.connect(shaper);
-    const lfo = ctx.createOscillator();
-    lfo.type = "square";
-    const lfoDepth = ctx.createGain();
-    lfoDepth.gain.value = 0.3;
-    lfo.connect(lfoDepth).connect(firing.gain);
-
-    const voices: [OscillatorType, number][] = [
-      ["sawtooth", 0.5],
-      ["square", 0.35],
-      ["sawtooth", 0.12],
-    ];
-    const oscs = voices.map(([type, level]) => {
+    const wave = this.v8Wave(ctx);
+    const banks = [0, 1].map((bank) => {
       const osc = ctx.createOscillator();
-      osc.type = type;
+      osc.setPeriodicWave(wave);
+      osc.detune.value = bank ? 7 : -7; // two exhausts never quite in phase
       const gain = ctx.createGain();
-      gain.gain.value = level;
-      osc.connect(gain).connect(firing);
+      gain.gain.value = 0.5;
+      osc.connect(gain).connect(shaper);
       return osc;
     });
 
-    // Intake/exhaust roar: band-passed noise that grows with load.
-    const buffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-    noise.loop = true;
+    // Lumpy cam: a slow wobble of the idle speed that fades out as revs rise.
+    const lope = ctx.createOscillator();
+    lope.frequency.value = 2.3;
+    const lopeDepth = ctx.createGain();
+    lope.connect(lopeDepth);
+    banks.forEach((osc) => lopeDepth.connect(osc.frequency));
+
+    // Exhaust roar: low band-passed noise that grows with load.
+    const noise = this.noiseSource(ctx);
     const noiseFilter = ctx.createBiquadFilter();
     noiseFilter.type = "bandpass";
-    noiseFilter.Q.value = 0.9;
+    noiseFilter.Q.value = 0.7;
     const noiseGain = ctx.createGain();
     noiseGain.gain.value = 0;
     noise.connect(noiseFilter).connect(noiseGain).connect(out);
 
-    // Gearbox / electric motor whine, like an RC car.
-    const whine = ctx.createOscillator();
-    whine.type = "sine";
-    const whineGain = ctx.createGain();
-    whineGain.gain.value = 0;
-    whine.connect(whineGain).connect(out);
-
-    [...oscs, lfo, noise, whine].forEach((node) => node.start());
-    return { oscs, lfo, noise, whine, filter, noiseFilter, noiseGain, whineGain, out };
+    [...banks, lope, noise].forEach((node) => node.start());
+    return { banks, lope, lopeDepth, filter, noiseFilter, noiseGain, out };
   }
 
   /** rpm and load in 0..1; on=false fades the engine out. */
@@ -124,18 +137,45 @@ export class RaceAudio {
     this.engine ??= this.buildEngine(ctx);
     const e = this.engine;
     const t = ctx.currentTime;
-    const base = 34 + rpm * 150; // ~2000 to ~11000 "rpm" for a 4-cylinder feel
-    const k = 0.04;
-    e.oscs[0].frequency.setTargetAtTime(base, t, k);
-    e.oscs[1].frequency.setTargetAtTime(base * 0.5, t, k);
-    e.oscs[2].frequency.setTargetAtTime(base * 2.02, t, k);
-    e.lfo.frequency.setTargetAtTime(base * 0.5, t, k);
-    e.filter.frequency.setTargetAtTime(260 + rpm * 1400 + load * 1600, t, k);
-    e.noiseFilter.frequency.setTargetAtTime(500 + rpm * 1800, t, k);
-    e.noiseGain.gain.setTargetAtTime(on ? 0.03 + load * 0.16 : 0, t, 0.08);
-    e.whine.frequency.setTargetAtTime(380 + rpm * 2200, t, k);
-    e.whineGain.gain.setTargetAtTime(on ? 0.012 + rpm * 0.03 : 0, t, 0.08);
-    e.out.gain.setTargetAtTime(on ? 0.22 + load * 0.22 + rpm * 0.08 : 0, t, on ? 0.06 : 0.35);
+    const k = 0.05;
+    const cam = (IDLE_RPM + rpm * (MAX_RPM - IDLE_RPM)) / 120;
+    e.banks.forEach((osc) => osc.frequency.setTargetAtTime(cam, t, k));
+    e.lopeDepth.gain.setTargetAtTime(cam * 0.06 * Math.max(0, 1 - rpm * 3), t, 0.1);
+    // Deep and muffled at idle, opening into the high-rpm scream under load.
+    e.filter.frequency.setTargetAtTime(180 + rpm * 2200 + load * 900, t, k);
+    e.noiseFilter.frequency.setTargetAtTime(160 + rpm * 900, t, k);
+    e.noiseGain.gain.setTargetAtTime(on ? 0.02 + load * 0.08 : 0, t, 0.08);
+    e.out.gain.setTargetAtTime(on ? 0.16 + load * 0.12 + rpm * 0.05 : 0, t, on ? 0.06 : 0.4);
+  }
+
+  // ---------- brakes ----------
+
+  /** Tire squeal; level 0..1 (brake pressure times speed). */
+  brakeUpdate(level: number) {
+    if (level <= 0 && !this.squeal) return;
+    const ctx = this.context();
+    if (!ctx) return;
+    if (!this.squeal) {
+      const noise = this.noiseSource(ctx);
+      const filter = ctx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.Q.value = 14;
+      filter.frequency.value = 2700;
+      const wobble = ctx.createOscillator();
+      wobble.frequency.value = 9;
+      const wobbleDepth = ctx.createGain();
+      wobbleDepth.gain.value = 180;
+      wobble.connect(wobbleDepth).connect(filter.frequency);
+      const gain = ctx.createGain();
+      gain.gain.value = 0;
+      noise.connect(filter).connect(gain).connect(this.master!);
+      noise.start();
+      wobble.start();
+      this.squeal = { filter, gain };
+    }
+    const t = ctx.currentTime;
+    this.squeal.filter.Q.setTargetAtTime(10 + level * 10, t, 0.05);
+    this.squeal.gain.gain.setTargetAtTime(level * 1.4, t, level > 0 ? 0.04 : 0.12);
   }
 
   // ---------- effects ----------
@@ -157,19 +197,52 @@ export class RaceAudio {
     osc.stop(start + length + 0.05);
   }
 
+  /** Starter motor cranking for `length` seconds (the engine catches afterwards). */
+  ignition(length = 1) {
+    const ctx = this.context();
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    // Ignition click.
+    this.tone(1800, t, 0.03, "square", 0.12);
+    // Starter whirr, chugging as each cylinder compresses.
+    const whirr = ctx.createOscillator();
+    whirr.type = "sawtooth";
+    whirr.frequency.setValueAtTime(95, t + 0.05);
+    whirr.frequency.linearRampToValueAtTime(140, t + length);
+    const chug = ctx.createOscillator();
+    chug.type = "square";
+    chug.frequency.setValueAtTime(7, t + 0.05);
+    chug.frequency.linearRampToValueAtTime(11, t + length);
+    const chugDepth = ctx.createGain();
+    chugDepth.gain.value = 0.5;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.18, t + 0.08);
+    gain.gain.setValueAtTime(0.18, t + length - 0.1);
+    gain.gain.linearRampToValueAtTime(0, t + length);
+    chug.connect(chugDepth).connect(gain.gain);
+    const lowpass = ctx.createBiquadFilter();
+    lowpass.frequency.value = 900;
+    whirr.connect(lowpass).connect(gain).connect(this.master!);
+    [whirr, chug].forEach((node) => {
+      node.start(t + 0.05);
+      node.stop(t + length + 0.05);
+    });
+  }
+
   /** One countdown light: 3, 2, 1. */
   countdownBeep() {
     const ctx = this.context();
     if (!ctx) return;
-    this.tone(440, ctx.currentTime, 0.22, "square", 0.22);
+    this.tone(440, ctx.currentTime, 0.22, "square", 0.16);
   }
 
   go() {
     const ctx = this.context();
     if (!ctx) return;
     const t = ctx.currentTime;
-    this.tone(880, t, 0.7, "square", 0.24);
-    this.tone(1320, t, 0.7, "sine", 0.12);
+    this.tone(880, t, 0.7, "square", 0.17);
+    this.tone(1320, t, 0.7, "sine", 0.09);
   }
 
   /** Checkered flag: rising arpeggio and a held chord. */
@@ -177,15 +250,15 @@ export class RaceAudio {
     const ctx = this.context();
     if (!ctx) return;
     const t = ctx.currentTime;
-    [523.25, 659.25, 783.99].forEach((f, i) => this.tone(f, t + i * 0.13, 0.16, "triangle", 0.26));
-    [1046.5, 783.99, 659.25].forEach((f) => this.tone(f, t + 0.42, 0.9, "triangle", 0.16));
+    [523.25, 659.25, 783.99].forEach((f, i) => this.tone(f, t + i * 0.13, 0.16, "triangle", 0.2));
+    [1046.5, 783.99, 659.25].forEach((f) => this.tone(f, t + 0.42, 0.9, "triangle", 0.12));
   }
 
   cancel() {
     const ctx = this.context();
     if (!ctx) return;
     const t = ctx.currentTime;
-    this.tone(330, t, 0.14, "square", 0.16);
-    this.tone(220, t + 0.15, 0.22, "square", 0.16);
+    this.tone(330, t, 0.14, "square", 0.12);
+    this.tone(220, t + 0.15, 0.22, "square", 0.12);
   }
 }

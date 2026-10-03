@@ -108,6 +108,7 @@ export function Dashboard() {
     countdown: data.countdown,
     status: data.status,
     throttle: input.throttle,
+    brake: input.brake,
     speed: data.speed ?? estimatedSpeed,
   });
   const resetTimer = timer.reset;
