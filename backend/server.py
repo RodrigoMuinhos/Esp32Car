@@ -156,7 +156,7 @@ class Bridge:
                     relayMask=self.confirmed if c.connected else None, requestedMask=c.mask,
                     port=self.port_name, controlAvailable=client is not None and client is self.owner,
                     usbConnected=self.usb_connected, usbInput=self.usb_input,
-                    phase=c.phase, raceId=c.race_id, status=self.error or c.reason)
+                    phase=c.phase, countdown=c.countdown(), raceId=c.race_id, status=self.error or c.reason)
 
     async def websocket(self, request):
         if request.headers.get('Origin') not in ALLOWED_ORIGINS:

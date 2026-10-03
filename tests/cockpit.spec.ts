@@ -100,7 +100,7 @@ test("segunda janela observa sem obter autorização de controle", async ({
     "Outra janela está controlando",
   );
 });
-test("botão A larga, simulação reage, volta é registrada e ESC para", async ({
+test("botão A conta 3-2-1 e larga, simulação reage, volta é registrada e ESC para", async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -112,12 +112,16 @@ test("botão A larga, simulação reage, volta é registrada e ESC para", async 
   await expect(page.locator(".start-card")).toContainText("APERTE A PARA LARGAR");
   const throttle = page.getByRole("slider", { name: "Teste acelerador", exact: true });
   await expect(page.locator(".power-readout")).toContainText("BLOQUEADA");
-  await throttle.fill("75");
-  await page.waitForTimeout(800);
-  await expect(page.locator(".power-readout")).toContainText("BLOQUEADA");
   await page.getByRole("button", { name: "INICIAR (A)" }).click();
-  await expect(page.locator(".power-readout")).toContainText("LIBERADA");
+  await expect(page.locator(".start-card")).toContainText("PREPARE-SE");
+  await expect(page.locator(".hud-count")).toHaveText("3");
+  await expect(page.locator(".power-readout")).toContainText("BLOQUEADA");
+  await expect(page.locator(".hud-count")).toHaveText("1", { timeout: 3000 });
+  await expect(page.locator(".power-readout")).toContainText("LIBERADA", {
+    timeout: 3000,
+  });
   await expect(page.locator(".start-card")).toContainText("CORRIDA ATIVA");
+  await throttle.fill("75");
   await expect(page.locator(".power-readout strong")).toHaveText("75%");
   await expect
     .poll(async () =>
@@ -140,28 +144,37 @@ test("botão A larga, simulação reage, volta é registrada e ESC para", async 
   await expect(page.locator(".timing-card .card-tag")).toHaveText("VOLTA 01");
   expect(errors).toEqual([]);
 });
-test("pedais não largam nem encerram; só A inicia e B finaliza", async ({ page }) => {
+test("acelerador 0,5s larga, toque curto cancela, B cancela a contagem e finaliza", async ({ page }) => {
   await page.goto("/?mode=simulation");
   const throttle = page.getByRole("slider", { name: "Teste acelerador", exact: true });
-  const brake = page.getByRole("slider", { name: "Teste freio", exact: true });
-  await throttle.fill("100");
-  await page.waitForTimeout(1500);
-  await expect(page.locator(".power-readout")).toContainText("BLOQUEADA");
-  await page.getByRole("button", { name: "INICIAR (A)" }).click();
-  await expect(page.locator(".power-readout")).toContainText("LIBERADA");
+  await throttle.fill("60");
   await throttle.fill("0");
-  await brake.fill("100");
-  await page.waitForTimeout(6000);
-  await expect(page.locator(".start-card")).toContainText("CORRIDA ATIVA");
+  await expect(page.locator(".start-card")).toContainText("Início cancelado");
+  await page.getByRole("button", { name: "INICIAR (A)" }).click();
+  await page.getByRole("button", { name: "CANCELAR (B)" }).click();
+  await expect(page.locator(".start-card")).toContainText("Largada cancelada");
+  await throttle.fill("60");
+  await expect(page.locator(".power-readout")).toContainText("LIBERADA", {
+    timeout: 2000,
+  });
   await page.getByRole("button", { name: "FINALIZAR (B)" }).click();
   await expect(page.locator(".start-card")).toContainText("CORRIDA FINALIZADA");
   await expect(page.locator(".start-card")).toContainText("botão B");
   await expect(page.locator(".timing-card")).toContainText("00:00.000");
 });
+test("som pode ser desligado e a preferência fica salva", async ({ page }) => {
+  await page.goto("/?mode=simulation");
+  await page.getByRole("button", { name: "Desligar som" }).click();
+  await expect(page.getByRole("button", { name: "Ligar som" })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Ligar som" })).toBeVisible();
+});
 test("trocar de janela não interrompe a corrida", async ({ page }) => {
   await page.goto("/?mode=simulation");
   await page.getByRole("button", { name: "INICIAR (A)" }).click();
-  await expect(page.locator(".power-readout")).toContainText("LIBERADA");
+  await expect(page.locator(".power-readout")).toContainText("LIBERADA", {
+    timeout: 5000,
+  });
   await page.evaluate(() => window.dispatchEvent(new Event("blur")));
   await page.waitForTimeout(500);
   await expect(page.locator(".start-card")).toContainText("CORRIDA ATIVA");

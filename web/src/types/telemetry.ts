@@ -1,5 +1,10 @@
 export type Input = { steering: number; throttle: number; brake: number };
-export type RaceState = "idle" | "running" | "finished";
+export type RaceState =
+  | "idle"
+  | "starting"
+  | "countdown"
+  | "running"
+  | "finished";
 /** Wheel buttons: A (start) and B (finish). */
 export type Buttons = { start: boolean; finish: boolean };
 export const NO_BUTTONS: Buttons = { start: false, finish: false };
@@ -19,6 +24,8 @@ export interface Telemetry extends Input {
   port: string;
   phase: string;
   raceId: number;
+  /** Seconds left in the 3-2-1 countdown, or null. */
+  countdown: number | null;
   status: string;
   position: { x: number; y: number; heading: number } | null;
 }
@@ -39,6 +46,7 @@ export const EMPTY_TELEMETRY: Telemetry = {
   port: "COM7",
   phase: "idle",
   raceId: 0,
+  countdown: null,
   status: "Conectando à placa...",
   position: null,
 };
@@ -105,6 +113,9 @@ export function parseTelemetry(raw: string): Partial<Telemetry> | null {
         out[key] = data[key];
     if (data.relayMask === null) out.relayMask = null;
     if (Number.isInteger(data.raceId) && data.raceId >= 0) out.raceId = data.raceId;
+    if (data.countdown === null) out.countdown = null;
+    else if (typeof data.countdown === "number" && Number.isFinite(data.countdown))
+      out.countdown = clamp(data.countdown, 0, 10);
     const usb = data.usbInput;
     if (
       usb &&

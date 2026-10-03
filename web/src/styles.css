@@ -1785,3 +1785,41 @@ footer > span:last-child {
 .track-card .map-north {
   display: none;
 }
+/* Sound toggle with a live engine meter (--rpm is set by useRaceAudio). */
+.sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: auto !important;
+  padding: 0 7px;
+}
+.sound-meter {
+  --rpm: 0;
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+.sound-meter i {
+  width: 3px;
+  height: 100%;
+  border-radius: 1px;
+  background: var(--orange, #fc6f20);
+  transform-origin: bottom;
+  transform: scaleY(calc(0.12 + var(--rpm) * 0.88));
+  transition: transform 60ms linear;
+}
+.sound-meter i:nth-child(2) {
+  transform: scaleY(calc(0.12 + var(--rpm) * 0.6));
+}
+.sound-meter i:nth-child(3) {
+  transform: scaleY(calc(0.12 + var(--rpm) * 1));
+  opacity: 0.8;
+}
+.sound-meter i:nth-child(4) {
+  transform: scaleY(calc(0.12 + var(--rpm) * 0.45));
+  opacity: 0.6;
+}
+.sound-toggle[aria-pressed="false"] .sound-meter {
+  opacity: 0.25;
+}

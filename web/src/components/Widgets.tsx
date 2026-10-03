@@ -278,17 +278,35 @@ export function PedalsPanel({
 export function StartSequence({
   state,
   status,
+  countdown,
 }: {
   state: RaceState;
   status: string;
+  countdown: number | null;
 }) {
+  // Countdown lights go red, orange, yellow, then green on GO.
+  const second = countdown === null ? 0 : Math.max(1, Math.ceil(countdown));
   const [title, detail, light, count] =
-    state === "running"
-      ? ["CORRIDA ATIVA", "Aperte B para finalizar", 3, "GO"]
-      : state === "finished"
-        ? ["CORRIDA FINALIZADA", status, -1, "FIM"]
-        : ["APERTE A PARA LARGAR", "Botão A do volante", -1, "A"];
-  const progress = state === "running" ? 1 : 0;
+    state === "countdown"
+      ? ["PREPARE-SE", "Carrinho liberado no GO · B cancela", 3 - second, String(second)]
+      : state === "starting"
+        ? ["MANTENHA O ACELERADOR", "Solte para cancelar", 1, "0,5"]
+        : state === "running"
+          ? ["CORRIDA ATIVA", "B finaliza · 15 s parado encerra", 3, "GO"]
+          : state === "finished"
+            ? ["CORRIDA FINALIZADA", status, -1, "FIM"]
+            : [
+                "APERTE A PARA LARGAR",
+                /cancelad/i.test(status) ? status : "ou segure o acelerador 0,5 s",
+                -1,
+                "A",
+              ];
+  const progress =
+    state === "countdown" && countdown !== null
+      ? 1 - countdown / 3
+      : state === "running"
+        ? 1
+        : 0;
   const lit = light >= 0 ? `light-${light} lit` : "";
   return (
     <Card
@@ -299,7 +317,9 @@ export function StartSequence({
           ? "AGUARDANDO"
           : state === "finished"
             ? "ENCERRADA"
-            : "EM PISTA"
+            : state === "running"
+              ? "EM PISTA"
+              : "LARGANDO"
       }
       className="start-card"
     >

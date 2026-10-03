@@ -46,7 +46,9 @@ def open_window():
     # Dedicated profile: an app-style window whose timers keep running in the background.
     subprocess.Popen([str(edge), f'--app={URL}', f'--user-data-dir={DATA / "janela"}', '--start-maximized',
                       '--no-first-run', '--no-default-browser-check', '--disable-background-timer-throttling',
-                      '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows'])
+                      '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows',
+                      # Race sounds start from wheel buttons, which are not page clicks.
+                      '--autoplay-policy=no-user-gesture-required'])
 
 
 def alert(text):

@@ -8,6 +8,8 @@ import {
   Radio,
   RotateCcw,
   Square,
+  Volume2,
+  VolumeX,
   X,
 } from "lucide-react";
 import { useControls } from "../hooks/useControls";
@@ -15,6 +17,7 @@ import { useTelemetry } from "../hooks/useTelemetry";
 import { useRaceTimer } from "../hooks/useRaceTimer";
 import { useEstimatedSpeed } from "../hooks/useEstimatedSpeed";
 import { usePortrait } from "../hooks/usePortrait";
+import { useRaceAudio } from "../audio/useRaceAudio";
 import { MAX_SPEED } from "../raceRules";
 import {
   NO_BUTTONS,
@@ -70,12 +73,14 @@ export function Dashboard() {
         : ZERO_INPUT;
   const raw = source === "usb" ? usbInput : manual;
   const input = processInput(raw, mode, steeringGain, throttleGain);
-  // The race is started by wheel button A and finished by B (backend/control.py);
-  // the panel only shows the state. Simulation runs the same rules locally.
-  const state: RaceState =
-    data.phase === "running" || data.phase === "finished" ? data.phase : "idle";
+  // Race rules live in backend/control.py (A = 3-2-1 countdown, throttle 0.5 s,
+  // B or 15 s idle to finish); the panel only shows the state. Simulation runs
+  // the same rules locally.
+  const state: RaceState = (
+    ["starting", "countdown", "running", "finished"] as const
+  ).find((phase) => phase === data.phase) ?? "idle";
   const enabled = state === "running" && data.carEnabled;
-  const busy = state === "running";
+  const busy = state === "starting" || state === "countdown" || state === "running";
   const buttons =
     source === "usb" && gamepad?.supported ? gamepad.buttons : NO_BUTTONS;
   const linkReady =
@@ -98,6 +103,13 @@ export function Dashboard() {
   const timer = useRaceTimer(enabled);
   // No speed sensor on the car: show an imaginary speed proportional to the throttle.
   const estimatedSpeed = useEstimatedSpeed(input, enabled);
+  const sound = useRaceAudio({
+    state,
+    countdown: data.countdown,
+    status: data.status,
+    throttle: input.throttle,
+    speed: data.speed ?? estimatedSpeed,
+  });
   const resetTimer = timer.reset;
   // The clock only shows the race in progress: it returns to zero whenever the
   // race stops (brake, inactivity, PARAR/ESC or connection loss).
@@ -194,6 +206,27 @@ export function Dashboard() {
           simulation={simulation}
         />
         <button
+          className="icon-button sound-toggle"
+          aria-label={sound.muted ? "Ligar som" : "Desligar som"}
+          title={sound.muted ? "Ligar som" : "Desligar som"}
+          aria-pressed={!sound.muted}
+          onClick={sound.toggleMuted}
+        >
+          {sound.muted ? <VolumeX size={17} /> : <Volume2 size={17} />}
+          <span
+            className="sound-meter"
+            ref={(el) => {
+              sound.meter.current = el;
+            }}
+            aria-hidden="true"
+          >
+            <i />
+            <i />
+            <i />
+            <i />
+          </span>
+        </button>
+        <button
           className="icon-button fullscreen"
           aria-label="Tela cheia"
           onClick={() => {
@@ -253,7 +286,7 @@ export function Dashboard() {
           <SteeringPanel steering={input.steering} raw={raw.steering} />
         </div>
         <div className="center-column">
-          <StartSequence state={state} status={data.status} />
+          <StartSequence state={state} status={data.status} countdown={data.countdown} />
           <div className="slot-hero">
             {simulation || portrait ? trackMap : relayPanel}
           </div>
@@ -356,15 +389,25 @@ export function Dashboard() {
             // Simulation has no wheel buttons by default: press A/B on screen.
             <button
               className="start-button"
-              onClick={() => tap(busy ? "finish" : "start")}
+              onClick={() =>
+                tap(state === "countdown" || state === "running" ? "finish" : "start")
+              }
             >
               <Play size={15} fill="currentColor" />
-              {busy ? "FINALIZAR (B)" : "INICIAR (A)"}
+              {state === "running"
+                ? "FINALIZAR (B)"
+                : state === "countdown"
+                  ? "CANCELAR (B)"
+                  : "INICIAR (A)"}
             </button>
           ) : (
             <div className="start-button race-hint" aria-live="polite">
               <Play size={15} fill="currentColor" />
-              {busy ? "BOTÃO B FINALIZA" : "BOTÃO A INICIA"}
+              {state === "running"
+                ? "BOTÃO B FINALIZA"
+                : state === "countdown"
+                  ? "PREPARE-SE"
+                  : "A OU ACELERADOR 0,5s"}
             </div>
           )}
           <button className="stop-button" onClick={() => halt()}>
@@ -375,9 +418,11 @@ export function Dashboard() {
       <footer>
         <span>
           <i className={`tiny-dot ${enabled ? "green-dot" : ""}`} />
-          {busy
-            ? "Corrida ativa · aperte B no volante para finalizar."
-            : !simulation
+          {state === "running"
+            ? "Corrida ativa · B finaliza · 15 s sem acelerar encerra."
+            : busy
+              ? data.status
+              : !simulation
               ? online && !data.controlAvailable
                 ? "Outra janela está controlando. Clique em Assumir controle para usar esta tela."
                 : data.status
@@ -412,9 +457,11 @@ export function Dashboard() {
             <span className="eyebrow">GUIA RÁPIDO</span>
             <h2 id="help-title">Tudo pronto para a largada.</h2>
             <p>
-              A corrida começa ao apertar A no volante e termina ao apertar B.
-              Nada começa ou termina sozinho. Na simulação, use os botões
-              INICIAR (A) e FINALIZAR (B) ou o volante USB.
+              Aperte A no volante para a contagem 3, 2, 1, GO, ou segure o
+              acelerador por 0,5 segundo para largar na hora. B finaliza; 15
+              segundos sem acelerar também encerram. Na simulação, use INICIAR
+              (A) e FINALIZAR (B) ou o volante USB. O alto-falante no topo liga
+              e desliga o som do motor.
             </p>
             <p>
               O volante visual e os pedais mostram a entrada física.

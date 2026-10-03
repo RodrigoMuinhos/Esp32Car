@@ -8,7 +8,13 @@ import {
   ZERO_INPUT,
 } from "../types/telemetry";
 import { TelemetrySocket } from "../services/telemetrySocket";
-import { newRace, speedStep, stepRace, stopRace } from "../raceRules";
+import {
+  countdownOf,
+  newRace,
+  speedStep,
+  stepRace,
+  stopRace,
+} from "../raceRules";
 export function useTelemetry(simulation: boolean) {
   const [data, setData] = useState<Telemetry>(EMPTY_TELEMETRY);
   const [online, setOnline] = useState(false);
@@ -66,10 +72,15 @@ export function useTelemetry(simulation: boolean) {
       last = now;
       const controls = current.current.input;
       const tap = now < tapped.current.until ? tapped.current : NO_BUTTONS;
-      stepRace(race.current, {
-        start: current.current.buttons.start || tap.start,
-        finish: current.current.buttons.finish || tap.finish,
-      });
+      stepRace(
+        race.current,
+        controls,
+        {
+          start: current.current.buttons.start || tap.start,
+          finish: current.current.buttons.finish || tap.finish,
+        },
+        now,
+      );
       const active = race.current.phase === "running";
       speed = speedStep(speed, controls, active, dt);
       travel += (speed * dt) / 55;
@@ -86,6 +97,7 @@ export function useTelemetry(simulation: boolean) {
           carEnabled: active,
           phase: race.current.phase,
           raceId: race.current.raceId,
+          countdown: countdownOf(race.current, now),
           status: race.current.status,
           position: {
             x: 50 + 39 * Math.cos(travel),
