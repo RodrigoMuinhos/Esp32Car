@@ -14,6 +14,10 @@ type Engine = {
   filter: BiquadFilterNode;
   noiseFilter: BiquadFilterNode;
   noiseGain: GainNode;
+  /** Rev limiter: the ignition cuts in and out ~14 times a second. */
+  cut: GainNode;
+  cutDepth: GainNode;
+  bounceDepth: GainNode;
   out: GainNode;
 };
 type Squeal = { filter: BiquadFilterNode; gain: GainNode };
@@ -133,7 +137,16 @@ export class RaceAudio {
     const filter = ctx.createBiquadFilter();
     filter.type = "lowpass";
     filter.Q.value = 1.2;
-    shaper.connect(filter).connect(out);
+    // Everything passes through `cut`, which the limiter LFO chops on and off.
+    const cut = ctx.createGain();
+    cut.connect(out);
+    const limiter = ctx.createOscillator();
+    limiter.type = "square";
+    limiter.frequency.value = 14;
+    const cutDepth = ctx.createGain();
+    cutDepth.gain.value = 0;
+    limiter.connect(cutDepth).connect(cut.gain);
+    shaper.connect(filter).connect(cut);
 
     const wave = this.v8Wave(ctx);
     const banks = [0, 1].map((bank) => {
@@ -160,14 +173,20 @@ export class RaceAudio {
     noiseFilter.Q.value = 0.7;
     const noiseGain = ctx.createGain();
     noiseGain.gain.value = 0;
-    noise.connect(noiseFilter).connect(noiseGain).connect(out);
+    noise.connect(noiseFilter).connect(noiseGain).connect(cut);
 
-    [...banks, lope, noise].forEach((node) => node.start());
-    return { banks, lope, lopeDepth, filter, noiseFilter, noiseGain, out };
+    // The revs bounce against the limit in step with the cuts.
+    const bounceDepth = ctx.createGain();
+    bounceDepth.gain.value = 0;
+    limiter.connect(bounceDepth);
+    banks.forEach((osc) => bounceDepth.connect(osc.frequency));
+
+    [...banks, lope, noise, limiter].forEach((node) => node.start());
+    return { banks, lope, lopeDepth, filter, noiseFilter, noiseGain, cut, cutDepth, bounceDepth, out };
   }
 
   /** rpm and load in 0..1; on=false fades the engine out. */
-  engineUpdate(on: boolean, rpm: number, load: number) {
+  engineUpdate(on: boolean, rpm: number, load: number, limiting = false) {
     if (!on && !this.engine) return;
     const ctx = this.context();
     if (!ctx) return;
@@ -183,6 +202,11 @@ export class RaceAudio {
     e.noiseFilter.frequency.setTargetAtTime(160 + rpm * 900, t, k);
     e.noiseGain.gain.setTargetAtTime(on ? 0.02 + load * 0.08 : 0, t, 0.08);
     e.out.gain.setTargetAtTime(on ? 0.16 + load * 0.12 + rpm * 0.05 : 0, t, on ? 0.06 : 0.4);
+    // Limiter: gain swings between ~0.1 and 1 ("brap-brap-brap"), revs bounce ±3%.
+    const cutting = on && limiting;
+    e.cut.gain.setTargetAtTime(cutting ? 0.55 : 1, t, 0.02);
+    e.cutDepth.gain.setTargetAtTime(cutting ? 0.45 : 0, t, 0.02);
+    e.bounceDepth.gain.setTargetAtTime(cutting ? cam * 0.03 : 0, t, 0.02);
   }
 
   // ---------- brakes ----------

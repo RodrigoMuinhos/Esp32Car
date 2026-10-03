@@ -4,6 +4,10 @@ import { RaceAudio } from "./raceAudio";
 
 const GEAR_TOPS = [9, 17, 25, 33, 41]; // km/h at the top of each virtual gear
 const IDLE_RPM = 0.16;
+/** Full throttle against the limit (stopped, or at top speed) bangs the rev limiter. */
+const LIMITER_THROTTLE = 95;
+const LIMITER_RPM = 0.9;
+const TOP_SPEED_LIMITER = 37;
 const STORAGE_KEY = "rc-racing-sound";
 /** Starter cranking before the engine catches, when A starts the countdown. */
 export const IGNITION_SECONDS = 1;
@@ -127,8 +131,10 @@ export function useRaceAudio({
         : speed > 2
           ? Math.max(gearRpm(speed), IDLE_RPM)
           : free;
-      rpm += (target - rpm) * Math.min(1, dt * (target > rpm ? 7 : 3));
-      audio.current!.engineUpdate(on, rpm, on ? load : 0);
+      const pinned = throttle >= LIMITER_THROTTLE && (speed < 2 || speed >= TOP_SPEED_LIMITER);
+      rpm += ((pinned ? 0.97 : target) - rpm) * Math.min(1, dt * (target > rpm ? 7 : 3));
+      const limiting = on && pinned && rpm >= LIMITER_RPM;
+      audio.current!.engineUpdate(on, rpm, on ? load : 0, limiting);
       audio.current!.brakeUpdate(
         state === "running" && brake > 10 ? (brake / 100) * Math.min(1, speed / 15) : 0,
       );
