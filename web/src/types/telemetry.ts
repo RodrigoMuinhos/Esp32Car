@@ -1,6 +1,8 @@
 export type Input = { steering: number; throttle: number; brake: number };
-export type RaceState = "idle" | "starting" | "running" | "finished";
-export type Hold = { action: "start" | "stop"; remaining: number } | null;
+export type RaceState = "idle" | "running" | "finished";
+/** Wheel buttons: A (start) and B (finish). */
+export type Buttons = { start: boolean; finish: boolean };
+export const NO_BUTTONS: Buttons = { start: false, finish: false };
 export type DriveMode = "normal" | "sport" | "precision";
 export interface Telemetry extends Input {
   connected: boolean;
@@ -16,7 +18,6 @@ export interface Telemetry extends Input {
   usbInput: Input;
   port: string;
   phase: string;
-  hold: Hold;
   raceId: number;
   status: string;
   position: { x: number; y: number; heading: number } | null;
@@ -37,7 +38,6 @@ export const EMPTY_TELEMETRY: Telemetry = {
   usbInput: ZERO_INPUT,
   port: "COM7",
   phase: "idle",
-  hold: null,
   raceId: 0,
   status: "Conectando à placa...",
   position: null,
@@ -105,15 +105,6 @@ export function parseTelemetry(raw: string): Partial<Telemetry> | null {
         out[key] = data[key];
     if (data.relayMask === null) out.relayMask = null;
     if (Number.isInteger(data.raceId) && data.raceId >= 0) out.raceId = data.raceId;
-    const hold = data.hold;
-    if (hold === null) out.hold = null;
-    else if (
-      hold &&
-      (hold.action === "start" || hold.action === "stop") &&
-      typeof hold.remaining === "number" &&
-      Number.isFinite(hold.remaining)
-    )
-      out.hold = { action: hold.action, remaining: clamp(hold.remaining, 0, 10) };
     const usb = data.usbInput;
     if (
       usb &&

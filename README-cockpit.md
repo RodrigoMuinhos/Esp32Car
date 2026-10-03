@@ -6,7 +6,7 @@ Instale com `installer\RC-Racing-Setup.exe` (não pede administrador). Depois, �
 
 1. O app liga o serviço, **acha o ESP32 sozinho** (qualquer porta COM com chip USB de ESP32; Bluetooth é ignorado) e reconhece o volante pelo Windows.
 2. O painel abre numa janela própria, sem barra de navegador.
-3. Aperte **A** no volante (ou segure o acelerador 0,3 s) e comece a correr.
+3. Aperte **A** no volante para largar e **B** para finalizar.
 
 Fechar a janela encerra o app em alguns segundos e desliga os relés. Se uma corrida estiver em andamento, ele espera a corrida terminar. Enquanto houver outra janela do painel aberta (por exemplo uma aba do navegador em 127.0.0.1:8080), o app continua ligado. Logs: `%LOCALAPPDATA%\RC Racing\logs\app.log`.
 
@@ -21,12 +21,11 @@ Para gerar o instalador de novo após mudanças: `powershell -ExecutionPolicy By
 - O painel inicia em **CARRINHO REAL**. Aguarde a indicação de placa conectada.
 - Os indicadores K1–K4 mostram o estado **confirmado pelo ESP32**, não apenas o comando enviado.
 - Com a corrida parada, clique em K1, K2, K3 ou K4 para um pulso de 0,5 segundo.
-- **A corrida é controlada só pelos pedais, sem tocar no painel:**
-  - **Aperte A no volante** → a corrida começa na hora (o botão é `START_BUTTON` em `backend/server.py`).
-  - Ou **segure o acelerador por 0,3 s** → a corrida começa e o cronômetro zera. Um toque rápido não inicia ("INÍCIO CANCELADO").
-  - **Segure o freio por 5 s** → a corrida termina. Soltar antes disso cancela o encerramento.
-  - **10 s sem acelerar** → a corrida termina por inatividade.
-  - Depois de qualquer parada, solte o acelerador antes de iniciar outra corrida.
+- **A corrida é controlada pelos botões do volante, sem tocar no painel:**
+  - **A no volante** → a corrida começa na hora e o cronômetro zera.
+  - **B no volante** → a corrida termina.
+  - Nada começa ou termina sozinho: os pedais só dirigem. Segurar A ou B não repete o comando.
+  - Os botões ficam em `START_BUTTON` / `FINISH_BUTTON` (`backend/server.py`). Na simulação, use INICIAR (A) / FINALIZAR (B) na tela ou os botões A/B do volante.
 - RT/RB aciona K1; LT/LB aciona K2; direita aciona K3; esquerda aciona K4. K2 pode ser freio ou ré, conforme a ligação do controle RC original.
 - Trocar de janela, minimizar ou fechar o painel **não** para a corrida: o backend lê o volante pelo Windows. **PARAR** e **ESC** (de qualquer janela), desconexão do ESP32 ou perda do volante desligam os relés.
 - A bandeira registra voltas manualmente. Ajustes de sensibilidade valem para a simulação e para volantes lidos pelo navegador; o volante lido pelo Windows aciona os relés direto. Os relés continuam sendo saídas liga/desliga, sem potência proporcional.
@@ -85,13 +84,13 @@ WebSocket em `/ws/telemetry`. Telemetria a 20 Hz, controles limitados a 25 Hz:
 }
 ```
 
-A telemetria também traz `phase` (`idle`, `starting`, `running`, `finished`, `pulse`), `hold` (`{"action":"start"|"stop","remaining":1.4}` ou `null`) e `raceId`.
+A telemetria também traz `phase` (`idle`, `running`, `finished`, `pulse`) e `raceId`.
 
 Comandos aceitos do proprietário da conexão:
 
 ```json
 {"type":"relay","data":{"relay":3}}
-{"type":"control","data":{"steering":0,"throttle":50,"brake":0}}
+{"type":"control","data":{"steering":0,"throttle":50,"brake":0,"start":false,"finish":false}}
 {"type":"stop","data":{}}
 ```
 

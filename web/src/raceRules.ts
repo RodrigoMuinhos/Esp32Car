@@ -1,74 +1,34 @@
-// Same pedal rules as backend/control.py, used by the simulation mode.
-import type { Hold, Input, RaceState } from "./types/telemetry";
-export const THROTTLE_THRESHOLD = 5;
-export const BRAKE_THRESHOLD = 10;
-export const START_HOLD_TIME = 300;
-export const STOP_HOLD_TIME = 5000;
-export const INACTIVITY_TIME = 10_000;
-const MOVING_THROTTLE = 3;
+// Same rules as backend/control.py, used by the simulation mode:
+// button A starts the race, button B finishes it. Nothing is automatic.
+import type { Buttons, Input, RaceState } from "./types/telemetry";
 export type Race = {
   phase: RaceState;
-  armed: boolean;
-  holdSince: number | null;
-  brakeSince: number | null;
-  lastMove: number;
+  down: Buttons;
   raceId: number;
   status: string;
 };
+export const READY_STATUS = "Aperte A para largar.";
 export const newRace = (): Race => ({
   phase: "idle",
-  armed: false,
-  holdSince: null,
-  brakeSince: null,
-  lastMove: 0,
+  down: { start: false, finish: false },
   raceId: 0,
-  status: "Segure o acelerador por 0,3 s para largar.",
+  status: READY_STATUS,
 });
 export function stopRace(race: Race, status: string) {
   race.phase = race.phase === "running" || race.phase === "finished" ? "finished" : "idle";
-  race.holdSince = race.brakeSince = null;
-  race.armed = false; // release the throttle before a new start
   race.status = status;
 }
-export function stepRace(race: Race, input: Input, now: number, speed = 0) {
-  if (race.phase === "idle" || race.phase === "finished") {
-    if (input.throttle <= THROTTLE_THRESHOLD) race.armed = true;
-    else if (race.armed) {
-      race.phase = "starting";
-      race.holdSince = now;
-      race.status = "Mantenha o acelerador.";
-    }
-    return;
-  }
-  if (race.phase === "starting") {
-    if (input.throttle <= THROTTLE_THRESHOLD) {
-      race.phase = "idle";
-      race.holdSince = null;
-      race.status = "Início cancelado.";
-      return;
-    }
-    if (now - race.holdSince! < START_HOLD_TIME) return;
+/** Buttons react to the press itself; holding one never repeats it. */
+export function stepRace(race: Race, buttons: Buttons) {
+  const start = buttons.start && !race.down.start;
+  const finish = buttons.finish && !race.down.finish;
+  race.down = { ...buttons };
+  if (race.phase !== "running" && start) {
     race.phase = "running";
-    race.holdSince = null;
     race.raceId += 1;
-    race.lastMove = now;
-    race.status = "Corrida ativa.";
-  }
-  if (input.brake > BRAKE_THRESHOLD) {
-    race.brakeSince ??= now;
-    if (now - race.brakeSince >= STOP_HOLD_TIME)
-      return stopRace(race, "Corrida finalizada pelo freio.");
-  } else race.brakeSince = null;
-  if (input.throttle > MOVING_THROTTLE || speed > 0.5) race.lastMove = now;
-  else if (now - race.lastMove >= INACTIVITY_TIME)
-    stopRace(race, "Corrida finalizada por inatividade.");
-}
-export function holdOf(race: Race, now: number): Hold {
-  if (race.phase === "starting" && race.holdSince !== null)
-    return { action: "start", remaining: Math.max(0, (START_HOLD_TIME - (now - race.holdSince)) / 1000) };
-  if (race.phase === "running" && race.brakeSince !== null)
-    return { action: "stop", remaining: Math.max(0, (STOP_HOLD_TIME - (now - race.brakeSince)) / 1000) };
-  return null;
+    race.status = "Corrida ativa. Aperte B para finalizar.";
+  } else if (race.phase === "running" && finish)
+    stopRace(race, "Corrida finalizada pelo botão B.");
 }
 
 export const MAX_SPEED = 40;

@@ -18,8 +18,9 @@ from backend.control import Controller
 ROOT = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parents[1]))
 # USB-serial chips used by ESP32 boards: CP210x, CH340/CH9102, FTDI, Espressif native USB.
 ESP32_VIDS = {0x10C4, 0x1A86, 0x0403, 0x303A}
-# XInput button that starts the race (A on the Logitech wheel).
+# XInput buttons that start and finish the race (A and B on the Logitech wheel).
 START_BUTTON = 0x1000
+FINISH_BUTTON = 0x2000
 
 
 def find_ports():
@@ -62,7 +63,7 @@ class Bridge:
         self.owner = None
         self.usb_connected = False
         self.usb_input = dict(steering=0, throttle=0, brake=0)
-        self.usb_start = False
+        self.usb_buttons = dict(start=False, finish=False)
         try:
             self.xinput = ctypes.WinDLL('xinput1_4.dll')
             self.xinput.XInputGetState.argtypes = [ctypes.c_uint32, ctypes.POINTER(PadState)]
@@ -80,7 +81,8 @@ class Bridge:
         self.usb_input = dict(steering=max(-100, min(100, p.lx / 32767 * 100)),
                               throttle=100 if p.buttons & 512 else p.rt / 255 * 100,
                               brake=100 if p.buttons & 256 else p.lt / 255 * 100) if self.usb_connected else dict(steering=0, throttle=0, brake=0)
-        self.usb_start = self.usb_connected and bool(p.buttons & START_BUTTON)
+        self.usb_buttons = dict(start=self.usb_connected and bool(p.buttons & START_BUTTON),
+                                finish=self.usb_connected and bool(p.buttons & FINISH_BUTTON))
 
     def disconnect(self, reason):
         self.controller.connected = False
@@ -113,7 +115,7 @@ class Bridge:
             raise serial.SerialException('ESP32 sem confirmação. Reconectando.')
         if not self.controller.connected and now - self.opened > 8:
             raise serial.SerialException('Firmware não respondeu como CONTROLE v5.')
-        self.controller.tick(now, dict(self.usb_input, start=self.usb_start) if self.usb_connected else None)
+        self.controller.tick(now, dict(self.usb_input, **self.usb_buttons) if self.usb_connected else None)
         desired = self.controller.mask
         if desired != self.sent_mask:
             self.last_match = now
@@ -154,7 +156,7 @@ class Bridge:
                     relayMask=self.confirmed if c.connected else None, requestedMask=c.mask,
                     port=self.port_name, controlAvailable=client is not None and client is self.owner,
                     usbConnected=self.usb_connected, usbInput=self.usb_input,
-                    phase=c.phase, hold=c.hold(), raceId=c.race_id, status=self.error or c.reason)
+                    phase=c.phase, raceId=c.race_id, status=self.error or c.reason)
 
     async def websocket(self, request):
         if request.headers.get('Origin') not in ALLOWED_ORIGINS:

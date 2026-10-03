@@ -16,12 +16,10 @@ import {
 import type {
   DriveMode,
   Input,
-  Hold,
   RaceState,
   Telemetry,
 } from "../types/telemetry";
 import { formatTime } from "../hooks/useRaceTimer";
-import { START_HOLD_TIME, STOP_HOLD_TIME } from "../raceRules";
 
 export function Card({
   title,
@@ -279,39 +277,18 @@ export function PedalsPanel({
 }
 export function StartSequence({
   state,
-  hold,
   status,
 }: {
   state: RaceState;
-  hold: Hold;
   status: string;
 }) {
-  const [title, detail, light] =
-    hold?.action === "stop"
-      ? ["MANTENHA O FREIO PARA ENCERRAR", "Solte para continuar a corrida", 0]
-      : state === "starting"
-        ? ["MANTENHA O ACELERADOR", "Solte para cancelar o início", 1]
-        : state === "running"
-          ? ["CORRIDA ATIVA", "Freio 5 s ou 10 s parado encerra", 3]
-          : state === "finished"
-            ? ["CORRIDA FINALIZADA", status, -1]
-            : [
-                "APERTE A PARA LARGAR",
-                status === "Início cancelado."
-                  ? "INÍCIO CANCELADO"
-                  : "ou segure o acelerador 0,3 s",
-                -1,
-              ];
-  const count = hold
-    ? hold.remaining.toFixed(1)
-    : state === "running"
-      ? "GO"
+  const [title, detail, light, count] =
+    state === "running"
+      ? ["CORRIDA ATIVA", "Aperte B para finalizar", 3, "GO"]
       : state === "finished"
-        ? "FIM"
-        : (START_HOLD_TIME / 1000).toFixed(1);
-  const progress = hold
-    ? 1 - hold.remaining / (hold.action === "stop" ? STOP_HOLD_TIME : START_HOLD_TIME) * 1000
-    : state === "running" ? 1 : 0;
+        ? ["CORRIDA FINALIZADA", status, -1, "FIM"]
+        : ["APERTE A PARA LARGAR", "Botão A do volante", -1, "A"];
+  const progress = state === "running" ? 1 : 0;
   const lit = light >= 0 ? `light-${light} lit` : "";
   return (
     <Card
@@ -322,9 +299,7 @@ export function StartSequence({
           ? "AGUARDANDO"
           : state === "finished"
             ? "ENCERRADA"
-            : state === "running"
-              ? "EM PISTA"
-              : "LARGANDO"
+            : "EM PISTA"
       }
       className="start-card"
     >

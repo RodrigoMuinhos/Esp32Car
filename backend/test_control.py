@@ -3,61 +3,44 @@ from backend.control import Controller
 from backend.server import Bridge
 import serial
 
-def pad(steering=0, throttle=0, brake=0): return dict(steering=steering, throttle=throttle, brake=brake)
+def pad(steering=0, throttle=0, brake=0, start=False, finish=False):
+    return dict(steering=steering, throttle=throttle, brake=brake, start=start, finish=finish)
 
 class ControllerTests(unittest.TestCase):
     def setUp(self): self.c = Controller(); self.c.connected = True
-    def run_for(self, start, end, **inp):
-        t = start
-        while t <= end + 1e-9: self.c.tick(round(t, 3), pad(**inp)); t += .05
-    def start(self):
-        self.c.tick(0, pad()); self.run_for(0, .35, throttle=100)
+    def run_for(self, t0, t1, **inp):
+        t = t0
+        while t <= t1 + 1e-9: self.c.tick(round(t, 3), pad(**inp)); t += .05
+    def start(self, t=0):
+        self.c.tick(t, pad()); self.c.tick(t + .05, pad(start=True)); self.c.tick(t + .1, pad())
         self.assertEqual(self.c.phase, 'running')
-    def test_throttle_hold_starts_only_after_hold_time(self):
-        self.c.tick(0, pad()); self.run_for(0, .25, throttle=100)
-        self.assertEqual(self.c.phase, 'starting'); self.assertEqual(self.c.mask, 0)
-        self.assertAlmostEqual(self.c.hold()['remaining'], .05, places=2)
-        self.c.tick(.3, pad(throttle=100, steering=-50))
+    def test_button_a_starts_and_b_finishes(self):
+        self.c.tick(0, pad()); self.c.tick(.05, pad(start=True, throttle=100, steering=-50))
         self.assertEqual(self.c.phase, 'running'); self.assertEqual(self.c.mask, 9); self.assertEqual(self.c.race_id, 1)
-    def test_start_button_starts_immediately_on_press_only(self):
-        self.c.tick(0, pad()); self.c.tick(.05, dict(pad(), start=True))
-        self.assertEqual(self.c.phase, 'running'); self.assertEqual(self.c.race_id, 1)
-        self.c.message(dict(type='stop', data={}), .1)
-        self.c.tick(.15, dict(pad(), start=True))  # still held: no restart
-        self.assertEqual(self.c.phase, 'finished')
-        self.c.tick(.2, pad()); self.c.tick(.25, dict(pad(), start=True))
-        self.assertEqual(self.c.phase, 'running'); self.assertEqual(self.c.race_id, 2)
-    def test_short_tap_cancels(self):
-        self.c.tick(0, pad()); self.run_for(0, .1, throttle=100); self.c.tick(.15, pad())
-        self.assertEqual(self.c.phase, 'idle'); self.assertEqual(self.c.reason, 'Início cancelado.')
-        self.run_for(.2, .4, throttle=100); self.assertEqual(self.c.phase, 'starting')
-    def test_needs_release_before_start(self):
-        self.run_for(0, 5, throttle=100); self.assertEqual(self.c.phase, 'idle')
-    def test_brake_hold_finishes_and_short_brake_does_not(self):
-        self.start(); self.run_for(2.1, 3, brake=100); self.c.tick(3.05, pad(throttle=50))
-        self.assertEqual(self.c.phase, 'running')
-        self.run_for(3.1, 4.9, brake=100); self.assertEqual(self.c.phase, 'running')
-        self.run_for(4.95, 8.15, brake=100)
+        self.c.tick(.1, pad(finish=True, throttle=100))
         self.assertEqual(self.c.phase, 'finished'); self.assertEqual(self.c.mask, 0)
-        self.assertEqual(self.c.reason, 'Corrida finalizada pelo freio.')
-    def test_inactivity_finishes_after_ten_seconds(self):
-        self.start(); self.run_for(1.1, 10.3, steering=50)
-        self.assertEqual(self.c.phase, 'running')
-        self.c.tick(10.4, pad()); self.assertEqual(self.c.phase, 'finished')
-        self.assertEqual(self.c.reason, 'Corrida finalizada por inatividade.')
-    def test_panel_stop_does_not_restart_while_throttle_held(self):
-        self.start(); self.c.message(dict(type='stop', data={}), 2.1)
-        self.assertEqual(self.c.mask, 0); self.run_for(2.1, 6, throttle=100)
+        self.assertEqual(self.c.reason, 'Corrida finalizada pelo botão B.')
+    def test_pedals_never_start_the_race(self):
+        self.run_for(0, 5, throttle=100); self.assertEqual(self.c.phase, 'idle'); self.assertEqual(self.c.mask, 0)
+        self.run_for(5.05, 6, brake=100); self.assertEqual(self.c.phase, 'idle')
+    def test_no_automatic_finish(self):
+        self.start(); self.run_for(.15, 30, brake=100)  # long brake and no throttle for 30 s
+        self.assertEqual(self.c.phase, 'running'); self.assertEqual(self.c.mask, 2)
+    def test_holding_a_does_not_restart_and_b_does_nothing_when_stopped(self):
+        self.start(); self.c.tick(.15, pad(finish=True)); self.assertEqual(self.c.phase, 'finished')
+        self.run_for(.2, 1, start=True)  # pressed once, held
+        self.assertEqual(self.c.phase, 'running'); self.assertEqual(self.c.race_id, 2)
+        self.c.message(dict(type='stop', data={}), 1.05); self.run_for(1.1, 2, start=True)
         self.assertEqual(self.c.phase, 'finished')
+        self.c.tick(2.05, pad()); self.c.tick(2.1, pad(finish=True)); self.assertEqual(self.c.phase, 'finished')
     def test_wheel_loss_stops(self):
-        self.start(); self.c.tick(2.1, None); self.assertEqual(self.c.mask, 0); self.assertFalse(self.c.enabled)
+        self.start(); self.c.tick(.2, None); self.assertEqual(self.c.mask, 0); self.assertFalse(self.c.enabled)
     def test_panel_input_fallback_and_timeout(self):
         send = lambda t, **k: self.c.message(dict(type='control', data=pad(**k)), t)
-        send(0); self.c.tick(0)
-        t = 0
-        while t <= .35: send(t, throttle=100); self.c.tick(t); t = round(t + .05, 2)
-        self.assertEqual(self.c.phase, 'running'); self.c.tick(2.6); self.assertEqual(self.c.mask, 0)
-        send(3, throttle=float('nan')); self.assertEqual(self.c.mask, 0)
+        send(0); self.c.tick(0); send(.05, start=True, throttle=100); self.c.tick(.05)
+        self.assertEqual(self.c.phase, 'running'); self.assertEqual(self.c.mask, 1)
+        self.c.tick(.6); self.assertEqual(self.c.mask, 0)
+        send(1, throttle=float('nan')); self.assertEqual(self.c.mask, 0)
     def test_opposing_relays_and_hysteresis(self):
         self.start(); self.c.tick(2.1, pad(throttle=100, brake=100, steering=40)); self.assertEqual(self.c.mask, 4)
         self.c.tick(2.2, pad(throttle=50, steering=10)); self.assertEqual(self.c.mask, 5)
@@ -65,7 +48,7 @@ class ControllerTests(unittest.TestCase):
     def test_pulse_expires_and_is_rejected_while_racing(self):
         self.c.message(dict(type='relay', data=dict(relay=3)), 10); self.c.tick(10.49, pad())
         self.assertEqual(self.c.mask, 4); self.c.tick(10.5, pad()); self.assertEqual(self.c.mask, 0)
-        self.start(); self.c.message(dict(type='relay', data=dict(relay=1)), 2.1)
+        self.start(11); self.c.message(dict(type='relay', data=dict(relay=1)), 11.2)
         self.assertEqual(self.c.phase, 'running')
 
 class FakeSerial:

@@ -17,6 +17,7 @@ import { useEstimatedSpeed } from "../hooks/useEstimatedSpeed";
 import { usePortrait } from "../hooks/usePortrait";
 import { MAX_SPEED } from "../raceRules";
 import {
+  NO_BUTTONS,
   processInput,
   SIMULATION_MODE,
   ZERO_INPUT,
@@ -55,7 +56,7 @@ export function Dashboard() {
   const [help, setHelp] = useState(false);
   const [notice, setNotice] = useState("Pronto para uma nova sessão.");
   const gamepad = useControls();
-  const { data, online, stop, testRelay, updateControls, claimControl } =
+  const { data, online, stop, testRelay, updateControls, claimControl, tap } =
     useTelemetry(simulation);
   const usbConnected =
     !!gamepad?.supported || (!simulation && online && data.usbConnected);
@@ -69,24 +70,30 @@ export function Dashboard() {
         : ZERO_INPUT;
   const raw = source === "usb" ? usbInput : manual;
   const input = processInput(raw, mode, steeringGain, throttleGain);
-  // The race is started and finished by the pedals (backend/control.py); the
-  // panel only shows the state. Simulation runs the same rules locally.
+  // The race is started by wheel button A and finished by B (backend/control.py);
+  // the panel only shows the state. Simulation runs the same rules locally.
   const state: RaceState =
-    data.phase === "starting" ||
-    data.phase === "running" ||
-    data.phase === "finished"
-      ? data.phase
-      : "idle";
+    data.phase === "running" || data.phase === "finished" ? data.phase : "idle";
   const enabled = state === "running" && data.carEnabled;
-  const busy = state === "starting" || state === "running";
+  const busy = state === "running";
+  const buttons =
+    source === "usb" && gamepad?.supported ? gamepad.buttons : NO_BUTTONS;
   const linkReady =
     simulation || (online && data.connected && data.controlAvailable);
   // In real mode the panel only feeds input when Windows sees no wheel.
   const sendInput =
     !simulation && online && !data.usbConnected && !!gamepad?.supported;
   useEffect(
-    () => updateControls(input, sendInput),
-    [input.steering, input.throttle, input.brake, sendInput, updateControls],
+    () => updateControls(input, buttons, sendInput),
+    [
+      input.steering,
+      input.throttle,
+      input.brake,
+      buttons.start,
+      buttons.finish,
+      sendInput,
+      updateControls,
+    ],
   );
   const timer = useRaceTimer(enabled);
   // No speed sensor on the car: show an imaginary speed proportional to the throttle.
@@ -246,7 +253,7 @@ export function Dashboard() {
           <SteeringPanel steering={input.steering} raw={raw.steering} />
         </div>
         <div className="center-column">
-          <StartSequence state={state} hold={data.hold} status={data.status} />
+          <StartSequence state={state} status={data.status} />
           <div className="slot-hero">
             {simulation || portrait ? trackMap : relayPanel}
           </div>
@@ -345,14 +352,21 @@ export function Dashboard() {
           >
             <RotateCcw size={17} />
           </button>
-          <div className="start-button race-hint" aria-live="polite">
-            <Play size={15} fill="currentColor" />
-            {state === "running"
-              ? "FREIO 5s ENCERRA"
-              : state === "starting"
-                ? "MANTENHA O ACELERADOR"
-                : "BOTÃO A INICIA"}
-          </div>
+          {simulation ? (
+            // Simulation has no wheel buttons by default: press A/B on screen.
+            <button
+              className="start-button"
+              onClick={() => tap(busy ? "finish" : "start")}
+            >
+              <Play size={15} fill="currentColor" />
+              {busy ? "FINALIZAR (B)" : "INICIAR (A)"}
+            </button>
+          ) : (
+            <div className="start-button race-hint" aria-live="polite">
+              <Play size={15} fill="currentColor" />
+              {busy ? "BOTÃO B FINALIZA" : "BOTÃO A INICIA"}
+            </div>
+          )}
           <button className="stop-button" onClick={() => halt()}>
             <Square size={14} fill="currentColor" /> PARAR <kbd>ESC</kbd>
           </button>
@@ -362,9 +376,7 @@ export function Dashboard() {
         <span>
           <i className={`tiny-dot ${enabled ? "green-dot" : ""}`} />
           {busy
-            ? enabled
-              ? "Corrida ativa · segure o freio 5 s para encerrar ou fique 10 s parado."
-              : "Mantenha o acelerador por 0,3 s para largar."
+            ? "Corrida ativa · aperte B no volante para finalizar."
             : !simulation
               ? online && !data.controlAvailable
                 ? "Outra janela está controlando. Clique em Assumir controle para usar esta tela."
@@ -400,10 +412,9 @@ export function Dashboard() {
             <span className="eyebrow">GUIA RÁPIDO</span>
             <h2 id="help-title">Tudo pronto para a largada.</h2>
             <p>
-              A corrida começa ao apertar A no volante (ou segurar o acelerador por 0,3 segundo) e termina
-              ao segurar o freio por 5 segundos ou após 10 segundos parado. Não
-              é preciso tocar no painel. Na simulação, use os controles de
-              teste ou o volante USB.
+              A corrida começa ao apertar A no volante e termina ao apertar B.
+              Nada começa ou termina sozinho. Na simulação, use os botões
+              INICIAR (A) e FINALIZAR (B) ou o volante USB.
             </p>
             <p>
               O volante visual e os pedais mostram a entrada física.

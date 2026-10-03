@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { ZERO_INPUT, clamp, type Input } from "../types/telemetry";
+import {
+  NO_BUTTONS,
+  ZERO_INPUT,
+  clamp,
+  type Buttons,
+  type Input,
+} from "../types/telemetry";
 export function readGamepad(pad: Pick<Gamepad, "axes" | "buttons">): Input {
   const button = (i: number) => pad.buttons[i]?.value ?? 0;
   return {
@@ -8,10 +14,15 @@ export function readGamepad(pad: Pick<Gamepad, "axes" | "buttons">): Input {
     brake: Math.max(button(6), button(4)) * 100,
   };
 }
+/** Standard mapping: button 0 is A (start), button 1 is B (finish). */
+export function readButtons(pad: Pick<Gamepad, "buttons">): Buttons {
+  return { start: !!pad.buttons[0]?.pressed, finish: !!pad.buttons[1]?.pressed };
+}
 export function useControls() {
   const [gamepad, setGamepad] = useState<{
     name: string;
     input: Input;
+    buttons: Buttons;
     supported: boolean;
   } | null>(null);
   useEffect(() => {
@@ -30,6 +41,8 @@ export function useControls() {
                 supported: pad.mapping === "standard",
                 input:
                   pad.mapping === "standard" ? readGamepad(pad) : ZERO_INPUT,
+                buttons:
+                  pad.mapping === "standard" ? readButtons(pad) : NO_BUTTONS,
               }
             : null,
         );

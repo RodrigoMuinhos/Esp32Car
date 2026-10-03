@@ -1,4 +1,9 @@
-import { parseTelemetry, type Input, type Telemetry } from "../types/telemetry";
+import {
+  parseTelemetry,
+  type Buttons,
+  type Input,
+  type Telemetry,
+} from "../types/telemetry";
 export class TelemetrySocket {
   private socket: WebSocket | null = null;
   private retry = 0;
@@ -45,11 +50,11 @@ export class TelemetrySocket {
       this.socket.send(JSON.stringify(message));
   }
   /** Pedal/wheel input read by the browser, used when Windows has no wheel. */
-  control(input: Input) {
+  control(input: Input, buttons: Buttons) {
     const now = performance.now();
     if (now - this.lastControl < 40) return;
     this.lastControl = now;
-    this.send({ type: "control", data: input });
+    this.send({ type: "control", data: { ...input, ...buttons } });
   }
   claimControl() {
     this.send({ type: "claim", data: {} });

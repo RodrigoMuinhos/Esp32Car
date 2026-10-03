@@ -1,30 +1,23 @@
 """Pure relay control logic. No hardware side effects; time is injectable.
 
-The race starts and ends from the physical pedals alone:
-press the start button (wheel A) or hold throttle 0.3 s -> start; hold brake 5 s -> finish; 10 s without throttle -> finish.
+The race is started and finished only by the wheel buttons: A starts, B finishes.
+Nothing starts or ends it automatically; safety stops (PARAR/ESC, wheel or ESP32
+loss, invalid input) still switch the relays off.
 """
 import math
 
-THROTTLE_THRESHOLD = 5
-BRAKE_THRESHOLD = 10
-START_HOLD = 0.3
-STOP_HOLD = 5.0
-INACTIVITY = 10.0
-MOVING_THROTTLE = 3
 PANEL_INPUT_TIMEOUT = .4
 ZERO = dict(steering=0, throttle=0, brake=0)
-READY = 'Aperte A no volante (ou segure o acelerador 0,3 s) para largar.'
+READY = 'Aperte A no volante para largar.'
 
 
 class Controller:
     def __init__(self):
         self.connected = False
-        self.armed = False
-        self.start_was_down = False
+        self.buttons_down = dict(start=False, finish=False)
         self.panel_input = None
         self.panel_at = 0.0
         self.race_id = 0
-        self.now = self.last_move = 0.0
         self.reset('idle', 'Aguardando ESP32.')
 
     def reset(self, phase, reason):
@@ -32,27 +25,15 @@ class Controller:
         self.enabled = False
         self.mask = self.turn = self.drive = 0
         self.input = dict(ZERO)
-        self.hold_since = self.brake_since = None
         self.pulse_until = 0.0
         self.reason = reason
-        # A new race only arms after the throttle is released, so a stop never
-        # turns into an automatic restart while the pedal is still pressed.
-        self.armed = False
 
-    def begin(self, now):
-        self.phase = 'running'; self.enabled = True; self.hold_since = self.brake_since = None
-        self.race_id += 1; self.last_move = now; self.reason = 'Corrida ativa.'
+    def begin(self):
+        self.phase = 'running'; self.enabled = True
+        self.race_id += 1; self.reason = 'Corrida ativa. Aperte B para finalizar.'
 
     def stop(self, reason='Relés desligados.'):
         self.reset('finished' if self.phase in ('running', 'finished') else 'idle', reason)
-
-    def hold(self):
-        """Remaining seconds of the current pedal hold, for the HUD."""
-        if self.phase == 'starting' and self.hold_since is not None:
-            return dict(action='start', remaining=max(0.0, START_HOLD - (self.now - self.hold_since)))
-        if self.phase == 'running' and self.brake_since is not None:
-            return dict(action='stop', remaining=max(0.0, STOP_HOLD - (self.now - self.brake_since)))
-        return None
 
     def message(self, message, now):
         if not isinstance(message, dict) or not isinstance(message.get('data'), dict):
@@ -73,11 +54,18 @@ class Controller:
             steering, throttle, brake = values
             if not (-100 <= steering <= 100 and 0 <= throttle <= 100 and 0 <= brake <= 100):
                 self.stop('Comando fora dos limites.'); return
-            self.panel_input = dict(steering=steering, throttle=throttle, brake=brake); self.panel_at = now
+            self.panel_input = dict(steering=steering, throttle=throttle, brake=brake,
+                                    start=data.get('start') is True, finish=data.get('finish') is True)
+            self.panel_at = now
+
+    def pressed(self, source, button):
+        """True only on the press itself, so holding a button never repeats it."""
+        down = source.get(button) is True
+        was, self.buttons_down[button] = self.buttons_down[button], down
+        return down and not was
 
     def tick(self, now, usb=None):
-        """usb: live XInput reading, or None when no wheel is seen by Windows."""
-        self.now = now
+        """usb: live XInput reading (axes plus start/finish buttons), or None when no wheel is seen."""
         if not self.connected:
             if self.phase != 'idle' or self.mask: self.reset('idle', 'ESP32 desconectado.')
             return
@@ -89,36 +77,17 @@ class Controller:
         if source is None and self.panel_input and now - self.panel_at <= PANEL_INPUT_TIMEOUT:
             source = self.panel_input
         if source is None:
-            if self.phase in ('starting', 'running'): self.stop('Volante sem sinal. Corrida encerrada.')
+            if self.phase == 'running': self.stop('Volante sem sinal. Corrida encerrada.')
             self.input = dict(ZERO)
             return
-        start_down = bool(source.get('start'))
-        start_pressed = start_down and not self.start_was_down  # react to the press, not to holding
-        self.start_was_down = start_down
+        start, finish = self.pressed(source, 'start'), self.pressed(source, 'finish')
         self.input = {k: source[k] for k in ZERO}
+        if self.phase != 'running':
+            if start: self.begin()
+            else: return
+        elif finish:
+            self.stop('Corrida finalizada pelo botão B.'); return
         throttle, brake, steering = source['throttle'], source['brake'], source['steering']
-        if start_pressed and self.phase in ('idle', 'finished', 'starting'):
-            self.begin(now)
-        elif self.phase in ('idle', 'finished'):
-            if throttle <= THROTTLE_THRESHOLD: self.armed = True
-            elif self.armed:
-                self.phase = 'starting'; self.hold_since = now; self.reason = 'Mantenha o acelerador.'
-            return
-        if self.phase == 'starting':
-            if throttle <= THROTTLE_THRESHOLD:
-                self.phase = 'idle'; self.hold_since = None; self.reason = 'Início cancelado.'
-                return
-            if now - self.hold_since < START_HOLD: return
-            self.begin(now)
-        # running
-        if brake > BRAKE_THRESHOLD:
-            if self.brake_since is None: self.brake_since = now
-            if now - self.brake_since >= STOP_HOLD:
-                self.stop('Corrida finalizada pelo freio.'); return
-        else: self.brake_since = None
-        if throttle > MOVING_THROTTLE: self.last_move = now
-        elif now - self.last_move >= INACTIVITY:
-            self.stop('Corrida finalizada por inatividade.'); return
         # Hysteresis matches the existing relay controller (~15% / 8%).
         if steering >= 15: self.turn = 4
         elif steering <= -15: self.turn = 8

@@ -100,7 +100,7 @@ test("segunda janela observa sem obter autorização de controle", async ({
     "Outra janela está controlando",
   );
 });
-test("acelerador 0,3s larga, simulação reage, volta é registrada e ESC para", async ({
+test("botão A larga, simulação reage, volta é registrada e ESC para", async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -113,9 +113,10 @@ test("acelerador 0,3s larga, simulação reage, volta é registrada e ESC para",
   const throttle = page.getByRole("slider", { name: "Teste acelerador", exact: true });
   await expect(page.locator(".power-readout")).toContainText("BLOQUEADA");
   await throttle.fill("75");
-  await expect(page.locator(".power-readout")).toContainText("LIBERADA", {
-    timeout: 4000,
-  });
+  await page.waitForTimeout(800);
+  await expect(page.locator(".power-readout")).toContainText("BLOQUEADA");
+  await page.getByRole("button", { name: "INICIAR (A)" }).click();
+  await expect(page.locator(".power-readout")).toContainText("LIBERADA");
   await expect(page.locator(".start-card")).toContainText("CORRIDA ATIVA");
   await expect(page.locator(".power-readout strong")).toHaveText("75%");
   await expect
@@ -139,37 +140,28 @@ test("acelerador 0,3s larga, simulação reage, volta é registrada e ESC para",
   await expect(page.locator(".timing-card .card-tag")).toHaveText("VOLTA 01");
   expect(errors).toEqual([]);
 });
-test("toque rápido cancela; freio 5s encerra", async ({ page }) => {
+test("pedais não largam nem encerram; só A inicia e B finaliza", async ({ page }) => {
   await page.goto("/?mode=simulation");
   const throttle = page.getByRole("slider", { name: "Teste acelerador", exact: true });
   const brake = page.getByRole("slider", { name: "Teste freio", exact: true });
-  await throttle.fill("60");
-  await throttle.fill("0");
-  await expect(page.locator(".start-card")).toContainText("INÍCIO CANCELADO");
+  await throttle.fill("100");
+  await page.waitForTimeout(1500);
   await expect(page.locator(".power-readout")).toContainText("BLOQUEADA");
-  await throttle.fill("60");
-  await expect(page.locator(".power-readout")).toContainText("LIBERADA", {
-    timeout: 4000,
-  });
+  await page.getByRole("button", { name: "INICIAR (A)" }).click();
+  await expect(page.locator(".power-readout")).toContainText("LIBERADA");
   await throttle.fill("0");
   await brake.fill("100");
-  await expect(page.locator(".start-card")).toContainText("MANTENHA O FREIO");
-  await page.waitForTimeout(3500);
-  await expect(page.locator(".start-card")).toContainText("MANTENHA O FREIO");
-  await expect(page.locator(".start-card")).toContainText("CORRIDA FINALIZADA", {
-    timeout: 4000,
-  });
-  await expect(page.locator(".start-card")).toContainText("pelo freio");
+  await page.waitForTimeout(6000);
+  await expect(page.locator(".start-card")).toContainText("CORRIDA ATIVA");
+  await page.getByRole("button", { name: "FINALIZAR (B)" }).click();
+  await expect(page.locator(".start-card")).toContainText("CORRIDA FINALIZADA");
+  await expect(page.locator(".start-card")).toContainText("botão B");
   await expect(page.locator(".timing-card")).toContainText("00:00.000");
 });
 test("trocar de janela não interrompe a corrida", async ({ page }) => {
   await page.goto("/?mode=simulation");
-  await page
-    .getByRole("slider", { name: "Teste acelerador", exact: true })
-    .fill("60");
-  await expect(page.locator(".power-readout")).toContainText("LIBERADA", {
-    timeout: 4000,
-  });
+  await page.getByRole("button", { name: "INICIAR (A)" }).click();
+  await expect(page.locator(".power-readout")).toContainText("LIBERADA");
   await page.evaluate(() => window.dispatchEvent(new Event("blur")));
   await page.waitForTimeout(500);
   await expect(page.locator(".start-card")).toContainText("CORRIDA ATIVA");
@@ -208,7 +200,7 @@ test("modo real mostra a corrida do backend e envia o volante do navegador sem W
     Object.defineProperty(navigator, "getGamepads", { value: () => [pad] });
     Object.assign(window, { testPad: pad });
   });
-  const backend = { phase: "idle", hold: null as unknown, carEnabled: false };
+  const backend = { phase: "idle", carEnabled: false };
   await page.routeWebSocket(/\/ws\/telemetry$/, (ws) => {
     const send = () =>
       ws.send(
@@ -243,9 +235,16 @@ test("modo real mostra a corrida do backend e envia o volante do navegador sem W
     )
     .toBe(true);
   expect(messages.some((m) => m.type === "start" || m.type === "enable")).toBe(false);
-  Object.assign(backend, { phase: "starting", hold: { action: "start", remaining: 0.2 } });
-  await expect(page.locator(".hud-count")).toHaveText("0.2");
-  Object.assign(backend, { phase: "running", hold: null, carEnabled: true });
+  // Wheel A from the browser gamepad goes to the backend as "start".
+  await page.evaluate(() => {
+    (
+      window as unknown as { testPad: { buttons: { pressed: boolean }[] } }
+    ).testPad.buttons[0].pressed = true;
+  });
+  await expect
+    .poll(() => messages.some((m) => m.type === "control" && m.data.start === true))
+    .toBe(true);
+  Object.assign(backend, { phase: "running", carEnabled: true });
   await expect(page.locator(".start-card")).toContainText("CORRIDA ATIVA");
   await expect(page.locator(".power-readout")).toContainText("LIBERADA");
   // 60% throttle -> about 40 * 0.6^1.4 = 19 km/h imaginary speed.
@@ -254,8 +253,7 @@ test("modo real mostra a corrida do backend e envia o volante do navegador sem W
       Number(await page.locator(".speed-number strong").innerText()),
     )
     .toBeGreaterThanOrEqual(17);
-  Object.assign(backend, { hold: { action: "stop", remaining: 0.8 } });
-  await expect(page.locator(".start-card")).toContainText("MANTENHA O FREIO");
+  await expect(page.locator(".race-hint")).toContainText("BOTÃO B FINALIZA");
   await page.getByRole("button", { name: /PARAR/ }).first().click();
   await expect.poll(() => messages.some((m) => m.type === "stop")).toBe(true);
 });

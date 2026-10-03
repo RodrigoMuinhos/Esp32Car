@@ -83,19 +83,22 @@ describe("WebSocket", () => {
     socket.onopen?.();
     expect(socket.sent).toHaveLength(0);
     socket.onmessage?.({
-      data: '{"type":"telemetry","data":{"connected":true,"hold":{"action":"start","remaining":1.2},"raceId":3}}',
+      data: '{"type":"telemetry","data":{"connected":true,"phase":"running","raceId":3}}',
     });
     expect(status).toHaveBeenLastCalledWith(true);
     expect(data).toHaveBeenLastCalledWith(
-      expect.objectContaining({ hold: { action: "start", remaining: 1.2 }, raceId: 3 }),
+      expect.objectContaining({ phase: "running", raceId: 3 }),
     );
     vi.advanceTimersByTime(100);
     for (let i = 0; i < 100; i++)
-      client.control({ throttle: 100, brake: 0, steering: 0 });
+      client.control(
+        { throttle: 100, brake: 0, steering: 0 },
+        { start: true, finish: false },
+      );
     expect(socket.sent).toHaveLength(1);
     expect(JSON.parse(socket.sent[0])).toEqual({
       type: "control",
-      data: { throttle: 100, brake: 0, steering: 0 },
+      data: { throttle: 100, brake: 0, steering: 0, start: true, finish: false },
     });
     client.stopCar();
     expect(JSON.parse(socket.sent.at(-1)!).type).toBe("stop");
