@@ -1,0 +1,262 @@
+{"hora": "21:35:12", "status": "Desconectado — clique em Conectar ESP32", "conectado": false, "comando": 0}
+{"hora": "21:35:12", "status": "Conectado; aguardando o ESP32 iniciar…", "conectado": false, "comando": 0}
+{"hora": "21:35:13", "status": "Pronto — escolha uma direção", "conectado": true, "comando": 0}
+{"hora": "21:46:36", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:46:36", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:46:37", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:46:37", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:49:07", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:49:07", "status": "ESP32 confirmou: K1 + K3 ligados", "conectado": true, "comando": 5}
+{"hora": "21:49:07", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:49:08", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:49:08", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:49:08", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:49:08", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:49:08", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:49:08", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:49:09", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:49:09", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:49:09", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:49:09", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:49:09", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:49:20", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:49:21", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:49:21", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:49:21", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:49:23", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:49:23", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:49:24", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:49:24", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:49:24", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:49:24", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:49:25", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:49:25", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:49:25", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:49:25", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:49:31", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:49:31", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:07", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:50:07", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:07", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:50:07", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:07", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:50:07", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:08", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:50:08", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:24", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:50:24", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:24", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:50:24", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:25", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:50:25", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:29", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:50:30", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:30", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:50:30", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:30", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:50:31", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:31", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:50:31", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:33", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:50:33", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:33", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:50:34", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:50:34", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:50:34", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:50:34", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:50:34", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:34", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:50:35", "status": "ESP32 confirmou: K1 + K3 ligados", "conectado": true, "comando": 5}
+{"hora": "21:50:35", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:50:35", "status": "ESP32 confirmou: K1 + K3 ligados", "conectado": true, "comando": 5}
+{"hora": "21:50:35", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:50:36", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:36", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:50:36", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:50:36", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:50:37", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:37", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:50:37", "status": "ESP32 confirmou: K1 + K3 ligados", "conectado": true, "comando": 5}
+{"hora": "21:50:37", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:50:37", "status": "ESP32 confirmou: K1 + K3 ligados", "conectado": true, "comando": 5}
+{"hora": "21:50:37", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:50:37", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:37", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:50:37", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:50:37", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:50:38", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:50:38", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:50:38", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:50:38", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:50:38", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:50:38", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:50:38", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:38", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:50:39", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:39", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:50:40", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:40", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:50:40", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:41", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:50:41", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:41", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:50:41", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:41", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:50:41", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:41", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:50:41", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:42", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:50:42", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:50:42", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:50:42", "status": "ESP32 confirmou: K2 + K4 ligados", "conectado": true, "comando": 10}
+{"hora": "21:50:43", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:50:44", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:51:09", "status": "Comando K1 enviado; aguardando confirmação…", "conectado": true, "comando": 0}
+{"hora": "21:51:09", "status": "ESP32 confirmou K1 — pulso de 0,5 s", "conectado": true, "comando": 0}
+{"hora": "21:51:09", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 0}
+{"hora": "21:51:09", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:51:11", "status": "Comando K2 enviado; aguardando confirmação…", "conectado": true, "comando": 0}
+{"hora": "21:51:11", "status": "ESP32 confirmou K2 — pulso de 0,5 s", "conectado": true, "comando": 0}
+{"hora": "21:51:11", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 0}
+{"hora": "21:51:11", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:51:12", "status": "Comando K3 enviado; aguardando confirmação…", "conectado": true, "comando": 0}
+{"hora": "21:51:12", "status": "ESP32 confirmou K3 — pulso de 0,5 s", "conectado": true, "comando": 0}
+{"hora": "21:51:12", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 0}
+{"hora": "21:51:13", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:51:13", "status": "Comando K4 enviado; aguardando confirmação…", "conectado": true, "comando": 0}
+{"hora": "21:51:13", "status": "ESP32 confirmou K4 — pulso de 0,5 s", "conectado": true, "comando": 0}
+{"hora": "21:51:13", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 0}
+{"hora": "21:51:13", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:17", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:17", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:17", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:17", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:17", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:53:17", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:18", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:53:18", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:18", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:18", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:18", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:18", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:18", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:53:19", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:19", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:53:19", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:24", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:24", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:24", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:24", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:25", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:53:25", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:26", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:26", "status": "ESP32 confirmou: K2 + K4 ligados", "conectado": true, "comando": 10}
+{"hora": "21:53:26", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:27", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:53:27", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:27", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:53:27", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:27", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:53:28", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:28", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:53:28", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:28", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:53:28", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:29", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:29", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:29", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:29", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:29", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:30", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:53:30", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:30", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:53:31", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:31", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:31", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:53:32", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:32", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:53:32", "status": "ESP32 confirmou: K2 + K4 ligados", "conectado": true, "comando": 10}
+{"hora": "21:53:32", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:34", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:34", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:35", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:35", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:53:36", "status": "ESP32 confirmou: K2 + K4 ligados", "conectado": true, "comando": 10}
+{"hora": "21:53:36", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:37", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:37", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:37", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:53:37", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:38", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:39", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:40", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:40", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:40", "status": "ESP32 confirmou: K1 + K3 ligados", "conectado": true, "comando": 5}
+{"hora": "21:53:41", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:53:41", "status": "ESP32 confirmou: K1 + K3 ligados", "conectado": true, "comando": 5}
+{"hora": "21:53:42", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:42", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:42", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:42", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:53:43", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:43", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:43", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:53:44", "status": "ESP32 confirmou: K2 + K3 ligados", "conectado": true, "comando": 6}
+{"hora": "21:53:44", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:53:44", "status": "ESP32 confirmou: K2 + K4 ligados", "conectado": true, "comando": 10}
+{"hora": "21:53:45", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:45", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:46", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:46", "status": "ESP32 confirmou: K1 + K4 ligados", "conectado": true, "comando": 9}
+{"hora": "21:53:46", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:47", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:47", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:53:47", "status": "ESP32 confirmou: K1 + K3 ligados", "conectado": true, "comando": 5}
+{"hora": "21:53:47", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:53:47", "status": "ESP32 confirmou: K1 + K3 ligados", "conectado": true, "comando": 5}
+{"hora": "21:53:48", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:53:48", "status": "ESP32 confirmou: K1 + K3 ligados", "conectado": true, "comando": 5}
+{"hora": "21:53:48", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:53:49", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:49", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:50", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:50", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:51", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:51", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:51", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:51", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:52", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:53", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:53:53", "status": "ESP32 confirmou: K2 + K4 ligados", "conectado": true, "comando": 10}
+{"hora": "21:53:53", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:53", "status": "ESP32 confirmou: K2 + K4 ligados", "conectado": true, "comando": 10}
+{"hora": "21:53:54", "status": "ESP32 confirmou: K4 ligados", "conectado": true, "comando": 8}
+{"hora": "21:53:54", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:54", "status": "ESP32 confirmou: K1 ligados", "conectado": true, "comando": 1}
+{"hora": "21:53:54", "status": "ESP32 confirmou: K1 + K3 ligados", "conectado": true, "comando": 5}
+{"hora": "21:53:55", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:53:56", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:56", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:53:57", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:57", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:53:57", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:53:57", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:53:58", "status": "ESP32 confirmou: K2 + K3 ligados", "conectado": true, "comando": 6}
+{"hora": "21:53:58", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:53:58", "status": "ESP32 confirmou: K2 + K3 ligados", "conectado": true, "comando": 6}
+{"hora": "21:53:58", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:53:59", "status": "ESP32 confirmou: K2 + K3 ligados", "conectado": true, "comando": 6}
+{"hora": "21:53:59", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:53:59", "status": "ESP32 confirmou: K2 + K3 ligados", "conectado": true, "comando": 6}
+{"hora": "21:53:59", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:53:59", "status": "ESP32 confirmou: K2 + K3 ligados", "conectado": true, "comando": 6}
+{"hora": "21:53:59", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:53:59", "status": "ESP32 confirmou: K2 + K3 ligados", "conectado": true, "comando": 6}
+{"hora": "21:54:00", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:54:00", "status": "ESP32 confirmou: K1 + K3 ligados", "conectado": true, "comando": 5}
+{"hora": "21:54:00", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:54:00", "status": "ESP32 confirmou: K1 + K3 ligados", "conectado": true, "comando": 5}
+{"hora": "21:54:00", "status": "ESP32 confirmou: K3 ligados", "conectado": true, "comando": 4}
+{"hora": "21:54:00", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}
+{"hora": "21:54:00", "status": "ESP32 confirmou: K2 ligados", "conectado": true, "comando": 2}
+{"hora": "21:54:00", "status": "ESP32 confirmou: relés desligados", "conectado": true, "comando": 0}

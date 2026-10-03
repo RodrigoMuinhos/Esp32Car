@@ -1,0 +1,1040 @@
+/* Brand: FC6F20 / FFE8D0 / 323232. Only surfaces are translucent;
+   typography, controls and telemetry keep their full opacity. */
+:root {
+  --orange: #fc6f20;
+  --cream: #ffe8d0;
+  --graphite: #323232;
+  --cyan: var(--orange);
+  --muted: #c5aa91;
+  --border: #ffe8d04d;
+  --green: #b9d58a;
+  --red: #ff7368;
+  font-family: "Rajdhani", "Arial Narrow", sans-serif;
+  color: var(--cream);
+  background: #1b1b1b;
+}
+.cockpit {
+  background: #1b1b1b url("/backgorund%20glass.png") center / 100% 100%
+    no-repeat;
+}
+.card,
+.header,
+.control-dock {
+  background: rgb(50 50 50 / 50%);
+  border-color: #ffe8d04d;
+  box-shadow: none;
+  border-radius: 2px;
+}
+.card::before {
+  display: none;
+}
+.brand strong,
+.speed-number strong,
+.angle strong,
+.power-readout strong,
+.pedal-readout,
+.lap-time > strong,
+.timing-details strong,
+.start-light strong {
+  font-family: "Oxanium", sans-serif;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.045em;
+}
+.brand strong {
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: -0.06em;
+}
+.brand strong span {
+  color: var(--orange);
+}
+.brand-mark {
+  color: var(--cream);
+  background: var(--orange);
+}
+.brand small,
+.eyebrow,
+.header-center,
+.card-heading h2,
+.environment-toggle button {
+  font-family: "Rajdhani", sans-serif;
+  font-weight: 700;
+}
+.brand small {
+  color: #e6c8ac;
+  letter-spacing: 2.6px;
+}
+.card-heading h2 {
+  color: var(--cream);
+  font-size: clamp(12px, 0.87vw, 17px);
+  letter-spacing: 1.1px;
+}
+.card-heading h2 svg,
+.car-metrics svg {
+  color: var(--orange);
+}
+.card-tag,
+.header-status,
+.speed-number span,
+.scale-labels,
+.gauge-min,
+.gauge-max,
+.map-coordinate,
+.map-north,
+.car-metrics b,
+.settings-sliders b,
+.test-sliders b,
+.relay-confirmations > span,
+.stop-button kbd {
+  font-family: "Oxanium", monospace;
+}
+.card-tag,
+.card-foot,
+.scale-labels,
+.map-coordinate,
+.map-north,
+.micro-note,
+.track-bottom,
+.angle > span,
+.angle p,
+.pedal-column > span,
+.car-metrics > span,
+.lap-time > span,
+.timing-details > div > span,
+.source-select > span,
+.input-source,
+.usb-instructions > span:last-child,
+.relay-note,
+.relay-note span,
+footer,
+footer > span:last-child {
+  color: #cfb59d;
+}
+.card-tag {
+  font-size: clamp(7px, 0.55vw, 10px);
+}
+.card-foot,
+.scale-labels {
+  font-size: clamp(7px, 0.57vw, 10px);
+}
+.cyan,
+.eyebrow,
+.angle strong {
+  color: var(--orange);
+}
+.header-center,
+.header-status > span,
+.header-center > span:last-child,
+h1 span {
+  color: #d9bda3;
+}
+.live-dot {
+  background: var(--orange);
+  box-shadow: 0 0 10px #fc6f2080;
+}
+.header-status .online {
+  color: var(--green);
+}
+.icon-button,
+select,
+.mode-tabs button,
+.environment-toggle,
+.environment-toggle button,
+.start-light,
+.relay-key,
+.pill,
+.claim-button {
+  color: #ffe8d0;
+  background: rgb(50 50 50 / 50%);
+  border-color: #ffe8d04d;
+  border-radius: 2px;
+}
+.environment-toggle button.active,
+.mode-tabs button.selected {
+  color: #ffe8d0;
+  background: #fc6f203b;
+  border-color: var(--orange);
+  box-shadow: inset 0 0 0 1px #fc6f2070;
+}
+.environment-toggle button {
+  color: #e1c5ac;
+}
+.start-button {
+  background: var(--orange);
+  border-color: #ffaf72;
+  color: #251d17;
+  font-family: "Rajdhani", sans-serif;
+  font-weight: 700;
+}
+.stop-button,
+.relay-stop {
+  background: #32221f9c;
+  border-color: #fda07885;
+  color: var(--cream);
+}
+.stop-button kbd {
+  border-color: #d79b7280;
+  color: #edc7a5;
+}
+.speed-ring {
+  background: conic-gradient(
+    from 225deg,
+    #ffe8d0 0deg,
+    #fc6f20 var(--progress),
+    #ac805340 var(--progress),
+    #ac805340 270deg,
+    transparent 270deg
+  );
+}
+.speed-number strong {
+  font-size: 34cqw;
+  color: var(--cream);
+  text-shadow: 0 2px 15px #0008;
+}
+.speed-number span {
+  color: #d9b18c;
+}
+.gauge-ticks i:before {
+  background: #b28c6780;
+}
+.gauge-ticks i.major:before {
+  background: #eac4a2;
+}
+.gauge-needle:before {
+  background: var(--orange);
+  box-shadow: 0 0 10px #fc6f20;
+}
+.wheel {
+  color: #bda389;
+  filter: drop-shadow(0 4px 8px #0008);
+}
+.angle small,
+.power-readout small {
+  color: #dab795;
+}
+.angle p b,
+.car-metrics b,
+.settings-sliders b,
+.test-sliders b,
+.pedal-column > strong {
+  color: var(--cream);
+}
+.steering-scale {
+  background: linear-gradient(
+    90deg,
+    #fc6f2070,
+    #8d664440 49.5%,
+    #ffe8d0 50%,
+    #8d664440 50.5%,
+    #ffe8d070
+  );
+}
+.steering-scale i {
+  background: var(--orange);
+  box-shadow: 0 0 8px #fc6f20;
+}
+.power-readout > span {
+  background: #32323280;
+  border-color: #ac80536b;
+  color: #ebc9a9;
+}
+.power-bars i {
+  background: #b48c6340;
+}
+.power-readout:after {
+  background: conic-gradient(
+    from 225deg,
+    #ffe8d0 0deg,
+    #fc6f20 var(--power),
+    #b48c6340 var(--power),
+    #b48c6340 270deg,
+    transparent 270deg
+  );
+}
+.pedal {
+  background: #201b1880;
+  border-color: #ca9c7466;
+  border-radius: 3px;
+}
+.pedal-lines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 13px,
+    #e6b38130 14px,
+    #e6b38130 15px
+  );
+}
+.pedal-column.green {
+  color: var(--orange) !important;
+}
+.pedal-column.green .pedal-fill {
+  background: linear-gradient(0deg, #a23f10, #fc6f20);
+}
+.start-light {
+  color: #dcb796;
+  border-color: #c597674d;
+}
+.start-light i {
+  opacity: 0.4;
+}
+.start-light.lit i {
+  opacity: 1;
+}
+.light-3.lit {
+  color: #e1ffc3;
+  background: #8dac5938;
+  border-color: #b9d58a;
+}
+.car-illustration .green {
+  color: var(--green) !important;
+}
+.settings-sliders label,
+.test-sliders label {
+  color: #edc6a5;
+  font-weight: 600;
+}
+.relay-confirmations > span {
+  color: #ebc9a9;
+  background: #32323280;
+  border-color: #ba865b66;
+}
+.relay-confirmations i {
+  background: #a5836470;
+}
+.relay-confirmations .relay-on {
+  color: #ffe8d0;
+  background: #fc6f2040;
+  border-color: #fc6f20;
+}
+.relay-on i {
+  background: var(--orange);
+  box-shadow: 0 0 10px #fc6f20;
+}
+.relay-key:hover:not(:disabled) {
+  background: #fc6f2040;
+  border-color: #fc6f20;
+}
+.relay-key strong {
+  color: var(--orange);
+}
+.help-modal {
+  background: #282420f5;
+  border-color: #fc6f2080;
+}
+.help-modal p {
+  color: #e4c9b1;
+}
+.map-empty {
+  background: #211a1380;
+  color: #ffe8d0;
+}
+.track-bottom {
+  border-color: #d9a57540;
+}
+.vehicle-marker {
+  background: #ffe8d0;
+  border-color: #9f4b1e;
+  color: #783f1c;
+  box-shadow: 0 0 15px #fc6f2070;
+}
+.vehicle-marker:after {
+  border-color: #fc6f20;
+}
+
+/* Align live HTML widgets with the supplied 1672 × 941 HUD artwork. */
+@media (min-width: 1100px) and (orientation: landscape) {
+  .cockpit {
+    position: relative;
+    display: block;
+    padding: 0;
+    height: 100dvh;
+    min-height: 700px;
+  }
+  .header {
+    position: absolute;
+    left: 2.4%;
+    right: 2.4%;
+    top: 7.55%;
+    height: 5.15%;
+    min-height: 0;
+    padding: 0 14px;
+    border: 0;
+  }
+  .brand {
+    gap: 8px;
+  }
+  .brand-mark {
+    width: 26px;
+    height: 26px;
+  }
+  .brand-mark svg {
+    width: 18px;
+  }
+  .brand strong {
+    font-size: clamp(19px, 1.5vw, 28px);
+  }
+  .brand small {
+    font-size: clamp(6px, 0.4vw, 9px);
+    margin-top: 1px;
+  }
+  .header-center {
+    font-size: clamp(9px, 0.7vw, 13px);
+  }
+  .header-status {
+    font-size: clamp(8px, 0.64vw, 12px);
+  }
+  .header-status .connection {
+    font-family: "Rajdhani", sans-serif;
+    font-size: clamp(10px, 0.74vw, 14px);
+  }
+  .header .icon-button {
+    width: 26px;
+    height: 26px;
+  }
+  .session-bar {
+    position: absolute;
+    top: 1.8%;
+    left: 16%;
+    right: 16%;
+    height: 4%;
+    min-height: 0;
+  }
+  .session-bar .eyebrow {
+    font-size: clamp(7px, 0.6vw, 11px);
+  }
+  h1 {
+    color: #ffe8d0;
+    font-size: clamp(14px, 1.1vw, 21px);
+    margin-top: 0;
+    font-weight: 600;
+    letter-spacing: 0.1px;
+  }
+  .session-actions {
+    gap: 8px;
+  }
+  .environment-toggle {
+    padding: 2px;
+  }
+  .environment-toggle button {
+    padding: 5px 9px;
+    font-size: clamp(8px, 0.6vw, 11px);
+  }
+  .session-actions .icon-button {
+    width: 26px;
+    height: 26px;
+  }
+  .dashboard {
+    position: absolute;
+    top: 14.2%;
+    left: 2.15%;
+    right: 2.15%;
+    bottom: 15.35%;
+    grid-template-columns: 23.8% minmax(0, 1fr) 23.8%;
+    grid-template-rows: minmax(0, 1fr) 30.6%;
+    gap: 1.4vh 1vw;
+  }
+  .left-column,
+  .right-column,
+  .center-column {
+    grid-template-rows: 1fr 1fr;
+    gap: 1.4vh;
+  }
+  .bottom-row {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1vw;
+  }
+  .card {
+    border: 0;
+    margin: 3px 4px;
+    padding: clamp(10px, 1.25vh, 17px) clamp(14px, 1.3vw, 25px);
+    clip-path: polygon(
+      12px 0,
+      calc(100% - 12px) 0,
+      100% 12px,
+      100% calc(100% - 12px),
+      calc(100% - 12px) 100%,
+      12px 100%,
+      0 calc(100% - 12px),
+      0 12px
+    );
+  }
+  .card-heading {
+    min-height: 22px;
+    flex-shrink: 0;
+  }
+  .card-heading h2 {
+    margin-left: clamp(35px, 3.1vw, 60px);
+  }
+  .card-heading h2 svg {
+    display: none;
+  }
+  .card-heading .card-tag {
+    margin-left: auto;
+  }
+  .status-card .card-heading h2 {
+    margin-left: clamp(48px, 4vw, 78px);
+  }
+  .gauge-wrap {
+    width: min(90cqw, calc(100cqh - 38px), 265px);
+  }
+  .card-foot {
+    font-size: clamp(6px, 0.5vw, 9px);
+  }
+  .start-card {
+    display: flex;
+    flex-direction: column;
+  }
+  .start-lights {
+    flex: 1;
+    align-items: center;
+    margin: 10px 0;
+    gap: clamp(8px, 1vw, 20px);
+  }
+  .start-light {
+    height: 75%;
+    min-height: 45px;
+    border-radius: 3px;
+  }
+  .start-light strong {
+    font-size: clamp(27px, 3.5vw, 66px);
+  }
+  .start-light i {
+    width: 6px;
+    height: 6px;
+  }
+  .power-readout strong {
+    font-size: clamp(33px, 3.2vw, 62px);
+  }
+  .power-readout:after {
+    width: clamp(28px, 3vw, 55px);
+    height: clamp(28px, 3vw, 55px);
+  }
+  .power-bars {
+    height: clamp(10px, 1.3vh, 17px);
+    margin: 5px 0;
+    flex-shrink: 0;
+  }
+  .micro-note {
+    font-size: clamp(7px, 0.57vw, 10px);
+    margin-top: 5px;
+  }
+  .steering-content {
+    padding: 5px 0;
+  }
+  .angle strong {
+    font-size: clamp(29px, 2.8vw, 53px);
+  }
+  .angle > span {
+    font-size: clamp(6px, 0.48vw, 9px);
+  }
+  .pedals {
+    padding: 5px 25px 0;
+    gap: 25px;
+  }
+  .pedal-readout {
+    font-size: clamp(21px, 2vw, 38px);
+  }
+  .pedal-column {
+    gap: 4px;
+  }
+  .pedal-column > strong {
+    font-size: clamp(7px, 0.56vw, 10px);
+  }
+  .pedal-column > span {
+    font-size: clamp(6px, 0.48vw, 9px);
+  }
+  .pedal {
+    max-width: 75px;
+  }
+  .track-info {
+    margin-top: 6px;
+  }
+  .map-canvas {
+    margin: 5px 0;
+  }
+  .track-bottom {
+    padding: 7px 0;
+    font-size: clamp(6px, 0.46vw, 9px);
+  }
+  .relay-confirmations {
+    margin: 4px 0 7px;
+    gap: 6px;
+  }
+  .relay-confirmations > span {
+    font-size: 10px;
+    padding: 4px 6px;
+  }
+  .relay-confirmations small {
+    font-size: 6px;
+    margin-top: 1px;
+  }
+  .relay-pad {
+    gap: 4px;
+    width: min(100%, 430px);
+  }
+  .relay-key {
+    flex-direction: row;
+    gap: 7px;
+  }
+  .relay-key strong {
+    font-size: 12px;
+  }
+  .relay-key span {
+    font-size: clamp(8px, 0.6vw, 11px);
+  }
+  .relay-note {
+    margin-top: 5px;
+    font-size: clamp(7px, 0.55vw, 10px);
+  }
+  .relay-note span {
+    font-size: clamp(6px, 0.46vw, 9px);
+  }
+  .relay-stop {
+    font-size: 10px;
+  }
+  .car-status-body {
+    height: calc(100% - 22px);
+    gap: 15px;
+  }
+  .car-illustration {
+    width: 46%;
+  }
+  .car-illustration img {
+    max-height: 115px;
+  }
+  .car-metrics {
+    gap: clamp(7px, 1.3vh, 15px);
+  }
+  .car-metrics > span {
+    font-size: clamp(10px, 0.8vw, 15px);
+  }
+  .car-metrics b {
+    font-size: clamp(8px, 0.65vw, 12px);
+  }
+  .lap-time {
+    margin: clamp(9px, 1.3vh, 18px) 0;
+  }
+  .lap-time > strong {
+    font-size: clamp(27px, 2.8vw, 53px);
+  }
+  .lap-time > span,
+  .timing-details > div > span {
+    font-size: clamp(8px, 0.6vw, 12px);
+  }
+  .timing-details strong {
+    font-size: clamp(10px, 0.9vw, 17px);
+  }
+  .settings-sliders {
+    margin: clamp(14px, 2vh, 26px) 0;
+    gap: 22px;
+  }
+  .settings-sliders label {
+    font-size: clamp(10px, 0.8vw, 15px);
+  }
+  .settings-sliders b {
+    font-size: clamp(10px, 0.75vw, 14px);
+  }
+  .mode-tabs button {
+    padding: clamp(6px, 1vh, 12px) 5px;
+    font-size: clamp(9px, 0.65vw, 12px);
+  }
+  .control-dock {
+    position: absolute;
+    top: 86.2%;
+    left: 2.3%;
+    right: 2.3%;
+    height: 6.3%;
+    border: 0;
+    padding: 0 12px 0 clamp(65px, 6.2vw, 120px);
+    gap: 18px;
+    backdrop-filter: blur(4px);
+  }
+  .input-controls {
+    gap: 18px;
+  }
+  .source-select {
+    min-width: 120px;
+  }
+  .source-select > span {
+    font-size: 7px;
+    margin-bottom: 2px;
+  }
+  select {
+    padding: 4px 6px;
+    font-family: "Rajdhani", sans-serif;
+    font-size: clamp(10px, 0.74vw, 14px);
+  }
+  .test-sliders {
+    gap: 16px;
+    max-width: 410px;
+  }
+  .test-sliders label {
+    font-size: 8px;
+  }
+  .test-sliders input {
+    margin-top: 6px;
+  }
+  .usb-instructions {
+    gap: 4px;
+  }
+  .input-source {
+    font-size: clamp(9px, 0.7vw, 13px);
+  }
+  .usb-instructions > span:last-child {
+    font-size: clamp(8px, 0.6vw, 11px);
+  }
+  .race-actions {
+    position: absolute;
+    left: 74.5%;
+    right: 0.5%;
+    height: 70%;
+    display: grid;
+    grid-template-columns: 14% 44% 38%;
+    gap: 2%;
+  }
+  .race-actions .icon-button,
+  .race-actions .start-button,
+  .race-actions .stop-button {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    padding: 5px;
+  }
+  .control-dock .input-controls {
+    flex: none;
+    width: 73%;
+  }
+  .start-button,
+  .stop-button {
+    padding: 9px 14px;
+    font-size: clamp(10px, 0.8vw, 15px);
+  }
+  footer {
+    position: absolute;
+    top: 94.3%;
+    left: 16%;
+    right: 16%;
+    height: 2.6%;
+    font-size: clamp(7px, 0.6vw, 11px);
+  }
+  footer > span:last-child {
+    font-size: 8px;
+  }
+}
+@media (max-width: 1099px) {
+  .cockpit {
+    background-size: auto 100vh;
+    background-attachment: fixed;
+  }
+  .card {
+    border: 1px solid #fc6f2077;
+    background: rgb(50 50 50 / 50%);
+  }
+  .header,
+  .control-dock {
+    padding: 8px;
+  }
+  .brand strong {
+    font-size: 22px;
+  }
+}
+
+/* Slots used by the vertical layout; transparent everywhere else. */
+.slot-hero,
+.slot-side {
+  display: contents;
+}
+/* Vertical screens: cards sit on the frames of "backgorund glass vertical.png".
+   Percentages were measured on the 941x1672 artwork. Keep the query in sync
+   with hooks/usePortrait.ts. */
+@media (orientation: portrait) and (min-width: 700px) {
+  .cockpit {
+    position: relative;
+    display: block;
+    padding: 0;
+    height: 100dvh;
+    min-height: 1000px;
+    overflow: hidden;
+    background: #1b1b1b url("/backgorund%20glass%20vertical.png") center /
+      100% 100% no-repeat;
+    background-attachment: scroll;
+  }
+  .dashboard,
+  .left-column,
+  .center-column,
+  .right-column,
+  .bottom-row {
+    display: contents;
+  }
+  .card,
+  .slot-hero,
+  .slot-side {
+    position: absolute;
+    margin: 0;
+    border: 0;
+  }
+  .slot-hero,
+  .slot-side {
+    display: block;
+  }
+  .slot-hero > .card,
+  .slot-side > .card {
+    position: absolute;
+    inset: 0;
+  }
+  .card {
+    padding: clamp(8px, 0.9vh, 16px) clamp(12px, 1.6vw, 24px);
+    clip-path: polygon(
+      12px 0,
+      calc(100% - 12px) 0,
+      100% 12px,
+      100% calc(100% - 12px),
+      calc(100% - 12px) 100%,
+      12px 100%,
+      0 calc(100% - 12px),
+      0 12px
+    );
+  }
+  /* Leave room under the icon badges drawn in the artwork. */
+  .card-heading {
+    min-height: clamp(34px, 3.4vw, 54px);
+    align-items: flex-start;
+    flex-shrink: 0;
+  }
+  .card-heading h2 {
+    margin-left: clamp(42px, 5vw, 70px);
+    font-size: clamp(11px, 1.3vw, 18px);
+  }
+  .status-card .card-heading h2 {
+    margin-left: clamp(60px, 7.5vw, 110px);
+  }
+  .card-heading h2 svg {
+    display: none;
+  }
+  .card-heading .card-tag {
+    margin-left: auto;
+    font-size: clamp(8px, 0.95vw, 13px);
+  }
+  /* Row 1: speed / start / power */
+  .speed-card,
+  .start-card,
+  .power-card {
+    top: 7.9%;
+    height: 10.7%;
+  }
+  .speed-card {
+    left: 3.7%;
+    width: 29.5%;
+  }
+  .start-card {
+    left: 34.8%;
+    width: 30.2%;
+  }
+  .power-card {
+    left: 66.6%;
+    width: 29.7%;
+  }
+  /* Large central panel: relays (real) or track map (simulation). It has no
+     icon badge in the artwork, so the card shows its own icon. */
+  .slot-hero {
+    top: 21.8%;
+    left: 5.8%;
+    width: 88.2%;
+    height: 21.9%;
+  }
+  .slot-hero .card-heading h2 {
+    margin-left: 0;
+  }
+  .slot-hero .card-heading h2 svg {
+    display: inline-block;
+  }
+  /* Row 3: steering / map (relays in simulation) */
+  .steering-card,
+  .slot-side {
+    top: 46.5%;
+    height: 12.1%;
+  }
+  .steering-card {
+    left: 3.7%;
+    width: 45.4%;
+  }
+  .slot-side {
+    left: 50.8%;
+    width: 45.5%;
+  }
+  /* Row 4: car / timing / settings */
+  .status-card,
+  .timing-card,
+  .settings-card {
+    top: 59.6%;
+    height: 14.7%;
+  }
+  .status-card {
+    left: 3.7%;
+    width: 29.5%;
+  }
+  .timing-card {
+    left: 34.8%;
+    width: 30.2%;
+  }
+  .settings-card {
+    left: 66.6%;
+    width: 29.7%;
+  }
+  /* Wide panel: pedals, laid out horizontally. Its own icon covers the
+     pin badge of the artwork. */
+  .pedals-card {
+    top: 75.2%;
+    left: 3.7%;
+    width: 92.6%;
+    height: 14.5%;
+  }
+  .pedals-card .card-heading h2 svg {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: clamp(64px, 8vw, 104px);
+    height: clamp(56px, 4vh, 84px);
+    padding: clamp(12px, 1.3vw, 20px);
+    color: var(--cream);
+    background: #1a1a1a;
+    clip-path: polygon(12px 0, 100% 0, 100% 72%, 78% 100%, 0 100%, 0 12px);
+  }
+  .pedals-card .card-heading h2 {
+    margin-left: clamp(84px, 10vw, 130px);
+  }
+  .pedals-card .pedals {
+    max-width: 60%;
+    margin: 0 auto;
+  }
+  .timing-card .card-heading,
+  .settings-card .card-heading {
+    min-height: clamp(48px, 5vw, 72px);
+  }
+  .header {
+    position: absolute;
+    left: 3.7%;
+    right: 3.8%;
+    top: 4.07%;
+    height: 3.1%;
+    min-height: 0;
+    padding: 0 14px;
+    border: 0;
+    background: transparent;
+  }
+  .brand strong {
+    font-size: clamp(18px, 2.3vw, 30px);
+  }
+  .brand small {
+    font-size: clamp(6px, 0.7vw, 9px);
+  }
+  .header-center {
+    display: none;
+  }
+  .session-bar {
+    position: absolute;
+    top: 0.6%;
+    left: 17%;
+    right: 17%;
+    height: 3.2%;
+    min-height: 0;
+    padding: 0;
+  }
+  .session-bar .eyebrow {
+    display: none;
+  }
+  h1 {
+    font-size: clamp(13px, 1.6vw, 20px);
+    margin: 0;
+  }
+  .environment-toggle button {
+    padding: 4px 8px;
+    font-size: clamp(8px, 0.95vw, 11px);
+  }
+  .session-actions .icon-button,
+  .header .icon-button {
+    width: 26px;
+    height: 26px;
+  }
+  .control-dock {
+    position: absolute;
+    top: 90.9%;
+    left: 3.7%;
+    right: 3.7%;
+    height: 4.5%;
+    border: 0;
+    background: transparent;
+    padding: 0 8px 0 9.5%;
+    gap: 12px;
+  }
+  /* Opaque backings hide the slider/button art drawn in the frame. */
+  .control-dock .input-controls {
+    flex: none;
+    width: 58%;
+    height: 78%;
+    gap: 12px;
+    padding: 0 10px;
+    background: #1a1a1a;
+    border-radius: 3px;
+  }
+  .race-actions .icon-button,
+  .race-actions .race-hint,
+  .race-actions .stop-button {
+    background: #1a1a1a;
+  }
+  .race-actions {
+    position: absolute;
+    left: 66.8%;
+    right: 1.4%;
+    height: 72%;
+    display: grid;
+    grid-template-columns: 22% 42% 32%;
+    gap: 2%;
+  }
+  .race-actions .icon-button,
+  .race-actions .start-button,
+  .race-actions .stop-button {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    padding: 4px;
+    font-size: clamp(8px, 0.95vw, 12px);
+  }
+  footer {
+    position: absolute;
+    top: 96%;
+    left: 17%;
+    right: 17%;
+    height: 3%;
+    font-size: clamp(8px, 0.9vw, 11px);
+  }
+  /* Narrow start card: stack the message above the countdown. */
+  .start-card {
+    display: flex;
+    flex-direction: column;
+  }
+  .race-hud {
+    flex: 1;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+    gap: 6px;
+    margin: 6px 0 0;
+  }
+  .race-hud .start-light {
+    height: auto;
+    min-height: 0;
+  }
+  .start-light.hud-message strong {
+    font-size: clamp(11px, 1.5vw, 18px);
+    white-space: normal;
+  }
+  .hud-count strong {
+    font-size: clamp(22px, 3.2vw, 40px);
+  }
+  .gauge-wrap {
+    width: min(90cqw, calc(100cqh - 30px), 220px);
+  }
+}
