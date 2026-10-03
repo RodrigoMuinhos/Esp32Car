@@ -20,9 +20,20 @@ if ($LASTEXITCODE -ge 8) { throw "Falha ao copiar o app para $target." }
 Copy-Item -LiteralPath (Join-Path $projectRoot 'packaging\rc-racing.ico') -Destination (Join-Path $target 'rc-racing.ico') -Force
 
 # One-click launcher at the drive root (works whatever letter the PC assigns).
+# It runs a local copy so pulling the pen drive out never kills a running race;
+# after the first time only changed files are copied.
 Set-Content -LiteralPath (Join-Path $root 'RC Racing.bat') -Encoding ascii -Value @'
 @echo off
-start "" "%~dp0RC Racing\RC Racing.exe"
+title RC Racing
+echo Preparando o RC Racing...
+set "DEST=%LOCALAPPDATA%\RC Racing\portatil"
+robocopy "%~dp0RC Racing" "%DEST%" /MIR /NFL /NDL /NJH /NJS /NP >nul
+if errorlevel 8 (
+  echo Nao foi possivel copiar o app do pen drive. Abrindo direto dele.
+  start "" "%~dp0RC Racing\RC Racing.exe"
+) else (
+  start "" "%DEST%\RC Racing.exe"
+)
 '@
 
 # Drive icon and name in Explorer.
@@ -43,7 +54,8 @@ RC Racing - versao portatil
 3. O app encontra a placa e o volante sozinho e abre o painel.
 4. Aperte A no volante para largar (3, 2, 1, Go) e B para finalizar.
 
-Nada e instalado no PC. Fechar a janela do painel encerra o app e desliga os reles.
+Nada e instalado no PC (o app roda de uma copia temporaria, entao o pen drive pode
+ser removido depois que o painel abrir). Fechar a janela encerra o app e desliga os reles.
 
 Requisitos do PC: Windows 10 ou 11 (o Microsoft Edge ja vem instalado).
 Se o painel mostrar "ESP32 nao encontrado" com a placa conectada, o PC ainda nao

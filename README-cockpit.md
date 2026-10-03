@@ -14,7 +14,7 @@ Para gerar o instalador de novo após mudanças: `powershell -ExecutionPolicy By
 
 ## Versão portátil (pen drive)
 
-`powershell -ExecutionPolicy Bypass -File scriptsuild-usb.ps1 -Drive D:` copia o app para o pen drive (pasta `RC Racing`, atalho `RC Racing.bat` na raiz, ícone da unidade e `LEIA-ME RC Racing.txt`). Em qualquer PC com Windows 10/11: conecte o pen drive, a placa e o volante e dê dois cliques em `RC Racing.bat`. Nada é instalado; a porta do ESP32 é detectada sozinha. Use `-Rebuild` para gerar o app de novo antes de copiar. O Windows não abre programas sozinho ao conectar um pen drive (proteção contra vírus), por isso o duplo clique.
+`powershell -ExecutionPolicy Bypass -File scriptsuild-usb.ps1 -Drive D:` copia o app para o pen drive (pasta `RC Racing`, atalho `RC Racing.bat` na raiz, ícone da unidade e `LEIA-ME RC Racing.txt`). Em qualquer PC com Windows 10/11: conecte o pen drive, a placa e o volante e dê dois cliques em `RC Racing.bat`. Nada é instalado: o atalho roda uma cópia em `%LOCALAPPDATA%\RC Racing\portatil`, então tirar o pen drive com o painel aberto não derruba a corrida. A porta do ESP32 é detectada sozinha. Use `-Rebuild` para gerar o app de novo antes de copiar. O Windows não abre programas sozinho ao conectar um pen drive (proteção contra vírus), por isso o duplo clique.
 
 ## Modo desenvolvimento
 
