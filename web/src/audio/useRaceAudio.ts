@@ -66,6 +66,7 @@ export function useRaceAudio({
 
   // Browsers may only start audio after a user gesture; the app window allows it.
   useEffect(() => {
+    void audio.current!.loadVoices();
     const unlock = () => audio.current!.unlock();
     window.addEventListener("pointerdown", unlock);
     window.addEventListener("keydown", unlock);
@@ -75,7 +76,7 @@ export function useRaceAudio({
     };
   }, []);
 
-  // Countdown beeps (3, 2, 1), GO, finish fanfare and cancel blip.
+  // Countdown beeps and voice (3, 2, 1, vai), GO, finish fanfare and cancel blip.
   const previous = useRef({ state, second: 0 });
   useEffect(() => {
     const sfx = audio.current!;
@@ -85,8 +86,14 @@ export function useRaceAudio({
       sfx.ignition(IGNITION_SECONDS);
       ignitedAt.current = performance.now();
     }
-    if (state === "countdown" && second > 0 && second !== was.second) sfx.countdownBeep();
-    if (state === "running" && was.state !== "running") sfx.go();
+    if (state === "countdown" && second > 0 && second !== was.second) {
+      sfx.countdownBeep();
+      sfx.voice(String(Math.min(3, second)) as "3" | "2" | "1");
+    }
+    if (state === "running" && was.state !== "running") {
+      sfx.go();
+      sfx.voice("go");
+    }
     if (state === "finished" && was.state === "running") sfx.finish();
     if (
       state === "idle" &&

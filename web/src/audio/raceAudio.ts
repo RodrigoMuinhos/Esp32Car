@@ -1,8 +1,12 @@
 /**
  * Synthesized race sounds (Web Audio API, no audio files): a NASCAR-style V8
  * that follows RPM and load, tire squeal under braking, starter/ignition,
- * F1-style start beeps, GO and a checkered-flag fanfare.
+ * F1-style start beeps, GO and a checkered-flag fanfare. The countdown is also
+ * called by a recorded voice (public/voice, pt-BR neural voice "Antonio").
  */
+export type VoiceClip = "3" | "2" | "1" | "go";
+const VOICE_CLIPS: VoiceClip[] = ["3", "2", "1", "go"];
+const VOICE_LEVEL = 2.2;
 type Engine = {
   banks: OscillatorNode[];
   lope: OscillatorNode;
@@ -24,6 +28,7 @@ export class RaceAudio {
   private noise: AudioBuffer | null = null;
   private engine: Engine | null = null;
   private squeal: Squeal | null = null;
+  private voices = new Map<VoiceClip, { buffer: AudioBuffer; offset: number }>();
   private muted = false;
 
   /** Creates the audio graph on first use and resumes it if the browser paused it. */
@@ -45,6 +50,38 @@ export class RaceAudio {
 
   unlock() {
     this.context();
+  }
+
+  /** Decodes the countdown voice once; playback skips the clip's leading silence. */
+  async loadVoices() {
+    const ctx = this.context();
+    if (!ctx || this.voices.size) return;
+    await Promise.all(
+      VOICE_CLIPS.map(async (clip) => {
+        try {
+          const response = await fetch(`/voice/${clip}.mp3`);
+          const buffer = await ctx.decodeAudioData(await response.arrayBuffer());
+          const data = buffer.getChannelData(0);
+          let first = 0;
+          while (first < data.length && Math.abs(data[first]) < 0.01) first++;
+          this.voices.set(clip, { buffer, offset: Math.max(0, first / buffer.sampleRate - 0.01) });
+        } catch {
+          /* without the clip the beeps still mark the countdown */
+        }
+      }),
+    );
+  }
+
+  voice(clip: VoiceClip) {
+    const ctx = this.context();
+    const entry = this.voices.get(clip);
+    if (!ctx || !entry) return;
+    const source = ctx.createBufferSource();
+    source.buffer = entry.buffer;
+    const gain = ctx.createGain();
+    gain.gain.value = VOICE_LEVEL;
+    source.connect(gain).connect(this.master!);
+    source.start(ctx.currentTime, entry.offset);
   }
 
   setMuted(muted: boolean) {
