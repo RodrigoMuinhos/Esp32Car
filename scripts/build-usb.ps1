@@ -19,6 +19,9 @@ $target = Join-Path $root 'RC Racing'
 if ($LASTEXITCODE -ge 8) { throw "Falha ao copiar o app para $target." }
 Copy-Item -LiteralPath (Join-Path $projectRoot 'packaging\rc-racing.ico') -Destination (Join-Path $target 'rc-racing.ico') -Force
 
+# Full installer too (installs the app and the board driver; needs administrator).
+Copy-Item -LiteralPath (Join-Path $projectRoot 'installer\RC-Racing-Setup.exe') -Destination (Join-Path $root 'Instalar RC Racing.exe') -Force
+
 # One-click launcher at the drive root (works whatever letter the PC assigns).
 # It runs a local copy so pulling the pen drive out never kills a running race;
 # after the first time only changed files are copied.
@@ -56,6 +59,10 @@ RC Racing - versao portatil
 
 Nada e instalado no PC (o app roda de uma copia temporaria, entao o pen drive pode
 ser removido depois que o painel abrir). Fechar a janela encerra o app e desliga os reles.
+
+Instalar de vez neste PC (recomendado num PC novo): de dois cliques em
+"Instalar RC Racing.exe". Ele instala o app e o driver da placa ESP32 e cria o
+atalho "RC Racing - Diagnostico", que mostra o que falta se algo nao funcionar.
 
 Requisitos do PC: Windows 10 ou 11 (o Microsoft Edge ja vem instalado).
 Se o painel mostrar "ESP32 nao encontrado" com a placa conectada, o PC ainda nao

@@ -2,11 +2,13 @@
 
 ## App para Windows (recomendado)
 
-Instale com `installer\RC-Racing-Setup.exe` (não pede administrador). Depois, é só abrir **RC Racing** pelo atalho da área de trabalho ou do menu Iniciar:
+Instale com `installer\RC-Racing-Setup.exe` (pede permissão de administrador). O instalador coloca o app em Arquivos de Programas, **instala o driver USB da placa ESP32 (Silicon Labs CP210x, assinado pela Microsoft)** e cria os atalhos **RC Racing** e **RC Racing - Diagnóstico**. Depois, é só abrir **RC Racing**:
 
 1. O app liga o serviço, **acha o ESP32 sozinho** (qualquer porta COM com chip USB de ESP32; Bluetooth é ignorado) e reconhece o volante pelo Windows.
 2. O painel abre numa janela própria, sem barra de navegador.
 3. Aperte **A** no volante (contagem 3, 2, 1, GO) ou segure o acelerador 0,5 s para largar; **B** finaliza.
+
+Se algo não for reconhecido, abra **RC Racing - Diagnóstico** (menu Iniciar): ele gera `RC Racing - diagnostico.txt` na área de trabalho com o que está OK e o que fazer (placa sem driver, volante no modo D, cabo só de carga, porta ocupada...). O próprio painel também mostra essas dicas no rodapé. Se a porta 8080 estiver ocupada, o app usa a próxima livre até 8089.
 
 Fechar a janela encerra o app em alguns segundos e desliga os relés. Se uma corrida estiver em andamento, ele espera a corrida terminar. Enquanto houver outra janela do painel aberta (por exemplo uma aba do navegador em 127.0.0.1:8080), o app continua ligado. Logs: `%LOCALAPPDATA%\RC Racing\logs\app.log`.
 

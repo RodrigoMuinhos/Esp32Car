@@ -18,7 +18,10 @@ export class TelemetrySocket {
   connect() {
     if (this.stopped) return;
     const host = window.location?.hostname || "localhost";
-    const socket = new WebSocket(`ws://${host}:8080/ws/telemetry`);
+    // Served by the app: same port (8080, or the next free one). Vite dev: 8080.
+    const pagePort = window.location?.port;
+    const port = pagePort && pagePort !== "5173" ? pagePort : "8080";
+    const socket = new WebSocket(`ws://${host}:${port}/ws/telemetry`);
     this.socket = socket;
     socket.onopen = () => {
       this.lastMessage = performance.now();

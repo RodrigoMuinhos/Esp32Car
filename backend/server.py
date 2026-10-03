@@ -13,6 +13,7 @@ import serial
 from serial.tools import list_ports
 from aiohttp import web, WSMsgType
 from backend.control import Controller
+from backend import diagnose
 
 # Packaged app (PyInstaller) unpacks the frontend next to the executable.
 ROOT = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parents[1]))
@@ -28,7 +29,8 @@ def find_ports():
     ports = [p for p in list_ports.comports() if p.vid is not None and 'BTHENUM' not in (p.hwid or '').upper()]
     ports.sort(key=lambda p: p.vid not in ESP32_VIDS)
     return [p.device for p in ports]
-ALLOWED_ORIGINS = {f'http://{host}:{port}' for host in ('localhost', '127.0.0.1') for port in (8080, 5173)}
+ALLOWED_ORIGINS = {f'http://{host}:{port}' for host in ('localhost', '127.0.0.1') for port in (*range(8080, 8090), 5173)}
+HINT_INTERVAL = 10
 LOG = logging.getLogger('cockpit')
 
 
@@ -64,6 +66,11 @@ class Bridge:
         self.usb_connected = False
         self.usb_input = dict(steering=0, throttle=0, brake=0)
         self.usb_buttons = dict(start=False, finish=False)
+        # Plain-language explanations (no driver, wheel in D mode...), refreshed in the background.
+        self.board_hint = 'ESP32 não encontrado. Conecte o cabo USB da placa.'
+        self.wheel_hint = None
+        self.hint_task = None
+        self.hint_at = -HINT_INTERVAL
         try:
             self.xinput = ctypes.WinDLL('xinput1_4.dll')
             self.xinput.XInputGetState.argtypes = [ctypes.c_uint32, ctypes.POINTER(PadState)]
@@ -137,7 +144,7 @@ class Bridge:
                         if candidates:
                             self.port_name = candidates[self.attempt % len(candidates)]; self.attempt += 1
                         else:
-                            self.error = 'ESP32 não encontrado. Conecte o cabo USB da placa.'
+                            self.error = self.board_hint
                             self.retry_at = now + 1
                     if not self.port and now >= self.retry_at:
                         self.port = await asyncio.to_thread(self.serial_factory, self.port_name, 115200, timeout=0, write_timeout=.1)
@@ -146,8 +153,23 @@ class Bridge:
                     if self.port: self.pump(time.monotonic())
                 except (serial.SerialException, OSError) as error:
                     self.disconnect(f'{self.port_name}: {error}')
+                self.refresh_hints(now)
                 await asyncio.sleep(.02)
         finally: self.disconnect('Serviço encerrado.')
+
+    def refresh_hints(self, now):
+        """Explains a missing board or wheel; the Windows queries run off the control loop."""
+        need_board = not self.controller.connected
+        need_wheel = not self.usb_connected
+        if not (need_board or need_wheel) or (self.hint_task and not self.hint_task.done()) or now - self.hint_at < HINT_INTERVAL:
+            if not need_wheel: self.wheel_hint = None
+            return
+        self.hint_at = now
+
+        async def check():
+            if need_board: self.board_hint = await asyncio.to_thread(diagnose.board_hint)
+            if need_wheel: self.wheel_hint = await asyncio.to_thread(diagnose.wheel_hint, False)
+        self.hint_task = asyncio.create_task(check())
 
     def telemetry(self, client=None):
         c = self.controller
@@ -156,7 +178,8 @@ class Bridge:
                     relayMask=self.confirmed if c.connected else None, requestedMask=c.mask,
                     port=self.port_name, controlAvailable=client is not None and client is self.owner,
                     usbConnected=self.usb_connected, usbInput=self.usb_input,
-                    phase=c.phase, countdown=c.countdown(), raceId=c.race_id, status=self.error or c.reason)
+                    phase=c.phase, countdown=c.countdown(), raceId=c.race_id,
+                    status=self.error or (self.wheel_hint if not self.usb_connected and c.phase in ('idle', 'finished') else None) or c.reason)
 
     async def websocket(self, request):
         if request.headers.get('Origin') not in ALLOWED_ORIGINS:

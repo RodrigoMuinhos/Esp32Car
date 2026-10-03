@@ -9,10 +9,12 @@ Projeto: carrinho RC controlado por volante USB. Volante → painel React → We
 | `src/main.cpp`, `platformio.ini` | Firmware ESP32 "CONTROLE v5" (PlatformIO). Só regravar se a placa for nova. |
 | `backend/control.py` | Regras da corrida (puro, testável): A = contagem 3-2-1, acelerador 0,5 s larga, B ou 15 s parado finaliza. |
 | `backend/server.py` | Ponte serial + XInput (volante) + WebSocket em `127.0.0.1:8080`. Detecta a porta do ESP32 sozinho. |
-| `backend/app.py` | Ponto de entrada do app Windows (abre a janela Edge `--app`, fecha junto com ela). |
+| `backend/app.py` | Ponto de entrada do app Windows (porta livre 8080–8089, abre a janela Edge `--app`, fecha junto com ela; `--diagnostico` gera relatório). |
+| `backend/diagnose.py` | Diagnóstico da máquina: placa/driver, volante (XInput x modo D), Edge, portas. Também alimenta as dicas do painel. |
+| `packaging/drivers/cp210x/` | Driver USB da placa (Silicon Labs, assinado WHQL), instalado pelo instalador via `pnputil`. |
 | `web/src/` | Painel React/Vite. `raceRules.ts` espelha `control.py` para o modo simulação. `audio/` = sons sintetizados + voz. |
 | `public/` | Imagens, fontes, `voice/*.mp3` (contagem "Three, Two, One, Go"). |
-| `scripts/build-installer.ps1` | Gera `installer\RC-Racing-Setup.exe` (Vite → PyInstaller → Inno Setup). |
+| `scripts/build-installer.ps1` | Gera `installer\RC-Racing-Setup.exe` (Vite → PyInstaller → Inno Setup); o instalador pede admin e instala o driver. |
 | `scripts/build-usb.ps1` | Copia o app portátil para um pen drive (`-Drive E:`). |
 | `scripts/start-cockpit.ps1` / `abrir_cockpit.bat` | Modo desenvolvimento (roda do código-fonte). |
 
@@ -82,7 +84,10 @@ powershell -ExecutionPolicy Bypass -File scripts\build-installer.ps1
 ```
 Sem instalar nada: use o pen drive (`scripts\build-usb.ps1 -Drive E:` numa máquina com o build pronto) e dê dois cliques em `RC Racing.bat` no pen drive.
 
-### 7. Pronto
+### 7. Se algo não funcionar
+Rode `RC Racing.exe --diagnostico` (atalho "RC Racing - Diagnóstico") e leia `RC Racing - diagnostico.txt` na área de trabalho: lista o que está OK e o que fazer.
+
+### 8. Pronto
 Abrir o app (atalho, `RC Racing.bat` do pen drive ou `abrir_cockpit.bat`). Apertar **A** no volante: ignição, "Three, Two, One, Go", carrinho liberado. **B** finaliza. Detalhes em `README-cockpit.md`.
 
 ## Cuidados
