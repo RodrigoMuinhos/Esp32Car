@@ -1,7 +1,7 @@
 """Pure relay control logic. No hardware side effects; time is injectable.
 
 The race starts and ends from the physical pedals alone:
-hold throttle 0.3 s -> start; hold brake 5 s -> finish; 10 s without throttle -> finish.
+press the start button (wheel A) or hold throttle 0.3 s -> start; hold brake 5 s -> finish; 10 s without throttle -> finish.
 """
 import math
 
@@ -13,13 +13,14 @@ INACTIVITY = 10.0
 MOVING_THROTTLE = 3
 PANEL_INPUT_TIMEOUT = .4
 ZERO = dict(steering=0, throttle=0, brake=0)
-READY = 'Segure o acelerador por 0,3 s para largar.'
+READY = 'Aperte A no volante (ou segure o acelerador 0,3 s) para largar.'
 
 
 class Controller:
     def __init__(self):
         self.connected = False
         self.armed = False
+        self.start_was_down = False
         self.panel_input = None
         self.panel_at = 0.0
         self.race_id = 0
@@ -37,6 +38,10 @@ class Controller:
         # A new race only arms after the throttle is released, so a stop never
         # turns into an automatic restart while the pedal is still pressed.
         self.armed = False
+
+    def begin(self, now):
+        self.phase = 'running'; self.enabled = True; self.hold_since = self.brake_since = None
+        self.race_id += 1; self.last_move = now; self.reason = 'Corrida ativa.'
 
     def stop(self, reason='Relés desligados.'):
         self.reset('finished' if self.phase in ('running', 'finished') else 'idle', reason)
@@ -87,9 +92,14 @@ class Controller:
             if self.phase in ('starting', 'running'): self.stop('Volante sem sinal. Corrida encerrada.')
             self.input = dict(ZERO)
             return
-        self.input = dict(source)
+        start_down = bool(source.get('start'))
+        start_pressed = start_down and not self.start_was_down  # react to the press, not to holding
+        self.start_was_down = start_down
+        self.input = {k: source[k] for k in ZERO}
         throttle, brake, steering = source['throttle'], source['brake'], source['steering']
-        if self.phase in ('idle', 'finished'):
+        if start_pressed and self.phase in ('idle', 'finished', 'starting'):
+            self.begin(now)
+        elif self.phase in ('idle', 'finished'):
             if throttle <= THROTTLE_THRESHOLD: self.armed = True
             elif self.armed:
                 self.phase = 'starting'; self.hold_since = now; self.reason = 'Mantenha o acelerador.'
@@ -99,8 +109,7 @@ class Controller:
                 self.phase = 'idle'; self.hold_since = None; self.reason = 'Início cancelado.'
                 return
             if now - self.hold_since < START_HOLD: return
-            self.phase = 'running'; self.enabled = True; self.hold_since = None
-            self.race_id += 1; self.last_move = now; self.reason = 'Corrida ativa.'
+            self.begin(now)
         # running
         if brake > BRAKE_THRESHOLD:
             if self.brake_since is None: self.brake_since = now

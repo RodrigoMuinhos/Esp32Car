@@ -296,10 +296,10 @@ export function StartSequence({
           : state === "finished"
             ? ["CORRIDA FINALIZADA", status, -1]
             : [
-                "SEGURE O ACELERADOR 0,3 s",
+                "APERTE A PARA LARGAR",
                 status === "Início cancelado."
                   ? "INÍCIO CANCELADO"
-                  : "para iniciar a corrida",
+                  : "ou segure o acelerador 0,3 s",
                 -1,
               ];
   const count = hold

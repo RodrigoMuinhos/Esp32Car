@@ -18,6 +18,8 @@ from backend.control import Controller
 ROOT = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parents[1]))
 # USB-serial chips used by ESP32 boards: CP210x, CH340/CH9102, FTDI, Espressif native USB.
 ESP32_VIDS = {0x10C4, 0x1A86, 0x0403, 0x303A}
+# XInput button that starts the race (A on the Logitech wheel).
+START_BUTTON = 0x1000
 
 
 def find_ports():
@@ -60,6 +62,7 @@ class Bridge:
         self.owner = None
         self.usb_connected = False
         self.usb_input = dict(steering=0, throttle=0, brake=0)
+        self.usb_start = False
         try:
             self.xinput = ctypes.WinDLL('xinput1_4.dll')
             self.xinput.XInputGetState.argtypes = [ctypes.c_uint32, ctypes.POINTER(PadState)]
@@ -77,6 +80,7 @@ class Bridge:
         self.usb_input = dict(steering=max(-100, min(100, p.lx / 32767 * 100)),
                               throttle=100 if p.buttons & 512 else p.rt / 255 * 100,
                               brake=100 if p.buttons & 256 else p.lt / 255 * 100) if self.usb_connected else dict(steering=0, throttle=0, brake=0)
+        self.usb_start = self.usb_connected and bool(p.buttons & START_BUTTON)
 
     def disconnect(self, reason):
         self.controller.connected = False
@@ -109,7 +113,7 @@ class Bridge:
             raise serial.SerialException('ESP32 sem confirmação. Reconectando.')
         if not self.controller.connected and now - self.opened > 8:
             raise serial.SerialException('Firmware não respondeu como CONTROLE v5.')
-        self.controller.tick(now, self.usb_input if self.usb_connected else None)
+        self.controller.tick(now, dict(self.usb_input, start=self.usb_start) if self.usb_connected else None)
         desired = self.controller.mask
         if desired != self.sent_mask:
             self.last_match = now

@@ -109,7 +109,7 @@ test("acelerador 0,3s larga, simulação reage, volta é registrada e ESC para",
   await expect(
     page.getByRole("heading", { name: "Seu carrinho. Em tempo real." }),
   ).toBeVisible();
-  await expect(page.locator(".start-card")).toContainText("SEGURE O ACELERADOR");
+  await expect(page.locator(".start-card")).toContainText("APERTE A PARA LARGAR");
   const throttle = page.getByRole("slider", { name: "Teste acelerador", exact: true });
   await expect(page.locator(".power-readout")).toContainText("BLOQUEADA");
   await throttle.fill("75");

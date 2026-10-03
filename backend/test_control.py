@@ -19,6 +19,14 @@ class ControllerTests(unittest.TestCase):
         self.assertAlmostEqual(self.c.hold()['remaining'], .05, places=2)
         self.c.tick(.3, pad(throttle=100, steering=-50))
         self.assertEqual(self.c.phase, 'running'); self.assertEqual(self.c.mask, 9); self.assertEqual(self.c.race_id, 1)
+    def test_start_button_starts_immediately_on_press_only(self):
+        self.c.tick(0, pad()); self.c.tick(.05, dict(pad(), start=True))
+        self.assertEqual(self.c.phase, 'running'); self.assertEqual(self.c.race_id, 1)
+        self.c.message(dict(type='stop', data={}), .1)
+        self.c.tick(.15, dict(pad(), start=True))  # still held: no restart
+        self.assertEqual(self.c.phase, 'finished')
+        self.c.tick(.2, pad()); self.c.tick(.25, dict(pad(), start=True))
+        self.assertEqual(self.c.phase, 'running'); self.assertEqual(self.c.race_id, 2)
     def test_short_tap_cancels(self):
         self.c.tick(0, pad()); self.run_for(0, .1, throttle=100); self.c.tick(.15, pad())
         self.assertEqual(self.c.phase, 'idle'); self.assertEqual(self.c.reason, 'Início cancelado.')

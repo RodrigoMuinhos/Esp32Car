@@ -6,7 +6,7 @@ Instale com `installer\RC-Racing-Setup.exe` (não pede administrador). Depois, �
 
 1. O app liga o serviço, **acha o ESP32 sozinho** (qualquer porta COM com chip USB de ESP32; Bluetooth é ignorado) e reconhece o volante pelo Windows.
 2. O painel abre numa janela própria, sem barra de navegador.
-3. Segure o acelerador 0,3 s e comece a correr.
+3. Aperte **A** no volante (ou segure o acelerador 0,3 s) e comece a correr.
 
 Fechar a janela encerra o app em alguns segundos e desliga os relés. Se uma corrida estiver em andamento, ele espera a corrida terminar. Enquanto houver outra janela do painel aberta (por exemplo uma aba do navegador em 127.0.0.1:8080), o app continua ligado. Logs: `%LOCALAPPDATA%\RC Racing\logs\app.log`.
 
@@ -22,7 +22,8 @@ Para gerar o instalador de novo após mudanças: `powershell -ExecutionPolicy By
 - Os indicadores K1–K4 mostram o estado **confirmado pelo ESP32**, não apenas o comando enviado.
 - Com a corrida parada, clique em K1, K2, K3 ou K4 para um pulso de 0,5 segundo.
 - **A corrida é controlada só pelos pedais, sem tocar no painel:**
-  - **Segure o acelerador por 0,3 s** → a corrida começa e o cronômetro zera. Um toque rápido não inicia ("INÍCIO CANCELADO").
+  - **Aperte A no volante** → a corrida começa na hora (o botão é `START_BUTTON` em `backend/server.py`).
+  - Ou **segure o acelerador por 0,3 s** → a corrida começa e o cronômetro zera. Um toque rápido não inicia ("INÍCIO CANCELADO").
   - **Segure o freio por 5 s** → a corrida termina. Soltar antes disso cancela o encerramento.
   - **10 s sem acelerar** → a corrida termina por inatividade.
   - Depois de qualquer parada, solte o acelerador antes de iniciar outra corrida.

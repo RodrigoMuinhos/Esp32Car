@@ -351,7 +351,7 @@ export function Dashboard() {
               ? "FREIO 5s ENCERRA"
               : state === "starting"
                 ? "MANTENHA O ACELERADOR"
-                : "ACELERADOR 0,3s INICIA"}
+                : "BOTÃO A INICIA"}
           </div>
           <button className="stop-button" onClick={() => halt()}>
             <Square size={14} fill="currentColor" /> PARAR <kbd>ESC</kbd>
@@ -400,7 +400,7 @@ export function Dashboard() {
             <span className="eyebrow">GUIA RÁPIDO</span>
             <h2 id="help-title">Tudo pronto para a largada.</h2>
             <p>
-              A corrida começa ao segurar o acelerador por 0,3 segundo e termina
+              A corrida começa ao apertar A no volante (ou segurar o acelerador por 0,3 segundo) e termina
               ao segurar o freio por 5 segundos ou após 10 segundos parado. Não
               é preciso tocar no painel. Na simulação, use os controles de
               teste ou o volante USB.
