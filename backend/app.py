@@ -18,7 +18,8 @@ from pathlib import Path
 
 from aiohttp import web
 from backend import diagnose
-from backend.server import Bridge, create_app
+from backend.history import History
+from backend.server import DB_FILE, Bridge, create_app
 
 DATA = Path(os.environ.get('LOCALAPPDATA') or Path.home()) / 'RC Racing'
 LOG_FILE = DATA / 'logs' / 'app.log'
@@ -71,7 +72,7 @@ async def serve():
     if port is None:
         alert('As portas 8080 a 8089 estão ocupadas. Feche outros programas e abra o RC Racing novamente.')
         return
-    bridge = Bridge('auto')
+    bridge = Bridge('auto', history=History(DB_FILE))
     runner = web.AppRunner(create_app(bridge))
     await runner.setup()
     await web.TCPSite(runner, '127.0.0.1', port).start()

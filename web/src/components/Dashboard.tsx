@@ -8,6 +8,7 @@ import {
   Radio,
   RotateCcw,
   Square,
+  Trophy,
   Volume2,
   VolumeX,
   X,
@@ -18,6 +19,7 @@ import { useRaceTimer } from "../hooks/useRaceTimer";
 import { useEstimatedSpeed } from "../hooks/useEstimatedSpeed";
 import { usePortrait } from "../hooks/usePortrait";
 import { useRaceAudio } from "../audio/useRaceAudio";
+import { RankingModal } from "./Ranking";
 import { MAX_SPEED } from "../raceRules";
 import {
   NO_BUTTONS,
@@ -57,10 +59,21 @@ export function Dashboard() {
     simulation ? "manual" : "usb",
   );
   const [help, setHelp] = useState(false);
+  // Ranking: opened from the header, or automatically with the result of a race.
+  const [ranking, setRanking] = useState<null | "header" | "result">(null);
   const [notice, setNotice] = useState("Pronto para uma nova sessão.");
   const gamepad = useControls();
-  const { data, online, stop, testRelay, updateControls, claimControl, tap } =
-    useTelemetry(simulation);
+  const {
+    data,
+    online,
+    stop,
+    testRelay,
+    updateControls,
+    claimControl,
+    tap,
+    lap,
+    setDriver,
+  } = useTelemetry(simulation);
   const usbConnected =
     !!gamepad?.supported || (!simulation && online && data.usbConnected);
   // Windows/XInput reading comes from the backend and keeps working while the
@@ -103,6 +116,26 @@ export function Dashboard() {
   const timer = useRaceTimer(enabled);
   // No speed sensor on the car: show an imaginary speed proportional to the throttle.
   const estimatedSpeed = useEstimatedSpeed(input, enabled);
+  // Show the result when a newly saved race arrives (not the one from before the panel opened).
+  const seenResult = useRef<number | null | undefined>(undefined);
+  useEffect(() => {
+    const id = data.lastResult?.raceId ?? null;
+    if (seenResult.current !== undefined && id !== null && id !== seenResult.current)
+      setRanking("result");
+    if (online || simulation) seenResult.current = id;
+  }, [data.lastResult?.raceId, online, simulation]);
+  // A new start closes the ranking so the countdown is visible.
+  useEffect(() => {
+    if (state === "countdown" || state === "running") setRanking(null);
+  }, [state]);
+  // The lap flag also goes to the backend, which saves the lap times.
+  const raceTimer = {
+    ...timer,
+    lap: () => {
+      timer.lap();
+      if (!simulation && state === "running") lap();
+    },
+  };
   const sound = useRaceAudio({
     state,
     countdown: data.countdown,
@@ -207,6 +240,14 @@ export function Dashboard() {
           simulation={simulation}
         />
         <button
+          className="icon-button ranking-button"
+          aria-label="Ranking"
+          title="Ranking e histórico"
+          onClick={() => setRanking("header")}
+        >
+          <Trophy size={17} />
+        </button>
+        <button
           className="icon-button sound-toggle"
           aria-label={sound.muted ? "Ligar som" : "Desligar som"}
           title={sound.muted ? "Ligar som" : "Desligar som"}
@@ -301,7 +342,7 @@ export function Dashboard() {
         </div>
         <div className="bottom-row">
           <CarStatus telemetry={display} simulation={simulation} />
-          <TimingPanel timer={timer} running={enabled} />
+          <TimingPanel timer={raceTimer} running={enabled} />
           <ControlSettings
             mode={mode}
             setMode={setMode}
@@ -438,6 +479,14 @@ export function Dashboard() {
           <ArrowUpRight size={12} />
         </span>
       </footer>
+      {ranking && (
+        <RankingModal
+          result={ranking === "result" ? data.lastResult : null}
+          driver={data.driver}
+          onDriver={setDriver}
+          onClose={() => setRanking(null)}
+        />
+      )}
       {help && (
         <div className="modal-backdrop" onClick={() => setHelp(false)}>
           <section

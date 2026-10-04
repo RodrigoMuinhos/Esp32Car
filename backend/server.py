@@ -5,6 +5,7 @@ import contextlib
 import ctypes
 import json
 import logging
+import os
 import sys
 import time
 from pathlib import Path
@@ -14,9 +15,12 @@ from serial.tools import list_ports
 from aiohttp import web, WSMsgType
 from backend.control import Controller
 from backend import diagnose
+from backend.history import History, clean_driver
 
 # Packaged app (PyInstaller) unpacks the frontend next to the executable.
 ROOT = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parents[1]))
+DATA = Path(os.environ.get('LOCALAPPDATA') or Path.home()) / 'RC Racing'
+DB_FILE = DATA / 'rc-racing.db'
 # USB-serial chips used by ESP32 boards: CP210x, CH340/CH9102, FTDI, Espressif native USB.
 ESP32_VIDS = {0x10C4, 0x1A86, 0x0403, 0x303A}
 # XInput buttons that start and finish the race (A and B on the Logitech wheel).
@@ -44,7 +48,10 @@ class PadState(ctypes.Structure):
 
 
 class Bridge:
-    def __init__(self, port='auto', serial_factory=serial.Serial):
+    def __init__(self, port='auto', serial_factory=serial.Serial, history=None):
+        self.history = history or History()
+        self.driver = self.history.driver
+        self.last_result = None
         self.auto = port == 'auto'
         self.port_name = 'USB' if self.auto else port
         self.attempt = 0
@@ -154,6 +161,8 @@ class Bridge:
                 except (serial.SerialException, OSError) as error:
                     self.disconnect(f'{self.port_name}: {error}')
                 self.refresh_hints(now)
+                if self.controller.finished_race:
+                    await self.save_race()
                 await asyncio.sleep(.02)
         finally: self.disconnect('Serviço encerrado.')
 
@@ -171,6 +180,23 @@ class Bridge:
             if need_wheel: self.wheel_hint = await asyncio.to_thread(diagnose.wheel_hint, False)
         self.hint_task = asyncio.create_task(check())
 
+    async def save_race(self):
+        """Stores the race that just ended and publishes its result to the panel."""
+        race, self.controller.finished_race = self.controller.finished_race, None
+        best = min(race['laps_ms']) if race['laps_ms'] else None
+        try:
+            race_id = await asyncio.to_thread(self.history.record, race, self.driver)
+            position = await asyncio.to_thread(self.history.lap_position, best) if best else None
+        except Exception:
+            LOG.exception('Não foi possível salvar a corrida no histórico')
+            return
+        self.last_result = dict(raceId=race_id, driver=self.driver, durationMs=race['duration_ms'],
+                                laps=len(race['laps_ms']), bestLapMs=best, position=position, reason=race['reason'])
+
+    def set_driver(self, name):
+        self.history.driver = name
+        self.driver = clean_driver(name)
+
     def telemetry(self, client=None):
         c = self.controller
         return dict(connected=c.connected, carEnabled=c.enabled, **c.input,
@@ -179,6 +205,7 @@ class Bridge:
                     port=self.port_name, controlAvailable=client is not None and client is self.owner,
                     usbConnected=self.usb_connected, usbInput=self.usb_input,
                     phase=c.phase, countdown=c.countdown(), raceId=c.race_id,
+                    driver=self.driver, lapCount=len(c.laps) if c.phase == 'running' else 0, lastResult=self.last_result,
                     status=self.error or (self.wheel_hint if not self.usb_connected and c.phase in ('idle', 'finished') else None) or c.reason)
 
     async def websocket(self, request):
@@ -207,6 +234,8 @@ class Bridge:
                 is_stop = isinstance(payload, dict) and (payload.get('type') == 'stop' or (
                     payload.get('type') == 'enable' and isinstance(payload.get('data'), dict) and payload['data'].get('carEnabled') is False))
                 if ws is not self.owner and not is_stop: continue
+                if isinstance(payload, dict) and payload.get('type') == 'driver' and isinstance(payload.get('data'), dict):
+                    await asyncio.to_thread(self.set_driver, payload['data'].get('name')); continue
                 self.controller.message(payload, time.monotonic())
         finally:
             task.cancel()
@@ -224,6 +253,11 @@ def create_app(bridge=None):
     app = web.Application(client_max_size=4096)
     async def health(_):
         return web.json_response(dict(service='rc-cockpit', **bridge.telemetry()))
+    async def ranking(request):
+        headers = {}
+        if request.headers.get('Origin') in ALLOWED_ORIGINS:  # Vite dev server on another port
+            headers['Access-Control-Allow-Origin'] = request.headers['Origin']
+        return web.json_response(await asyncio.to_thread(bridge.history.ranking), headers=headers)
     async def index(_):
         if not (ROOT / 'dist/index.html').exists(): raise web.HTTPServiceUnavailable(text='Execute npm run build.')
         return web.FileResponse(ROOT / 'dist/index.html', headers={'Cache-Control': 'no-store'})
@@ -241,6 +275,7 @@ def create_app(bridge=None):
         with contextlib.suppress(asyncio.CancelledError): await task
     app.cleanup_ctx.append(lifecycle)
     app.router.add_get('/health', health)
+    app.router.add_get('/api/ranking', ranking)
     app.router.add_get('/ws/telemetry', bridge.websocket)
     app.router.add_get('/', index)
     app.router.add_get('/{path:.*}', asset)
@@ -253,4 +288,5 @@ if __name__ == '__main__':
     parser.add_argument('--port', type=int, default=8080)
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
-    web.run_app(create_app(Bridge(args.serial_port)), host='127.0.0.1', port=args.port)
+    DATA.mkdir(parents=True, exist_ok=True)
+    web.run_app(create_app(Bridge(args.serial_port, history=History(DB_FILE))), host='127.0.0.1', port=args.port)

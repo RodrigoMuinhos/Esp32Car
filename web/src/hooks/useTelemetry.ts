@@ -130,6 +130,8 @@ export function useTelemetry(simulation: boolean) {
       tapped.current = { ...NO_BUTTONS, [button]: true, until: performance.now() + 120 };
     },
     claimControl: () => client.current?.claimControl(),
+    lap: () => client.current?.lap(),
+    setDriver: (name: string) => client.current?.setDriver(name),
     testRelay: (relay: number) => client.current?.testRelay(relay),
   };
 }

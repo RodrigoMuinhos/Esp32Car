@@ -10,6 +10,7 @@ Projeto: carrinho RC controlado por volante USB. Volante → painel React → We
 | `backend/control.py` | Regras da corrida (puro, testável): A = contagem 3-2-1, acelerador 0,5 s larga, B ou 15 s parado finaliza. |
 | `backend/server.py` | Ponte serial + XInput (volante) + WebSocket em `127.0.0.1:8080`. Detecta a porta do ESP32 sozinho. |
 | `backend/app.py` | Ponto de entrada do app Windows (porta livre 8080–8089, abre a janela Edge `--app`, fecha junto com ela; `--diagnostico` gera relatório). |
+| `backend/history.py` | Histórico e ranking em SQLite (`%LOCALAPPDATA%\RC Racingc-racing.db`): corridas, voltas, nome do piloto. `GET /api/ranking`. |
 | `backend/diagnose.py` | Diagnóstico da máquina: placa/driver, volante (XInput x modo D), Edge, portas. Também alimenta as dicas do painel. |
 | `packaging/drivers/cp210x/` | Driver USB da placa (Silicon Labs, assinado WHQL), instalado pelo instalador via `pnputil`. |
 | `web/src/` | Painel React/Vite. `raceRules.ts` espelha `control.py` para o modo simulação. `audio/` = sons sintetizados + voz. |

@@ -8,6 +8,32 @@ export type RaceState =
 /** Wheel buttons: A (start) and B (finish). */
 export type Buttons = { start: boolean; finish: boolean };
 export const NO_BUTTONS: Buttons = { start: false, finish: false };
+/** Result of the race that just ended (saved in the history database). */
+export interface RaceResult {
+  raceId: number;
+  driver: string;
+  durationMs: number;
+  laps: number;
+  bestLapMs: number | null;
+  position: number | null;
+  reason: string;
+}
+export interface Ranking {
+  driver: string;
+  totalRaces: number;
+  totalMs: number;
+  bestLaps: { driver: string; lapMs: number; date: string; raceId: number }[];
+  mostLaps: { driver: string; laps: number; durationMs: number; date: string; raceId: number }[];
+  recent: {
+    id: number;
+    driver: string;
+    date: string;
+    durationMs: number;
+    laps: number;
+    bestLapMs: number | null;
+    reason: string;
+  }[];
+}
 export type DriveMode = "normal" | "sport" | "precision";
 export interface Telemetry extends Input {
   connected: boolean;
@@ -26,6 +52,8 @@ export interface Telemetry extends Input {
   raceId: number;
   /** Seconds left in the 3-2-1 countdown, or null. */
   countdown: number | null;
+  driver: string;
+  lastResult: RaceResult | null;
   status: string;
   position: { x: number; y: number; heading: number } | null;
 }
@@ -47,6 +75,8 @@ export const EMPTY_TELEMETRY: Telemetry = {
   phase: "idle",
   raceId: 0,
   countdown: null,
+  driver: "Piloto",
+  lastResult: null,
   status: "Conectando à placa...",
   position: null,
 };
@@ -113,6 +143,24 @@ export function parseTelemetry(raw: string): Partial<Telemetry> | null {
         out[key] = data[key];
     if (data.relayMask === null) out.relayMask = null;
     if (Number.isInteger(data.raceId) && data.raceId >= 0) out.raceId = data.raceId;
+    if (typeof data.driver === "string") out.driver = data.driver.slice(0, 24);
+    const result = data.lastResult;
+    if (result === null) out.lastResult = null;
+    else if (
+      result &&
+      Number.isInteger(result.raceId) &&
+      typeof result.durationMs === "number" &&
+      typeof result.driver === "string"
+    )
+      out.lastResult = {
+        raceId: result.raceId,
+        driver: result.driver.slice(0, 24),
+        durationMs: result.durationMs,
+        laps: Number.isInteger(result.laps) ? result.laps : 0,
+        bestLapMs: typeof result.bestLapMs === "number" ? result.bestLapMs : null,
+        position: Number.isInteger(result.position) ? result.position : null,
+        reason: typeof result.reason === "string" ? result.reason.slice(0, 120) : "",
+      };
     if (data.countdown === null) out.countdown = null;
     else if (typeof data.countdown === "number" && Number.isFinite(data.countdown))
       out.countdown = clamp(data.countdown, 0, 10);

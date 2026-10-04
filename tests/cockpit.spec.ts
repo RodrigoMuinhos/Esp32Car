@@ -271,6 +271,63 @@ test("modo real mostra a corrida do backend e envia o volante do navegador sem W
   await page.getByRole("button", { name: /PARAR/ }).first().click();
   await expect.poll(() => messages.some((m) => m.type === "stop")).toBe(true);
 });
+test("ranking abre com o resultado da corrida, salva o piloto e fecha na largada", async ({
+  page,
+}) => {
+  const messages: { type: string; data: Record<string, unknown> }[] = [];
+  const backend: Record<string, unknown> = { phase: "running", carEnabled: true, lastResult: null };
+  await page.route("**/api/ranking", (route) =>
+    route.fulfill({
+      json: {
+        driver: "Rodrigo",
+        totalRaces: 2,
+        totalMs: 95000,
+        bestLaps: [
+          { driver: "Rodrigo", lapMs: 9100, date: "2026-10-04T10:00:00-03:00", raceId: 7 },
+          { driver: "Ana", lapMs: 9800, date: "2026-10-03T18:00:00-03:00", raceId: 3 },
+        ],
+        mostLaps: [{ driver: "Rodrigo", laps: 4, durationMs: 52000, date: "2026-10-04T10:00:00-03:00", raceId: 7 }],
+        recent: [
+          { id: 7, driver: "Rodrigo", date: "2026-10-04T10:00:00-03:00", durationMs: 52000, laps: 4, bestLapMs: 9100, reason: "Corrida finalizada pelo botão B." },
+        ],
+      },
+    }),
+  );
+  await page.routeWebSocket(/\/ws\/telemetry$/, (ws) => {
+    const send = () =>
+      ws.send(JSON.stringify({ type: "telemetry", data: {
+        connected: true, controlAvailable: true, usbConnected: true, driver: "Rodrigo", ...backend,
+      } }));
+    const interval = setInterval(send, 50);
+    ws.onClose(() => clearInterval(interval));
+    ws.onMessage((m) => messages.push(JSON.parse(String(m))));
+    send();
+  });
+  await page.goto("/");
+  await expect(page.locator(".start-card")).toContainText("CORRIDA ATIVA");
+  await page.getByRole("button", { name: "Registrar volta", exact: true }).click();
+  await expect.poll(() => messages.some((m) => m.type === "lap")).toBe(true);
+  Object.assign(backend, {
+    phase: "finished",
+    carEnabled: false,
+    lastResult: { raceId: 7, driver: "Rodrigo", durationMs: 52000, laps: 4, bestLapMs: 9100, position: 1, reason: "B" },
+  });
+  const dialog = page.getByRole("dialog", { name: "Ranking" });
+  await expect(dialog).toContainText("CORRIDA FINALIZADA · Rodrigo");
+  await expect(dialog).toContainText("00:52.000");
+  await expect(dialog.locator("tr.mine")).toContainText("00:09.100");
+  await dialog.getByRole("tab", { name: "Histórico" }).click();
+  await expect(dialog).toContainText("Botão B");
+  await dialog.getByLabel("Nome do piloto").fill("Ana Clara");
+  await dialog.getByLabel("Nome do piloto").press("Enter");
+  await expect
+    .poll(() => messages.some((m) => m.type === "driver" && m.data.name === "Ana Clara"))
+    .toBe(true);
+  Object.assign(backend, { phase: "countdown", countdown: 2.5 });
+  await expect(dialog).toBeHidden();
+  await page.getByRole("button", { name: "Ranking" }).click();
+  await expect(page.getByRole("dialog", { name: "Ranking" })).not.toContainText("CORRIDA FINALIZADA");
+});
 for (const [width, height] of [
   [1366, 768],
   [1920, 1080],

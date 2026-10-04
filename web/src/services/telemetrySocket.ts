@@ -62,6 +62,13 @@ export class TelemetrySocket {
   claimControl() {
     this.send({ type: "claim", data: {} });
   }
+  /** Lap flag pressed: the backend times it with its own clock. */
+  lap() {
+    this.send({ type: "lap", data: {} });
+  }
+  setDriver(name: string) {
+    this.send({ type: "driver", data: { name } });
+  }
   testRelay(relay: number) {
     this.send({ type: "relay", data: { relay } });
   }

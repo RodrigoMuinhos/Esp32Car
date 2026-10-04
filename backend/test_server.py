@@ -39,6 +39,19 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.bridge.controller.phase, 'idle')
         await observer.close()
 
+    async def test_ranking_endpoint_and_driver_name(self):
+        ws = await self.ws(); await self.until(ws, lambda d: d['connected'])
+        await ws.send_json(dict(type='driver', data=dict(name='Rodrigo')))
+        await self.until(ws, lambda d: d['driver'] == 'Rodrigo')
+        self.bridge.controller.finished_race = dict(duration_ms=12000, laps_ms=[5000, 4000], reason='B')
+        result = (await self.until(ws, lambda d: d['lastResult']))['lastResult']
+        self.assertEqual((result['driver'], result['bestLapMs'], result['position']), ('Rodrigo', 4000, 1))
+        response = await self.client.get('/api/ranking', headers={'Origin': 'http://127.0.0.1:5173'})
+        data = await response.json()
+        self.assertEqual(response.headers['Access-Control-Allow-Origin'], 'http://127.0.0.1:5173')
+        self.assertEqual(data['bestLaps'][0]['lapMs'], 4000); self.assertEqual(data['totalRaces'], 1)
+        await ws.close()
+
     async def test_foreign_web_page_cannot_open_controller(self):
         with self.assertRaises(WSServerHandshakeError):
             await self.client.ws_connect('/ws/telemetry', headers={'Origin': 'https://example.com'})

@@ -1823,3 +1823,121 @@ footer > span:last-child {
 .sound-toggle[aria-pressed="false"] .sound-meter {
   opacity: 0.25;
 }
+/* Ranking / race history modal */
+.ranking-modal {
+  width: min(760px, 100%);
+  max-width: 760px;
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+}
+.ranking-modal h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 14px;
+}
+.ranking-modal h2 svg {
+  color: var(--orange, #fc6f20);
+}
+.race-result {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border: 1px solid var(--orange, #fc6f20);
+  border-radius: 6px;
+  background: #fc6f201a;
+}
+.race-result svg {
+  color: var(--orange, #fc6f20);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.race-result div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+.race-result b {
+  color: var(--cream, #ffe8d0);
+  font-family: "Oxanium", sans-serif;
+}
+.driver-field {
+  display: grid;
+  gap: 4px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+.driver-field input {
+  font: 600 16px "Rajdhani", sans-serif;
+  color: var(--cream, #ffe8d0);
+  background: #1a1a1a;
+  border: 1px solid #ffe8d04d;
+  border-radius: 4px;
+  padding: 7px 10px;
+  max-width: 280px;
+}
+.driver-field input:focus {
+  outline: none;
+  border-color: var(--orange, #fc6f20);
+}
+.driver-field small {
+  letter-spacing: 0;
+  opacity: 0.7;
+}
+.ranking-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.ranking-tabs button {
+  flex: 1;
+  padding: 8px;
+  font: 700 12px "Rajdhani", sans-serif;
+  letter-spacing: 0.6px;
+  color: var(--cream, #ffe8d0);
+  background: #1a1a1a;
+  border: 1px solid #ffe8d04d;
+  border-radius: 3px;
+}
+.ranking-tabs button.active {
+  border-color: var(--orange, #fc6f20);
+  background: #fc6f2026;
+}
+.ranking-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.ranking-table th {
+  text-align: left;
+  font-size: 10px;
+  letter-spacing: 1px;
+  opacity: 0.7;
+  padding: 6px 8px;
+  border-bottom: 1px solid #ffe8d033;
+}
+.ranking-table td {
+  padding: 7px 8px;
+  border-bottom: 1px solid #ffe8d014;
+}
+.ranking-table td.time {
+  font-family: "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.ranking-table tr.mine td {
+  background: #fc6f202e;
+  color: var(--cream, #ffe8d0);
+}
+.ranking-empty {
+  padding: 18px 4px;
+  opacity: 0.8;
+}
+.ranking-totals {
+  margin: 12px 0 0;
+  font-size: 11px !important;
+  opacity: 0.7;
+}

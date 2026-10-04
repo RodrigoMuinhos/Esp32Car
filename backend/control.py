@@ -12,6 +12,8 @@ START_HOLD = 0.5
 COUNTDOWN = 3.0
 INACTIVITY = 15.0
 MOVING_THROTTLE = 3
+MIN_LAP = 1.0  # seconds; ignores double clicks on the lap flag
+MIN_RACE = 1.0  # shorter races are not saved to the history
 PANEL_INPUT_TIMEOUT = .4
 ZERO = dict(steering=0, throttle=0, brake=0)
 READY = 'Aperte A (ou segure o acelerador 0,5 s) para largar.'
@@ -25,10 +27,23 @@ class Controller:
         self.panel_input = None
         self.panel_at = 0.0
         self.race_id = 0
-        self.now = self.last_move = self.go_at = 0.0
+        self.now = self.last_move = self.go_at = self.race_start = 0.0
+        self.laps = []
+        # Result of the race that just ended, for the history; the bridge takes it.
+        self.finished_race = None
+        self.phase = 'idle'
         self.reset('idle', 'Aguardando ESP32.')
 
-    def reset(self, phase, reason):
+    def reset(self, phase, reason, end=None):
+        if self.phase == 'running':
+            # Any way out of a running race (B, idle, PARAR, lost wheel/board) ends it.
+            end = self.now if end is None else end
+            if end - self.race_start >= MIN_RACE:
+                marks = [self.race_start] + self.laps
+                self.finished_race = dict(
+                    duration_ms=round((end - self.race_start) * 1000),
+                    laps_ms=[round((b - a) * 1000) for a, b in zip(marks, marks[1:])],
+                    reason=reason)
         self.phase = phase
         self.enabled = False
         self.mask = self.turn = self.drive = 0
@@ -42,22 +57,27 @@ class Controller:
 
     def begin(self, now):
         self.phase = 'running'; self.enabled = True; self.hold_since = None
-        self.race_id += 1; self.last_move = now
+        self.race_id += 1; self.last_move = self.race_start = now; self.laps = []
         self.reason = 'Corrida ativa. Aperte B para finalizar.'
 
-    def stop(self, reason='Relés desligados.'):
-        self.reset('finished' if self.phase in ('running', 'finished') else 'idle', reason)
+    def stop(self, reason='Relés desligados.', end=None):
+        self.reset('finished' if self.phase in ('running', 'finished') else 'idle', reason, end)
 
     def countdown(self):
         """Seconds left before GO, for the HUD and the start beeps."""
         return max(0.0, self.go_at - self.now) if self.phase == 'countdown' else None
 
     def message(self, message, now):
+        self.now = max(self.now, now)
         if not isinstance(message, dict) or not isinstance(message.get('data'), dict):
             self.stop('Comando inválido.'); return
         kind, data = message.get('type'), message['data']
         if kind == 'stop' or (kind == 'enable' and data.get('carEnabled') is False):
             self.stop('Corrida encerrada pelo painel.' if self.phase == 'running' else 'Relés desligados.'); return
+        if kind == 'lap':
+            last = self.laps[-1] if self.laps else self.race_start
+            if self.phase == 'running' and now - last >= MIN_LAP: self.laps.append(now)
+            return
         if kind == 'relay':
             relay = data.get('relay')
             if not self.connected or self.phase not in ('idle', 'finished') or type(relay) is not int or relay not in (1, 2, 3, 4): return
@@ -125,7 +145,8 @@ class Controller:
             self.stop('Corrida finalizada pelo botão B.'); return
         if throttle > MOVING_THROTTLE: self.last_move = now
         elif now - self.last_move >= INACTIVITY:
-            self.stop('Corrida finalizada por inatividade.'); return
+            # The race time ends when the car last moved, not 15 s later.
+            self.stop('Corrida finalizada por inatividade.', end=self.last_move); return
         # Hysteresis matches the existing relay controller (~15% / 8%).
         if steering >= 15: self.turn = 4
         elif steering <= -15: self.turn = 8
