@@ -84,7 +84,7 @@ def free_port():
     for port in PORTS:
         with socket.socket() as s:
             try:
-                s.bind(('127.0.0.1', port)); return port
+                s.bind(('0.0.0.0', port)); return port
             except OSError:
                 continue
     return None

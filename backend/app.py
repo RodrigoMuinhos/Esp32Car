@@ -1,4 +1,4 @@
-"""RC Racing desktop app: starts the bridge, opens the panel in its own window
+"""RC Racing desktop app: starts the server for the 4 cars, opens the panel in its own window
 and exits once the window is closed and no race is running.
 
 `RC Racing.exe --diagnostico` writes a machine report to the Desktop instead.
@@ -19,7 +19,7 @@ from pathlib import Path
 from aiohttp import web
 from backend import diagnose
 from backend.history import History
-from backend.server import DB_FILE, Bridge, create_app
+from backend.server import DB_FILE, Server, create_app, simulation_server
 
 DATA = Path(os.environ.get('LOCALAPPDATA') or Path.home()) / 'RC Racing'
 LOG_FILE = DATA / 'logs' / 'app.log'
@@ -72,10 +72,12 @@ async def serve():
     if port is None:
         alert('As portas 8080 a 8089 estão ocupadas. Feche outros programas e abra o RC Racing novamente.')
         return
-    bridge = Bridge('auto', history=History(DB_FILE))
-    runner = web.AppRunner(create_app(bridge))
+    server = Server(history=History(DB_FILE))
+    sim = simulation_server()  # the panel's SIMULAÇÃO mode: virtual cars, own database
+    runner = web.AppRunner(create_app(server, sim))
     await runner.setup()
-    await web.TCPSite(runner, '127.0.0.1', port).start()
+    # All interfaces: the cockpit tablets connect over the event's local network.
+    await web.TCPSite(runner, '0.0.0.0', port).start()
     LOG.info('Servindo em %s', url(port))
     open_window(port)
     started, seen, idle_since = time.monotonic(), False, None
@@ -83,9 +85,10 @@ async def serve():
         while True:
             await asyncio.sleep(1)
             now = time.monotonic()
-            seen = seen or bool(bridge.clients)
-            racing = bridge.controller.phase in ('starting', 'countdown', 'running', 'pulse')
-            if bridge.clients or racing or (not seen and now - started < FIRST_WINDOW_TIMEOUT):
+            seen = seen or bool(server.clients or sim.clients)
+            racing = any(s.controller.phase in ('starting', 'countdown', 'running', 'pulse', 'selftest')
+                         for s in server.fleet.slots)
+            if server.clients or sim.clients or racing or (not seen and now - started < FIRST_WINDOW_TIMEOUT):
                 idle_since = None; continue
             idle_since = idle_since or now
             if now - idle_since >= CLOSE_GRACE:

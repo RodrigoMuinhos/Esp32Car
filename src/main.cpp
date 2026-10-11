@@ -18,6 +18,18 @@ void aplicar(uint8_t mascara) {
   ativos = mascara;
 }
 
+// Cada placa se apresenta com o numero unico do chip (MAC de fabrica), para o
+// app saber qual carrinho e qual cor mesmo trocando de porta USB.
+void apresentar() {
+  uint64_t mac = ESP.getEfuseMac();
+  char id[13];
+  snprintf(id, sizeof id, "%02X%02X%02X%02X%02X%02X",
+           (uint8_t)mac, (uint8_t)(mac >> 8), (uint8_t)(mac >> 16),
+           (uint8_t)(mac >> 24), (uint8_t)(mac >> 32), (uint8_t)(mac >> 40));
+  Serial.print("Pronto CONTROLE v6 ID ");
+  Serial.println(id);
+}
+
 void confirmar() {
   Serial.print("ESTADO ");
   Serial.println(ativos);
@@ -29,7 +41,7 @@ void setup() {
     digitalWrite(pino, DESLIGADO);
     pinMode(pino, OUTPUT);
   }
-  Serial.println("Pronto CONTROLE v5");
+  apresentar();
 }
 
 void loop() {
@@ -39,7 +51,7 @@ void loop() {
   }
   if (!Serial.available()) return;
   char comando = Serial.read();
-  if (comando == '?') Serial.println("Pronto CONTROLE v5");
+  if (comando == '?') apresentar();
   if (comando == 'S') {
     aplicar(0);
     confirmar();
