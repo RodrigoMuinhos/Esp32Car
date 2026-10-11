@@ -709,3 +709,22 @@
 .standings-board.big .time {
   font-size: clamp(18px, 1.6vw, 32px);
 }
+
+/* Static host without a server (e.g. the panel published on Vercel): explain where the race runs. */
+.fleet-wait.no-server {
+  max-width: 760px;
+  margin: 40px auto;
+  text-align: left;
+  line-height: 1.5;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.fleet-wait.no-server h2 {
+  margin: 0 0 8px;
+  font: 800 22px "Rajdhani", sans-serif;
+}
+.fleet-wait.no-server code {
+  font-family: "Oxanium", monospace;
+  font-size: 13px;
+}

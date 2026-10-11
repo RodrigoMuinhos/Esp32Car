@@ -5,6 +5,7 @@ import { useTelemetry } from "../hooks/useTelemetry";
 import { useEstimatedSpeed } from "../hooks/useEstimatedSpeed";
 import { useRaceAudio } from "../audio/useRaceAudio";
 import { simulationArena } from "../arena";
+import { serverBase } from "../services/server";
 import { RankingModal } from "./Ranking";
 import { SoundPanel } from "./SoundPanel";
 import { RaceOverlay } from "./RaceOverlay";
@@ -323,7 +324,16 @@ export function Dashboard() {
           </button>
         </div>
       </div>
-      {!online ? (
+      {!online && serverBase() === null ? (
+        <section className="fleet-wait no-server" role="status">
+          <h2>Este endereço só tem o painel.</h2>
+          <p>
+            A corrida roda no <b>PC Central</b> (servidor ligado às placas e aos volantes). Abra o painel pelo próprio
+            PC Central, em <code>http://&lt;IP do PC Central&gt;:8080</code> na rede do evento, ou informe o servidor
+            no endereço: <code>?servidor=https://…</code> (a página em HTTPS só alcança servidor em HTTPS).
+          </p>
+        </section>
+      ) : !online ? (
         <p className="fleet-wait" role="status">
           {simulation ? "Conectando à simulação do servidor…" : "Conectando ao servidor da corrida no PC Central…"}
         </p>

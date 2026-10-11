@@ -5,6 +5,7 @@ import {
   type Telemetry,
 } from "../types/telemetry";
 import { arenaQuery } from "../arena";
+import { socketBase } from "./server";
 export class TelemetrySocket {
   private socket: WebSocket | null = null;
   private retry = 0;
@@ -19,17 +20,26 @@ export class TelemetrySocket {
   connect() {
     if (this.stopped) return;
     const host = window.location?.hostname || "localhost";
-    // Served by the app: same port (8080, or the next free one). Vite dev: 8080.
-    const pagePort = window.location?.port;
-    const port = pagePort && pagePort !== "5173" ? pagePort : "8080";
     // Each cockpit tablet follows its color (?vaga=N). The central PC itself is also
     // the operator (the server only accepts that from this computer).
     const params = new URLSearchParams(window.location?.search ?? "");
     const vaga = params.get("vaga") ?? "1";
     const local = ["localhost", "127.0.0.1"].includes(host);
-    const socket = new WebSocket(
-      `ws://${host}:${port}/ws/telemetry?vaga=${encodeURIComponent(vaga)}${local ? "&painel=1" : ""}${arenaQuery()}`,
-    );
+    const base = socketBase();
+    if (base === null) {
+      // No server to talk to (static host without ?servidor=): stay offline, never crash.
+      this.onStatus(false);
+      return;
+    }
+    let socket: WebSocket;
+    try {
+      socket = new WebSocket(`${base}/ws/telemetry?vaga=${encodeURIComponent(vaga)}${local ? "&painel=1" : ""}${arenaQuery()}`);
+    } catch {
+      // Blocked by the browser (e.g. ws:// from an https page): offline, try again later.
+      this.onStatus(false);
+      this.retry = window.setTimeout(() => this.connect(), 5000);
+      return;
+    }
     this.socket = socket;
     socket.onopen = () => {
       this.lastMessage = performance.now();
