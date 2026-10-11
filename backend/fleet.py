@@ -213,6 +213,9 @@ class Fleet:
         self.simulated_camera = False
         # Finishing order of the current start (time trial completed), for the champion.
         self.finish_order = []
+        # Battery writes waiting for the server to store them off the control loop.
+        self.defer_saves = False
+        self.pending_saves = {}
         self.load()
 
     # ---------- persistence ----------
@@ -238,6 +241,17 @@ class Fleet:
 
     def save(self, key, value):
         if self.settings: self.settings.set_setting(key, '' if value is None else value)
+
+    def save_later(self, key, value):
+        """Frequent values (battery time): written in the background by the server, all in one
+        transaction, so the control loop never waits for the disk (a stall would drop the boards).
+        Without a server (tests) they are written at once."""
+        if not self.defer_saves: return self.save(key, value)
+        self.pending_saves[key] = '' if value is None else value
+
+    def take_pending_saves(self):
+        pending, self.pending_saves = self.pending_saves, {}
+        return pending
 
     def note(self, text):
         self.events = ([dict(at=time.time(), text=text)] + self.events)[:8]
@@ -336,8 +350,8 @@ class Fleet:
     # ---------- battery ----------
     def save_battery(self, slot, now):
         slot.battery_saved = now
-        self.save(f'slot{slot.number}_battery_used', f'{slot.battery_used:.1f}')
-        self.save(f'slot{slot.number}_battery_on', '1' if slot.battery_on else '0')
+        self.save_later(f'slot{slot.number}_battery_used', f'{slot.battery_used:.1f}')
+        self.save_later(f'slot{slot.number}_battery_on', '1' if slot.battery_on else '0')
 
     def follow_battery(self, slot, now):
         if slot.controller.phase in ('countdown', 'running') and not slot.battery_on:

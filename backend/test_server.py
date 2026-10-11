@@ -304,6 +304,14 @@ class ArenaTests(unittest.IsolatedAsyncioTestCase):
             await client.close()
         self.assertIsNone(self.real.public_origins)  # the event server never answers the internet
 
+    def test_battery_writes_leave_the_control_loop_and_land_in_one_transaction(self):
+        f = self.sim.fleet
+        f.battery(1, 'new', 10.0)
+        self.assertIn('slot1_battery_used', f.pending_saves)  # waiting, not written in the loop
+        self.sim.history.set_settings(f.take_pending_saves())
+        self.assertEqual(float(self.sim.history.setting('slot1_battery_used')), 0.0)
+        self.assertEqual(f.pending_saves, {})
+
     def test_simulation_restarts_ready(self):
         from backend.server import seed_simulation
         from backend.history import History

@@ -89,6 +89,11 @@ class History:
         with self.lock, self.db:
             self.db.execute('INSERT OR REPLACE INTO settings VALUES (?, ?)', (key, str(value)))
 
+    def set_settings(self, values):
+        """Several settings in one transaction (one disk write)."""
+        with self.lock, self.db:
+            self.db.executemany('INSERT OR REPLACE INTO settings VALUES (?, ?)', [(k, str(v)) for k, v in values.items()])
+
     @property
     def driver(self):
         row = self.db.execute("SELECT value FROM settings WHERE key = 'driver'").fetchone()

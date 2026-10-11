@@ -110,6 +110,8 @@ class Server:
         self.history = history or History()
         self.fleet = Fleet(serial_factory=serial_factory, ports=ports, settings=self.history, cockpits=cockpits,
                            **({'wheels': wheels} if wheels else {}))
+        self.fleet.defer_saves = True  # frequent writes go to the disk off the control loop
+        self.saving = None
         # Test server only: no camera to measure, the camera check passes as "simulada".
         self.fleet.simulated_camera = autopilot is not None
         self.sim_done_at = None  # SIMULAÇÃO: when the last race ended (the next one starts by itself)
@@ -173,10 +175,19 @@ class Server:
                     await self.close_short_race(slot)
                 self.refresh_hints(now)
                 self.next_simulated_race(time.monotonic())
+                self.store_pending()
                 await asyncio.sleep(.02)
         finally:
             self.fleet.stop_all('Serviço encerrado.')
             self.fleet.shutdown()
+            pending = self.fleet.take_pending_saves()
+            if pending: self.history.set_settings(pending)  # nothing is lost when the app closes
+
+    def store_pending(self):
+        """Writes the waiting battery values in one transaction, in a thread (never in the control loop)."""
+        if self.saving and not self.saving.done(): return
+        pending = self.fleet.take_pending_saves()
+        if pending: self.saving = asyncio.create_task(asyncio.to_thread(self.history.set_settings, pending))
 
     def next_simulated_race(self, now):
         """SIMULAÇÃO only: the champion is shown for a while, then the batteries are refilled and a
