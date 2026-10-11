@@ -1,0 +1,54 @@
+/* Color tokens: the only place where colors are defined.
+   Palette: Azul Grafite, Areia Off-White, Hot Wheels Blue, Flame Orange
+   Soft, Warm Gray (+ an intermediate gray). Names follow the role. */
+:root {
+  /* Surfaces */
+  --surface: #f2ebdd; /* light background, reading areas */
+  --surface-dark: #172331; /* dark background, headers, bars */
+
+  /* Text */
+  --ink: #172331; /* text on light (13.4:1) */
+  --ink-soft: color-mix(in srgb, var(--ink) 78%, var(--surface)); /* secondary text on light, ~7:1 */
+  --ink-on-dark: #f2ebdd; /* text on dark (13.4:1) */
+  --ink-muted-on-dark: #a9a59d; /* secondary text on dark (6.5:1) */
+
+  /* Lines */
+  --line: #a9a59d; /* technical lines and dividers (not text on light) */
+  --mid: #6f7478; /* intermediate contrast: control borders, large text only */
+
+  /* Brand */
+  --brand: #1769d2; /* buttons, big numbers, highlights */
+  --on-brand: #f2ebdd; /* label on brand: large or bold only (4.4:1) */
+  --accent: #f47a32; /* active selection, speed, race elements */
+  --on-accent: #172331; /* label on accent (5.8:1) */
+
+  /* Danger (wine): critical actions only, never a car color: STOP, failures,
+     blocks (NÃO PODE RODAR). Always with icon + text. */
+  --danger: #8e1b1b;
+  --on-danger: #f2ebdd; /* 7.6:1 */
+
+  /* Approved (technical green): status only, never identity or a normal button:
+     APROVADO, ONLINE, UNIDADE APTA. Fill with --on-ok text; --ok-ink for text on light. */
+  --ok: #3fae6a;
+  --on-ok: #172331; /* 5.6:1 */
+  --ok-ink: #22663f; /* green text on light (5.9:1) */
+
+  /* The cars, one color each (data, not decoration): marks, stripes and a
+     discreet tint, always with the number or name next to them. */
+  --car-1: #1565d8; /* 01 AZUL ELÉTRICO */
+  --car-2: #f36b21; /* 02 LARANJA */
+  --car-3: #d62828; /* 03 VERMELHO */
+  --car-4: #7b3fc6; /* 04 ROXO */
+  --car-5: #169b62; /* 05 VERDE */
+  --car-6: #e5b700; /* 06 AMARELO OURO */
+  --car-7: #00a7b5; /* 07 CIANO */
+  --car-8: #e83e8c; /* 08 ROSA */
+  --car-9: #173f73; /* 09 AZUL MARINHO */
+  --car-10: #73b817; /* 10 LIMA */
+  --car-11: #f04f3d; /* 11 CORAL */
+  --car-12: #a642d6; /* 12 VIOLETA */
+  --car-13: #008c82; /* 13 TURQUESA */
+  --car-14: #d88900; /* 14 ÂMBAR */
+  --car-15: #c21875; /* 15 MAGENTA */
+  --car-16: #4c57c9; /* 16 ÍNDIGO */
+}

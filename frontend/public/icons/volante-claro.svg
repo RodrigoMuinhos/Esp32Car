@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Volante (fundo escuro)">
+  <title>Volante</title>
+  <!-- RC Racing steering wheel: D-shaped rim (flat bottom), thick grips at 9 and 3 o'clock,
+       three spokes, hub, and the orange top marker that shows the wheel centered. No background. -->
+  <g fill="none" stroke="#F2EBDD" stroke-linecap="round" stroke-linejoin="round">
+    <!-- rim -->
+    <path d="M36.9 106 A50 50 0 1 1 91.1 106 Z" stroke-width="10"/>
+    <!-- grips -->
+    <path d="M17 46.9 A50 50 0 0 0 17 81.1" stroke-width="17"/>
+    <path d="M111 46.9 A50 50 0 0 1 111 81.1" stroke-width="17"/>
+    <!-- spokes -->
+    <path d="M47 69 L18 73" stroke-width="11"/>
+    <path d="M81 69 L110 73" stroke-width="11"/>
+    <path d="M64 83 L64 104" stroke-width="12"/>
+  </g>
+  <!-- hub -->
+  <circle cx="64" cy="66" r="18" fill="#F2EBDD"/>
+  <circle cx="64" cy="66" r="7" fill="none" stroke="#F47A32" stroke-width="3.5"/>
+  <!-- top center marker -->
+  <path d="M58.8 14.3 A50 50 0 0 1 69.2 14.3" fill="none" stroke="#F47A32" stroke-width="10"/>
+</svg>

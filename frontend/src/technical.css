@@ -1,0 +1,758 @@
+/* Central Técnica (individual view with the real fleet): commissioning, acceptance,
+   monitoring and maintenance of one car. Colors only from theme.css.
+   Orange = action / in progress, green = approved (status only), wine = failure / emergency,
+   gray = neutral. The car color is identity only (stripe and unit mark). */
+
+.cockpit.tc-mode .header {
+  border-bottom: 4px solid var(--slot-color);
+}
+.cockpit.mech-grid-mode {
+  padding-bottom: 0;
+}
+.env-port {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font: 700 11px/1 "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  border: 1px solid var(--mid);
+  border-radius: 6px;
+}
+.env-port i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mid);
+}
+.env-port.online i {
+  background: var(--ok);
+}
+
+.technical-central {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+}
+.tc-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.tc-tabs button {
+  padding: 9px 14px;
+  font: 800 12px/1 "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--mid);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.tc-tabs button.active {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.tc-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+  padding: 8px 12px;
+  font: 800 12px/1 "Rajdhani", sans-serif;
+  letter-spacing: 0.08em;
+  color: var(--ink-on-dark);
+  background: var(--mid);
+  border-radius: 6px;
+}
+.tc-state i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.tc-state.ready {
+  color: var(--on-ok);
+  background: var(--ok);
+}
+.tc-state:is(.testing, .warning) {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+.tc-state:is(.fault, .emergency_stop) {
+  color: var(--on-danger);
+  background: var(--danger);
+}
+
+/* Same verdict as the grid card: LIBERADO (green) / NÃO PODE RODAR (wine) / in test (orange) / racing (blue). */
+.tc-verdict {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 9px 14px;
+  font-size: 13.5px;
+  border-radius: 6px;
+}
+.tc-verdict b {
+  font: 800 15px/1 "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+}
+.tc-verdict.ok {
+  color: var(--on-ok);
+  background: var(--ok);
+}
+.tc-verdict.bad {
+  color: var(--on-danger);
+  background: var(--danger);
+}
+.tc-verdict.warn {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+.tc-verdict.run {
+  color: var(--on-brand);
+  background: var(--brand);
+}
+
+/* ---------- Layout: inputs | acceptance (the strongest) | media ---------- */
+.tc-grid {
+  display: grid;
+  grid-template-columns: minmax(250px, 25%) minmax(0, 1fr) minmax(250px, 25%);
+  gap: 10px;
+  align-items: start;
+}
+.tc-col {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+}
+.tc-col.tc-wide {
+  grid-column: span 2;
+}
+.tc-grid > .tc-log {
+  grid-column: 1 / -1;
+}
+
+/* ---------- Panels ---------- */
+.tc-panel {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+  padding: 12px 14px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.tc-panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.tc-panel h2 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  font: 800 14px/1.1 "Rajdhani", sans-serif;
+  letter-spacing: 0.04em;
+}
+.tc-panel h2 svg {
+  width: 17px;
+  height: 17px;
+}
+.tc-panel h2 small {
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.tc-tag {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+.tc-badge {
+  padding: 4px 8px;
+  font: 800 10.5px/1 "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.tc-badge.ok {
+  color: var(--on-ok);
+  background: var(--ok);
+}
+.tc-badge.warn {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+.tc-badge.bad {
+  color: var(--on-danger);
+  background: var(--danger);
+}
+.tc-badge.idle {
+  color: var(--ink-soft);
+  border: 1px solid var(--mid);
+}
+.tc-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: 12.5px;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 45%, transparent);
+}
+.tc-row > span {
+  color: var(--ink-soft);
+}
+.tc-row > b {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-align: right;
+  font-weight: 700;
+}
+.tc-row > b svg {
+  width: 13px;
+  height: 13px;
+}
+.tc-row > b.good {
+  color: var(--ok-ink);
+}
+.tc-row > b.warn {
+  padding: 0 5px;
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 3px;
+}
+.tc-row > b.bad {
+  color: var(--danger);
+}
+.tc-note {
+  margin: 4px 0 0;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+.tc-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 18px;
+}
+.tc-bar {
+  height: 8px;
+  margin: 2px 0 4px;
+  background: color-mix(in srgb, var(--line) 40%, transparent);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.tc-bar i {
+  display: block;
+  height: 100%;
+  background: var(--brand);
+}
+.tc-bar i:is(.low, .critical) {
+  background: var(--accent);
+}
+.tc-bar i.stop {
+  background: var(--danger);
+}
+
+/* ---------- Wheel and pedals (the live widgets, with raw values) ---------- */
+.tc-input {
+  display: grid;
+  gap: 0;
+}
+.cockpit.tc-mode .tc-input .card {
+  min-height: 0;
+  height: auto;
+  border-radius: 10px 10px 0 0;
+}
+.cockpit.tc-mode .steering-card .steering-content {
+  min-height: 150px;
+}
+.cockpit.tc-mode .pedals-card .pedals {
+  min-height: 190px;
+}
+.tc-raw {
+  margin: 0;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+}
+.tc-raw b {
+  color: var(--ink);
+}
+
+/* ---------- Acceptance: table + summary + actions ---------- */
+.tc-acceptance-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px;
+  gap: 12px;
+  align-items: stretch;
+}
+.tc-acceptance table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.tc-acceptance th {
+  padding: 6px 8px;
+  font: 800 11px/1 "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  text-align: left;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--line);
+}
+.tc-acceptance td {
+  padding: 7px 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 45%, transparent);
+  vertical-align: middle;
+}
+.tc-acceptance td small {
+  color: var(--ink-soft);
+}
+.tc-acceptance tr.testing td {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.tc-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font: 800 11px/1 "Rajdhani", sans-serif;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.tc-status i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.tc-status.idle {
+  color: var(--ink-soft);
+}
+.tc-status.passed {
+  color: var(--ok-ink);
+}
+.tc-status.passed svg {
+  color: var(--ok);
+}
+.tc-status.failed {
+  color: var(--danger);
+}
+.tc-status.testing {
+  color: var(--ink);
+}
+.tc-status.testing svg {
+  color: var(--accent);
+}
+.tc-spin {
+  animation: tc-spin 1.2s linear infinite;
+}
+@keyframes tc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tc-spin {
+    animation: none;
+  }
+}
+.tc-summary {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 4px;
+  padding: 12px 10px;
+  text-align: center;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+}
+.tc-summary strong {
+  font: 700 44px/1 "Oxanium", sans-serif;
+}
+.tc-summary span,
+.tc-summary em {
+  font: 800 13px/1.15 "Rajdhani", sans-serif;
+  font-style: normal;
+  letter-spacing: 0.05em;
+}
+.tc-summary em {
+  font-size: 15px;
+}
+.tc-summary small {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+.tc-summary.ok {
+  border-color: var(--ok);
+  background: color-mix(in srgb, var(--ok) 16%, var(--surface));
+}
+.tc-summary.ok :is(strong, span, em, svg) {
+  color: var(--ok-ink);
+}
+.tc-summary.bad {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, var(--surface));
+}
+.tc-summary.bad :is(strong, span, em, svg) {
+  color: var(--danger);
+}
+.tc-summary.testing {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+}
+.tc-summary.idle {
+  border-style: dashed;
+}
+.tc-step {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  font-weight: 700;
+  font-size: 13px;
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  border-left: 4px solid var(--accent);
+  border-radius: 4px;
+}
+.tc-actions,
+.tc-config-actions,
+.tc-dialog > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.tc-actions button,
+.tc-config-actions button,
+.tc-dialog button,
+.tc-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 12px;
+  font: 800 11.5px/1 "Rajdhani", sans-serif;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--mid);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.tc-actions button:disabled,
+.tc-config-actions button:disabled,
+.tc-dialog button:disabled,
+.tc-reset:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.tc-actions .tc-primary,
+.tc-dialog .tc-primary {
+  margin-left: auto;
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.tc-config-actions label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+}
+
+/* ---------- Actuators: K1-K4 blocks + emergency ---------- */
+.tc-relay-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.tc-relay {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.tc-relay b {
+  font: 800 12.5px/1.1 "Rajdhani", sans-serif;
+  letter-spacing: 0.04em;
+}
+.tc-relay-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 800 11px/1 "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+.tc-relay-state i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--line);
+}
+/* A relay on is live operation (orange), never the car color. */
+.tc-relay.on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+}
+.tc-relay.on .tc-relay-state {
+  color: var(--ink);
+}
+.tc-relay.on .tc-relay-state i {
+  background: var(--accent);
+}
+.tc-relay.fail {
+  border-color: var(--danger);
+}
+.tc-relay.fail small {
+  color: var(--danger);
+  font-weight: 700;
+}
+.tc-relay small {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+.tc-relay button,
+.tc-claim {
+  padding: 7px 8px;
+  font: 800 11.5px/1 "Rajdhani", sans-serif;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--mid);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.tc-relay button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.tc-claim {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.tc-relays .tc-actions .tc-tag {
+  align-self: center;
+}
+.tc-relays .tc-emergency {
+  margin-top: 6px;
+}
+@media (max-width: 760px) {
+  .tc-relay-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.tc-emergency {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 16px;
+  font: 800 13px/1 "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  color: var(--on-danger);
+  background: var(--danger);
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.tc-emergency kbd {
+  padding: 2px 5px;
+  font-size: 10px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+}
+
+/* ---------- Camera ---------- */
+.tc-camera-body {
+  display: grid;
+  gap: 8px;
+}
+.tc-preview {
+  position: relative;
+  min-height: 150px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--surface-dark);
+}
+
+/* ---------- Log ---------- */
+.tc-log ol {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 170px;
+  overflow: auto;
+}
+.tc-log.full ol {
+  max-height: 420px;
+}
+.tc-log li {
+  display: grid;
+  grid-template-columns: 10px 70px 90px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 35%, transparent);
+}
+.tc-log li i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.tc-log li.success i {
+  background: var(--ok);
+}
+.tc-log li.warning i {
+  background: var(--accent);
+}
+.tc-log li.error i {
+  background: var(--danger);
+}
+.tc-log li.error p {
+  color: var(--danger);
+  font-weight: 700;
+}
+.tc-log time,
+.tc-log li span {
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.tc-log li p {
+  margin: 0;
+}
+
+/* ---------- Bottom bar: unit, summary, reset, emergency (always visible) ---------- */
+.tc-bottom {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin: 0 calc(-1 * clamp(10px, 1.4vw, 24px));
+  padding: 10px clamp(10px, 1.4vw, 24px);
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+}
+.tc-unit {
+  display: grid;
+  gap: 2px;
+}
+.tc-unit small {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted-on-dark);
+}
+.tc-unit strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 800 15px/1 "Rajdhani", sans-serif;
+  letter-spacing: 0.04em;
+}
+.tc-unit strong b {
+  width: 6px;
+  height: 18px;
+  border-radius: 2px;
+}
+.tc-summary-line {
+  flex: 1;
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted-on-dark);
+}
+.tc-bottom .tc-reset {
+  color: var(--ink-on-dark);
+  background: transparent;
+  border-color: var(--ink-muted-on-dark);
+}
+
+/* ---------- Dialogs: area clear, did you hear it ---------- */
+.tc-dialog {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: min(440px, calc(100vw - 32px));
+  padding: 22px;
+  text-align: center;
+  color: var(--ink);
+  background: var(--surface);
+  border-top: 6px solid var(--accent);
+  border-radius: 10px;
+}
+.tc-dialog h2 {
+  margin: 0;
+  font: 800 20px/1.1 "Rajdhani", sans-serif;
+}
+.tc-dialog p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+.tc-dialog svg {
+  color: var(--accent);
+}
+
+/* ---------- Smaller screens: one column, the page scrolls ---------- */
+@media (max-width: 1180px) {
+  .tc-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .tc-col.tc-center,
+  .tc-col.tc-wide {
+    grid-column: 1 / -1;
+    order: -1;
+  }
+}
+@media (max-width: 760px) {
+  .tc-grid,
+  .tc-acceptance-body,
+  .tc-two {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tc-log li {
+    grid-template-columns: 10px 64px minmax(0, 1fr);
+  }
+  .tc-log li span {
+    display: none;
+  }
+}
+
+/* Race frame behind the Visão Mecânico (grids 4/8/16 and the Central Técnica): transparent center, decoration on the edges.
+   Fixed to the window, so it stays put while the page scrolls. */
+.cockpit.mech-grid-mode {
+  background: url("./assets/moldura-central.png") center / 100% 100% no-repeat fixed, var(--surface);
+}
+/* Front layer slightly see-through so the frame shows behind the panels; a light blur
+   keeps the text over the decoration readable. */
+.cockpit.tc-mode :is(.tc-panel, .tc-raw, .tc-input .card) {
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  backdrop-filter: blur(3px);
+}
+/* Same see-through front layer on the grid cards (keeping each car's discreet tint). */
+.cockpit.mech-grid-mode .mech-card:not(.free) {
+  background: color-mix(in srgb, color-mix(in srgb, var(--slot-color) 14%, var(--surface)) 84%, transparent);
+  backdrop-filter: blur(3px);
+}
+.cockpit.mech-grid-mode .mech-card.free {
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  backdrop-filter: blur(3px);
+}

@@ -1,0 +1,1634 @@
+/* Visão Mecânico: light, dense and flat. Colors only from theme.css.
+   The car being serviced (?vaga=N, picked in the grid) shows its color as a
+   stripe under the header and a tint behind the cards (--slot-color). */
+
+.cockpit.mech-mode {
+  color: var(--ink);
+  background: var(--surface);
+}
+.cockpit.mech-mode .header {
+  border-bottom: 4px solid var(--slot-color);
+}
+/* Individual view: a discreet tint of the car's color behind the cards. */
+.cockpit.mech-mode:not(.mech-grid-mode) {
+  background: color-mix(in srgb, var(--slot-color) 12%, var(--surface));
+}
+
+/* ---------- Cards ---------- */
+.cockpit.mech-mode .card {
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+.cockpit.mech-mode .card::before {
+  display: none;
+}
+.cockpit.mech-mode .card-heading h2,
+.cockpit.mech-mode .card-heading h2 svg,
+.cockpit.mech-mode .car-metrics svg {
+  color: var(--ink);
+}
+.cockpit.mech-mode .pedals-card .card-heading h2 svg {
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+}
+.cockpit.mech-mode :is(.card-tag, .card-foot, .scale-labels, .map-coordinate, .map-north, .micro-note,
+    .track-bottom, .angle > span, .angle p, .angle small, .pedal-column > span, .car-metrics > span,
+    .lap-time > span, .timing-details > div > span, .relay-note, .relay-note span, .speed-number span,
+    .gauge-min, .gauge-max, .power-readout small) {
+  color: var(--ink-soft);
+}
+.cockpit.mech-mode :is(.angle p b, .angle b, .car-metrics b, .settings-sliders b, .test-sliders b,
+    .pedal-column > strong, .settings-sliders label, .test-sliders label, .lap-time strong,
+    .timing-details strong, .pedal-readout) {
+  color: var(--ink);
+}
+/* Big numbers: brand blue (large text only). */
+.cockpit.mech-mode :is(.cyan, .angle strong) {
+  color: var(--brand);
+}
+.cockpit.mech-mode .green {
+  color: var(--ink) !important;
+}
+.cockpit.mech-mode .red {
+  color: var(--danger) !important;
+}
+.cockpit.mech-mode .car-illustration .green {
+  color: var(--ink) !important;
+}
+.cockpit.mech-mode input[type="range"] {
+  accent-color: var(--accent);
+}
+
+/* ---------- Calibration: live wheel and pedals only while it is on ---------- */
+.calibration-toggle {
+  padding: 3px 8px;
+  font: 700 10px "Rajdhani", sans-serif;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--mid);
+  border-radius: 4px;
+}
+.calibration-toggle.active {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.cockpit.mech-mode .calibration-off :is(.steering-content, .steering-scale, .pedals) {
+  opacity: 0.45;
+}
+
+/* ---------- Speedometer ---------- */
+.cockpit.mech-mode .speed-ring {
+  background: conic-gradient(
+    from 225deg,
+    var(--accent) 0deg var(--progress),
+    var(--line) var(--progress) 270deg,
+    transparent 270deg
+  );
+}
+.cockpit.mech-mode .speed-number strong {
+  color: var(--ink);
+  text-shadow: none;
+}
+.cockpit.mech-mode .gauge-ticks i:before {
+  background: var(--line);
+}
+.cockpit.mech-mode .gauge-ticks i.major:before {
+  background: var(--mid);
+}
+.cockpit.mech-mode .gauge-needle:before {
+  background: var(--accent);
+  box-shadow: none;
+}
+
+/* ---------- Steering ---------- */
+.cockpit.mech-mode .wheel {
+  color: var(--ink-soft);
+  filter: none;
+}
+.cockpit.mech-mode .wheel img {
+  filter: none;
+}
+/* Hard stops only: the scale with a center mark (no blending). */
+.cockpit.mech-mode .steering-scale {
+  background: linear-gradient(
+    90deg,
+    var(--line) 0 49.5%,
+    var(--ink) 49.5% 50.5%,
+    var(--line) 50.5%
+  );
+}
+.cockpit.mech-mode .steering-scale i {
+  background: var(--accent);
+  box-shadow: none;
+}
+
+/* ---------- Power ---------- */
+.cockpit.mech-mode .power-readout > span {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--mid);
+}
+.cockpit.mech-mode .power-bars i {
+  background: var(--line);
+}
+.cockpit.mech-mode .power-readout:after {
+  background: conic-gradient(
+    from 225deg,
+    var(--accent) 0deg var(--power),
+    var(--line) var(--power) 270deg,
+    transparent 270deg
+  );
+}
+
+/* ---------- Pedals: throttle orange, brake blue; numbers in ink ---------- */
+.cockpit.mech-mode .pedal {
+  background: var(--surface);
+  border-color: var(--mid);
+}
+.cockpit.mech-mode .pedal-lines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 13px,
+    var(--line) 13px 14px
+  );
+}
+.cockpit.mech-mode .pedal-column.green,
+.cockpit.mech-mode .pedal-column.red {
+  color: var(--ink) !important;
+}
+.cockpit.mech-mode .pedal-fill {
+  background: var(--accent);
+  box-shadow: none;
+}
+.cockpit.mech-mode .pedal-column.red .pedal-fill {
+  background: var(--brand);
+}
+
+/* ---------- Start sequence ---------- */
+.cockpit.mech-mode .start-light {
+  color: var(--ink-soft);
+  background: var(--surface);
+  border-color: var(--mid);
+}
+.cockpit.mech-mode .start-light.hud-message strong {
+  color: var(--ink);
+}
+.cockpit.mech-mode :is(.light-0, .light-1, .light-2).lit {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.cockpit.mech-mode :is(.light-0, .light-1, .light-2).lit strong {
+  color: var(--on-accent);
+}
+.cockpit.mech-mode .light-3.lit {
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+}
+.cockpit.mech-mode .light-3.lit strong {
+  color: var(--on-brand);
+}
+.cockpit.mech-mode .lit i {
+  box-shadow: none;
+}
+.cockpit.mech-mode .hud-progress {
+  background: var(--line);
+}
+.cockpit.mech-mode .pill {
+  color: var(--ink);
+  border-color: var(--mid);
+  background: var(--surface);
+}
+
+/* ---------- Track map: solid surface instead of the photo ---------- */
+.cockpit.mech-mode .map-canvas {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+.cockpit.mech-mode .map-art image {
+  display: none;
+}
+.cockpit.mech-mode .virtual-path {
+  stroke: var(--ink);
+}
+.cockpit.mech-mode .map-empty,
+.cockpit.mech-mode .track-card .track-bottom > span {
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.cockpit.mech-mode .track-bottom {
+  border-color: var(--line);
+}
+.cockpit.mech-mode .vehicle-marker {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--ink);
+  box-shadow: none;
+}
+.cockpit.mech-mode .vehicle-marker:after {
+  border-color: var(--accent);
+}
+.cockpit.mech-mode .tiny-dot {
+  background: var(--mid);
+}
+.cockpit.mech-mode .green-dot {
+  background: var(--accent);
+}
+
+/* ---------- Timing and settings ---------- */
+.cockpit.mech-mode :is(.mode-tabs button, .race-mode button, .trial-switch button) {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--mid);
+  box-shadow: none;
+}
+.cockpit.mech-mode :is(.mode-tabs button.selected, .race-mode button.active, .trial-switch button.active) {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.cockpit.mech-mode .race-result {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--accent);
+}
+.cockpit.mech-mode .race-result svg,
+.cockpit.mech-mode .race-result b {
+  color: var(--ink);
+}
+
+/* ---------- Relays: on = orange, failure = danger ---------- */
+.cockpit.mech-mode .relay-card::after {
+  display: none;
+}
+.cockpit.mech-mode .relay-confirmations > span {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--line);
+}
+.cockpit.mech-mode .relay-confirmations i {
+  background: var(--mid);
+}
+.cockpit.mech-mode .relay-confirmations .relay-on {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.cockpit.mech-mode .relay-on i {
+  background: var(--on-accent);
+  box-shadow: none;
+}
+.cockpit.mech-mode .relay-confirmations > span.test-fail {
+  border: 2px solid var(--danger);
+}
+.cockpit.mech-mode .test-mark {
+  color: var(--ink);
+  background: var(--surface);
+}
+.cockpit.mech-mode .test-fail .test-mark {
+  color: var(--danger);
+}
+.cockpit.mech-mode .relay-key {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--mid);
+}
+.cockpit.mech-mode .relay-key strong {
+  color: var(--ink);
+}
+.cockpit.mech-mode .relay-key:hover:not(:disabled) {
+  background: var(--surface);
+  border-color: var(--accent);
+}
+.cockpit.mech-mode .relay-stop {
+  color: var(--on-danger);
+  background: var(--danger);
+  border-color: var(--danger);
+}
+.cockpit.mech-mode .claim-button {
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+}
+.cockpit.mech-mode .selftest-row,
+.cockpit.mech-mode .selftest-row label {
+  color: var(--ink);
+}
+.cockpit.mech-mode .selftest-row.bad {
+  color: var(--danger);
+}
+.cockpit.mech-mode .selftest-row input {
+  accent-color: var(--accent);
+}
+.cockpit.mech-mode .selftest-button {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--mid);
+}
+
+/* ---------- Control dock (graphite bar) ---------- */
+.cockpit.mech-mode .control-dock {
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+  border-color: var(--surface-dark);
+}
+.cockpit.mech-mode .control-dock .input-controls {
+  background: transparent;
+}
+.cockpit.mech-mode .control-dock :is(.source-select > span, .usb-instructions > span:last-child, .input-source) {
+  color: var(--ink-muted-on-dark);
+}
+.cockpit.mech-mode .control-dock .usb-instructions {
+  color: var(--ink-on-dark);
+}
+.cockpit.mech-mode .control-dock select {
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+  border-color: var(--mid);
+}
+.cockpit.mech-mode .race-actions :is(.icon-button, .race-hint, .stop-button) {
+  background: transparent;
+}
+.cockpit.mech-mode .race-actions .icon-button {
+  color: var(--ink-on-dark);
+  border-color: var(--mid);
+}
+.cockpit.mech-mode .start-button {
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+}
+.cockpit.mech-mode .race-actions .race-hint {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.cockpit.mech-mode .race-actions .stop-button {
+  color: var(--on-danger);
+  background: var(--danger);
+  border-color: var(--danger);
+}
+.cockpit.mech-mode .stop-button kbd {
+  color: var(--on-danger);
+  border-color: var(--on-danger);
+}
+.cockpit.mech-mode > footer,
+.cockpit.mech-mode > footer > span:last-child {
+  color: var(--ink-soft);
+}
+
+/* ---------- Help modal and sound panel on the light screens ---------- */
+.cockpit:is(.race-mode, .mech-mode) .modal-backdrop {
+  background: color-mix(in srgb, var(--surface-dark) 80%, transparent);
+}
+.cockpit:is(.race-mode, .mech-mode) .help-modal {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--line);
+  box-shadow: none;
+}
+.cockpit:is(.race-mode, .mech-mode) .help-modal p {
+  color: var(--ink-soft);
+}
+.cockpit:is(.race-mode, .mech-mode) .help-modal code {
+  color: var(--ink);
+  font-weight: 700;
+}
+.cockpit:is(.race-mode, .mech-mode) .sound-popover {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--line);
+  box-shadow: none;
+}
+.cockpit:is(.race-mode, .mech-mode) .sound-popover label {
+  color: var(--ink);
+}
+.cockpit:is(.race-mode, .mech-mode) .sound-master {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--mid);
+}
+.cockpit:is(.race-mode, .mech-mode) .sound-master.on {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.cockpit:is(.race-mode, .mech-mode) .sound-popover input[type="range"] {
+  accent-color: var(--accent);
+}
+
+/* ---------- Side tab: individual / grid of 4, 8, 16 ---------- */
+.cockpit.mech-mode {
+  --rail: 60px;
+  margin-left: var(--rail);
+}
+.mech-rail {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  width: var(--rail);
+  padding: 8px 6px;
+  background: var(--surface-dark);
+}
+.mech-rail button {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  padding: 8px 2px 6px;
+  color: var(--ink-on-dark);
+  background: transparent;
+  border: 1px solid var(--mid);
+  border-radius: 6px;
+}
+.mech-rail button b {
+  font: 700 14px/1 "Oxanium", sans-serif;
+}
+.mech-rail button small {
+  font: 700 8px "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+}
+.mech-rail button.active {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.wheel-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.cockpit.mech-mode .wheel {
+  color: var(--ink);
+}
+
+/* ---------- Grid mode: the page flows like the Visão Corrida ---------- */
+.cockpit.mech-grid-mode {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 10px;
+  height: auto;
+  min-height: 100dvh;
+  padding: 10px clamp(10px, 1.4vw, 24px) 16px;
+}
+.cockpit.mech-grid-mode .session-bar {
+  position: static;
+  height: auto;
+  order: -1;
+}
+.cockpit.mech-grid-mode .header {
+  position: static;
+  inset: auto;
+  width: auto;
+  height: auto;
+  min-height: 52px;
+  padding: 0 14px;
+  border-radius: 10px;
+}
+.cockpit.mech-grid-mode > footer {
+  display: none;
+}
+/* All cars at once: no single car color under the header. */
+.cockpit.mech-grid-mode .header {
+  border-bottom: 0;
+}
+
+/* ---------- The grid of controller panels ---------- */
+.mech-grid {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+}
+.mech-grid.grid-4 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.mech-grid.grid-8 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.mech-grid.grid-16 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+/* Each panel carries its car color: a discreet tint behind it, a stripe on top. */
+.mech-card {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+  padding: 0 0 10px;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--slot-color) 14%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--slot-color) 45%, var(--line));
+  border-top: 5px solid var(--slot-color);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.mech-card > * {
+  margin: 0 12px;
+}
+.mech-card.free {
+  background: var(--surface);
+  border: 1px dashed var(--line);
+  border-top: 5px solid var(--line);
+}
+.mech-card header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 7px 12px;
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+}
+/* Number in sand next to a block of the car color: readable for all 16 colors. */
+.mech-card header b {
+  font: italic 700 20px "Oxanium", sans-serif;
+  padding-left: 7px;
+  color: var(--ink-on-dark);
+  border-left: 8px solid var(--slot-color, var(--mid));
+}
+.mech-card.free header b {
+  color: var(--ink-muted-on-dark);
+}
+.mech-card header strong {
+  font: 700 15px "Rajdhani", sans-serif;
+  letter-spacing: 0.12em;
+}
+.mech-card .phase {
+  margin-left: auto;
+  padding: 2px 8px;
+  font: normal 700 11px "Rajdhani", sans-serif;
+  letter-spacing: 0.1em;
+  color: var(--ink-on-dark);
+  border: 1px solid var(--mid);
+  border-radius: 4px;
+}
+/* Blocked (battery at 5%): danger, with icon and text. */
+.mech-card .phase.blocked {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--on-danger);
+  background: var(--danger);
+  border-color: var(--danger);
+}
+.mech-card .phase.running {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.mech-card .phase:is(.countdown, .starting) {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--surface);
+}
+/* Clicked card: selection is an operational state, so orange (never the car color). */
+.mech-card:not(.free) {
+  cursor: pointer;
+}
+.mech-card.selected {
+  outline: 3px solid var(--accent);
+  outline-offset: 1px;
+}
+.mech-sync {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+  border-radius: 6px;
+}
+.mech-sync span {
+  flex: 1;
+  font: 600 12px/1.25 "Rajdhani", sans-serif;
+}
+.mech-sync b {
+  color: var(--accent);
+}
+.mech-sync.waiting svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.mech-card .mech-sync button {
+  color: var(--ink-on-dark);
+  background: transparent;
+  border-color: var(--mid);
+}
+.mech-card .mech-sync button.sync {
+  flex: 1;
+  padding: 8px 6px;
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+  font-size: 13px;
+}
+/* Future slots: discreet placeholders, nothing operational. */
+.mech-card.free {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  min-height: 84px;
+  padding: 0;
+  cursor: default;
+}
+.slot-placeholder {
+  margin: 0;
+  font: 700 11px "Rajdhani", sans-serif;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+}
+
+/* The next free slot: the one place to add a controller. */
+.mech-card.add {
+  min-height: 160px;
+  cursor: default;
+  background: var(--surface);
+  border: 2px dashed var(--brand);
+  border-top: 5px solid var(--brand);
+}
+.mech-card.add.colored {
+  background: color-mix(in srgb, var(--slot-color) 14%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--slot-color) 45%, var(--line));
+  border-top: 5px solid var(--slot-color);
+}
+.mech-card .add-control {
+  align-self: center;
+  justify-self: center;
+  gap: 10px;
+  margin: 18px 12px;
+  padding: 18px 26px;
+  font: 700 17px "Rajdhani", sans-serif;
+  letter-spacing: 0.1em;
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+  border-radius: 8px;
+}
+.setup-title {
+  margin: 0;
+  font: 700 12px "Rajdhani", sans-serif;
+  letter-spacing: 0.1em;
+}
+.color-picker {
+  display: grid;
+  gap: 8px;
+}
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 5px;
+}
+.mech-card .color-grid button {
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 5px 6px;
+  font-size: 10px;
+  text-align: left;
+}
+.color-grid i {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  background: var(--car-color);
+  border-radius: 3px;
+}
+.color-grid small {
+  margin-left: auto;
+  font-size: 8px;
+}
+.mech-card .color-grid button.active {
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+  border-color: var(--surface-dark);
+}
+.setup-actions {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 5px;
+}
+.mech-card .setup-go {
+  padding: 9px 6px;
+  font-size: 13px;
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+}
+.setup-wizard {
+  display: grid;
+  gap: 8px;
+}
+.setup-wizard ol {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.setup-step {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  color: var(--ink-soft);
+}
+.setup-step > b {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  font: 700 12px "Oxanium", sans-serif;
+  border: 1px solid var(--mid);
+  border-radius: 50%;
+}
+.setup-step strong {
+  font: 700 12px "Rajdhani", sans-serif;
+  letter-spacing: 0.08em;
+}
+.setup-step.done {
+  color: var(--ink);
+}
+.setup-step.done > b {
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+}
+.setup-step.active {
+  color: var(--ink);
+}
+.setup-step.active > b {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.setup-hint,
+.setup-live {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 0;
+  font-size: 12px;
+}
+.setup-live b {
+  font-family: "Oxanium", sans-serif;
+}
+.setup-checks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px 10px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  font: 700 10px "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+}
+.setup-checks li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ink-soft);
+}
+.setup-checks li.ok {
+  color: var(--ink);
+}
+.setup-checks li.ok svg {
+  color: var(--brand);
+}
+.setup-board {
+  display: grid;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 5px;
+}
+.setup-board span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.mech-card .setup-board button {
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+}
+.setup-checks .dot {
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--mid);
+  border-radius: 50%;
+}
+.mech-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.mech-chips span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  font: 700 10px "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.mech-chips .bad {
+  color: var(--on-danger);
+  background: var(--danger);
+  border-color: var(--danger);
+}
+/* Technical acceptance: green only when approved (status, never identity). */
+.mech-chips .acc.ok {
+  color: var(--on-ok);
+  background: var(--ok);
+  border-color: var(--ok);
+}
+.mech-chips .acc.testing {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Battery: 30 min per charge, counted by the server while marked on.
+   ok = blue "BATERIA OK"; 20% low = orange; 10% critical = thick orange frame;
+   5% stop = danger, must not run. Click the reading to zero it (full charge). */
+.mech-battery {
+  display: grid;
+  gap: 5px;
+  padding: 7px 9px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.mech-card .mech-battery-read {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  padding: 0;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  text-align: left;
+}
+.mech-battery-read strong {
+  font: 700 22px/1 "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.mech-battery-read small {
+  font: 600 12px "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+}
+.mech-battery-alert {
+  margin-left: auto;
+  padding: 2px 7px;
+  font: 700 11px "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  border-radius: 3px;
+}
+.mech-battery.ok .mech-battery-alert {
+  color: var(--on-brand);
+  background: var(--brand);
+}
+.mech-battery:is(.low, .critical) .mech-battery-alert {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+.mech-battery.stop .mech-battery-alert {
+  color: var(--on-danger);
+  background: var(--danger);
+}
+.mech-battery.critical {
+  border: 3px solid var(--accent);
+}
+/* 10% insists without motion: dark chip with an orange label, thicker frame. */
+.mech-battery.critical .mech-battery-alert {
+  color: var(--accent);
+  background: var(--surface-dark);
+}
+.mech-battery.stop {
+  border: 2px solid var(--danger);
+}
+.mech-battery-bar {
+  height: 6px;
+  background: color-mix(in srgb, var(--line) 45%, var(--surface));
+  border-radius: 3px;
+  overflow: hidden;
+}
+.mech-battery-bar i {
+  display: block;
+  height: 100%;
+  background: var(--brand);
+}
+.mech-battery:is(.low, .critical) .mech-battery-bar i {
+  background: var(--accent);
+}
+.mech-battery.stop .mech-battery-bar i {
+  background: var(--danger);
+}
+.mech-battery-menu {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 5px;
+}
+.mech-card .mech-battery-menu .zero {
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+}
+.mech-card .mech-battery-power.active {
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+  border-color: var(--surface-dark);
+}
+/* The whole panel follows the worst alerts. */
+.mech-card.battery-stop {
+  border-color: var(--danger);
+}
+
+/* Relays, inputs and times */
+.mech-relays {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.mech-relays span {
+  display: grid;
+  justify-items: center;
+  padding: 3px 0;
+  font: 700 12px "Oxanium", sans-serif;
+  color: var(--ink-soft);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+.mech-relays small {
+  font: 700 9px "Rajdhani", sans-serif;
+}
+.mech-relays span.on {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.mech-relays span.fail {
+  color: var(--danger);
+  border: 2px solid var(--danger);
+}
+.mech-times {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+.mech-times div {
+  display: grid;
+  padding: 4px 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+.mech-times span {
+  font: 700 9px "Rajdhani", sans-serif;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+}
+.mech-times strong {
+  font: 700 14px "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.mech-status {
+  min-height: 2.6em;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--ink);
+}
+/* Not the page footer: undo its absolute placement. */
+.mech-card footer {
+  position: static;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  height: auto;
+  padding: 0;
+  border: 0;
+}
+.mech-card button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 4px;
+  font: 700 11px "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--mid);
+  border-radius: 5px;
+}
+.mech-card button.active {
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+}
+.mech-card button.danger {
+  color: var(--on-danger);
+  background: var(--danger);
+  border-color: var(--danger);
+}
+.mech-card button:disabled {
+  opacity: 0.4;
+}
+
+/* Denser grids: fewer details per panel. */
+.grid-8 :is(.mech-times, .mech-status) {
+  display: none;
+}
+.grid-8 .mech-card,
+.grid-16 .mech-card {
+  gap: 6px;
+}
+.grid-16 :is(.mech-times, .mech-relays small) {
+  display: none;
+}
+.grid-16 .mech-card:not(.free) .mech-status {
+  display: none;
+}
+.grid-16 .mech-card > * {
+  margin: 0 8px;
+}
+.grid-16 .mech-card > header {
+  margin: 0;
+  padding: 5px 8px;
+}
+.grid-16 .mech-card header b {
+  font-size: 16px;
+}
+.grid-16 .mech-card header strong {
+  font-size: 13px;
+}
+.grid-16 .mech-battery {
+  padding: 5px 7px;
+}
+.grid-16 .mech-battery-read strong {
+  font-size: 17px;
+}
+.grid-16 :is(.mech-battery-read small) {
+  display: none;
+}
+.grid-16 .mech-card button {
+  padding: 4px 2px;
+  font-size: 10px;
+}
+
+@media (max-width: 1100px) {
+  .mech-grid.grid-8,
+  .mech-grid.grid-16 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .mech-grid.grid-4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- Event record (always visible) and the NOVO MELHOR TEMPO alert ---------- */
+.mech-live {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+}
+.event-record {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  padding: 9px 14px;
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+  border-left: 5px solid var(--accent);
+  border-radius: 8px;
+}
+.event-record-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 700 12px "Rajdhani", sans-serif;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted-on-dark);
+}
+.event-record strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 700 24px/1 "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+.event-record-car,
+.record-alert small {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 700 13px "Rajdhani", sans-serif;
+  letter-spacing: 0.08em;
+}
+.event-record-car i,
+.record-alert small i {
+  width: 12px;
+  height: 12px;
+  background: var(--slot-color);
+  border-radius: 2px;
+}
+.event-record-time {
+  margin-left: auto;
+  font: 600 13px "Oxanium", sans-serif;
+  color: var(--ink-muted-on-dark);
+}
+.event-record-empty {
+  font-size: 12px;
+  color: var(--ink-muted-on-dark);
+}
+.record-alert {
+  position: fixed;
+  top: 18%;
+  left: 50%;
+  z-index: 60;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: min(440px, 90vw);
+  padding: 20px 34px;
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+  border: 3px solid var(--accent);
+  border-radius: 12px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  animation: record-in 0.35s ease-out, record-glow 0.7s ease-in-out 0.35s 2;
+}
+.record-alert > span {
+  font: 700 15px "Rajdhani", sans-serif;
+  letter-spacing: 0.16em;
+}
+.record-alert > span:first-child {
+  color: var(--accent);
+}
+.record-alert strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font: 700 48px/1 "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+@keyframes record-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.9);
+  }
+}
+/* Short glow: a ring in the accent color, twice, then still. */
+@keyframes record-glow {
+  50% {
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .record-alert {
+    animation: none;
+  }
+}
+.mech-lap-flag {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 4px 8px;
+  font: 700 11px "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  border-radius: 4px;
+}
+.mech-lap-flag.record {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+.mech-lap-flag.personal {
+  color: var(--on-brand);
+  background: var(--brand);
+}
+
+/* ---------- Event: open/close, cut time, TOP N, toasts ---------- */
+.event-record.practice {
+  border-left-color: var(--mid);
+}
+.event-record button,
+.event-form button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font: 700 12px "Rajdhani", sans-serif;
+  letter-spacing: 0.08em;
+  color: var(--ink-on-dark);
+  background: transparent;
+  border: 1px solid var(--mid);
+  border-radius: 5px;
+}
+.event-record .event-go {
+  margin-left: auto;
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+}
+.event-form .event-go {
+  margin-left: 0;
+}
+.event-record .event-end {
+  margin-left: auto;
+}
+.event-record .event-close {
+  color: var(--on-danger);
+  background: var(--danger);
+  border-color: var(--danger);
+}
+.event-form {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+.event-form input {
+  min-width: 240px;
+  padding: 6px 9px;
+  font: 600 13px "Rajdhani", sans-serif;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--mid);
+  border-radius: 5px;
+}
+.event-cut {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font: 700 11px "Rajdhani", sans-serif;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted-on-dark);
+}
+.event-cut b {
+  font: 700 17px "Oxanium", sans-serif;
+  color: var(--ink-on-dark);
+}
+.event-cut small {
+  font-size: 11px;
+}
+.event-top {
+  padding: 12px 14px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.event-top h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.event-top ol {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.event-top li {
+  display: grid;
+  grid-template-columns: 26px 78px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  font-size: 12px;
+  border-left: 4px solid var(--slot-color);
+  background: color-mix(in srgb, var(--line) 18%, var(--surface));
+  border-radius: 3px;
+}
+.event-top li b {
+  font: 700 14px "Oxanium", sans-serif;
+}
+.event-top-code {
+  font: 600 12px "Oxanium", sans-serif;
+}
+.event-top-car {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: 700 11px "Rajdhani", sans-serif;
+}
+.event-top-car i {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  background: var(--slot-color);
+  border-radius: 2px;
+}
+.event-top em {
+  font: normal 700 13px "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.event-top li.below {
+  color: var(--ink-soft);
+  background: transparent;
+}
+.event-cut-line {
+  grid-column: 1 / -1;
+  margin: 2px 0;
+  padding: 2px 0;
+  font: 700 10px "Rajdhani", sans-serif;
+  letter-spacing: 0.12em;
+  text-align: center;
+  color: var(--ink);
+  border-top: 2px dashed var(--accent);
+}
+.event-top-empty,
+.event-top-more {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.mech-session {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 4px 8px;
+  font: 700 11px "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.mech-session.top {
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+}
+.event-toasts {
+  position: fixed;
+  top: 76px;
+  right: 18px;
+  z-index: 55;
+  display: grid;
+  gap: 8px;
+  width: min(360px, 90vw);
+  pointer-events: none;
+}
+.event-toast {
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+  border-left: 5px solid var(--brand);
+  border-radius: 8px;
+}
+.event-toast strong {
+  font: 700 14px "Rajdhani", sans-serif;
+  letter-spacing: 0.12em;
+}
+.event-toast span {
+  font-size: 12px;
+  color: var(--ink-muted-on-dark);
+}
+.event-toast b {
+  font: 700 18px "Oxanium", sans-serif;
+}
+.event-toast.out {
+  border-left-color: var(--mid);
+}
+.event-toast.cut {
+  border-left-color: var(--accent);
+}
+.ranking-table tr.below-cut td {
+  opacity: 0.72;
+}
+.ranking-table tr.cut-row td {
+  border-bottom: 2px dashed var(--accent);
+}
+.event-summary {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
+/* ---------- Card: the verdict first, then the three checks (same words as the Central Técnica) ---------- */
+.mech-card .mech-state {
+  margin-left: auto;
+  padding: 2px 8px;
+  font: normal 700 11px "Rajdhani", sans-serif;
+  letter-spacing: 0.1em;
+  color: var(--ink-on-dark);
+  border: 1px solid var(--mid);
+  border-radius: 4px;
+}
+.mech-card .mech-state.ready {
+  color: var(--on-ok);
+  background: var(--ok);
+  border-color: var(--ok);
+}
+.mech-card .mech-state:is(.racing, .testing, .warning) {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.mech-card .mech-state:is(.fault, .emergency_stop) {
+  color: var(--on-danger);
+  background: var(--danger);
+  border-color: var(--danger);
+}
+/* LIBERADO (green, status) / NÃO PODE RODAR (wine) / in test (orange) / racing (blue). */
+.mech-verdict {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 4px 7px;
+  margin: 0 12px;
+  padding: 7px 10px;
+  border-radius: 6px;
+}
+.mech-verdict b {
+  font: 800 13px/1.1 "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.mech-verdict span {
+  font-size: 12px;
+  line-height: 1.25;
+}
+.mech-verdict.ok {
+  color: var(--on-ok);
+  background: var(--ok);
+}
+.mech-verdict.bad {
+  color: var(--on-danger);
+  background: var(--danger);
+}
+.mech-verdict.warn {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+.mech-verdict.run {
+  color: var(--on-brand);
+  background: var(--brand);
+}
+.mech-checks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+.mech-check {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  padding: 5px 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--line);
+  border-radius: 5px;
+}
+.mech-check span {
+  font: 700 9.5px "Rajdhani", sans-serif;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+}
+.mech-check strong {
+  font: 700 15px/1.1 "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mech-check small {
+  font: 700 10.5px "Rajdhani", sans-serif;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mech-check.ok {
+  border-left-color: var(--ok);
+}
+.mech-check.ok strong {
+  color: var(--ok-ink);
+}
+.mech-check.warn {
+  border-left-color: var(--accent);
+}
+.mech-check.bad {
+  border-left-color: var(--danger);
+}
+.mech-check.bad :is(strong, small) {
+  color: var(--danger);
+}
+.mech-last {
+  margin: 0 12px;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+.mech-last b {
+  color: var(--ink);
+}
+/* Relays: one compact line (what the board confirms, live during the race). */
+.mech-card .mech-relays {
+  grid-template-columns: auto repeat(4, minmax(0, 1fr));
+  align-items: center;
+}
+.mech-card .mech-relays .mech-relays-label {
+  padding: 0 4px 0 0;
+  font: 700 9.5px "Rajdhani", sans-serif;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 0;
+}
+.mech-card .mech-relays span:not(.mech-relays-label) {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 2px 0;
+  font-size: 11px;
+}
+.mech-card footer button.open {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+/* The short reason replaces the sentence in the denser grids, so the "why" never disappears. */
+.mech-verdict em {
+  display: none;
+  font: normal 800 11px/1 "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  justify-self: end;
+}
+.grid-8 :is(.mech-check small, .mech-last, .mech-verdict span),
+.grid-16 :is(.mech-check small, .mech-last, .mech-verdict span, .mech-relays) {
+  display: none;
+}
+.grid-8 .mech-verdict em,
+.grid-16 .mech-verdict em {
+  display: block;
+}
+.grid-16 .mech-check {
+  padding: 3px 5px;
+}
+.grid-16 .mech-check strong {
+  font-size: 12px;
+}
+.grid-16 .mech-verdict {
+  padding: 4px 7px;
+}
+
+/* ---------- Arena: SIMULAÇÃO is always shown (virtual cars, nothing moves a real car) ---------- */
+.arena-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font: 800 11px/1 "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  color: var(--ink-on-dark);
+  background: var(--brand);
+  border-radius: 6px;
+}
+.cockpit.arena-sim .header {
+  outline: 3px dashed var(--brand);
+  outline-offset: 3px;
+}
+
+/* Race operation at the top of the grid (moved from the Visão Corrida, which is now the big screen). */
+.mech-spare {
+  padding: 12px 14px;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}

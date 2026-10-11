@@ -1,0 +1,311 @@
+/* Visão Piloto as a driver HUD. Colors only from theme.css. The frame fills the screen, every
+   position in % of it (the frame's slots), fonts in cqw (they scale with the stage). */
+
+.pilot-hud {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--surface-dark) 45%, black);
+}
+/* The frame fills the whole screen edge to edge (stretched to it); every slot is in % of
+   it, so the data follows the frame on any screen. */
+.hud-stage {
+  position: absolute;
+  inset: 0;
+  container-type: inline-size;
+  pointer-events: none; /* nothing to click on the HUD: clicks reach the camera below */
+  color: var(--ink-on-dark);
+}
+
+/* 1-2: camera filling the screen behind the frame, inside a thin black margin
+   (z-index 0: its own layer, so nothing in it covers the corner tools). */
+.hud-camera {
+  position: absolute;
+  inset: 2.8vh;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: 1.2vh;
+  background: color-mix(in srgb, var(--surface-dark) 60%, black);
+}
+.pilot-hud {
+  background: color-mix(in srgb, var(--surface-dark) 25%, black);
+}
+.hud-camera .camera-frame {
+  position: absolute;
+  inset: 0;
+  height: auto;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.hud-camera .camera-video {
+  object-fit: cover;
+  background: transparent;
+}
+.hud-camera .camera-empty {
+  color: var(--ink-on-dark);
+}
+.hud-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 45%, transparent 55%, color-mix(in srgb, var(--surface-dark) 70%, transparent) 100%);
+}
+
+/* 3: the frame over the camera, glowing and see-through */
+.hud-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  /* Solid and glowing: the camera shows only through the frame's window. */
+  filter: brightness(1.5) drop-shadow(0 0 1cqw color-mix(in srgb, var(--brand) 90%, transparent))
+    drop-shadow(0 0 0.5cqw color-mix(in srgb, var(--accent) 80%, transparent));
+}
+
+/* 4: race data in the frame's slots */
+.hud-data {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: "Oxanium", sans-serif;
+}
+.hud-data > * {
+  position: absolute;
+}
+/* In the frame's top box (4.5% to 13.6% of the height), slightly above its middle. */
+.hud-timer {
+  top: 8.4%;
+  left: 50%;
+  width: 21%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font: italic 800 2.6cqw/1 "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 0.8cqw color-mix(in srgb, var(--brand) 80%, transparent);
+}
+.hud-best {
+  top: 13.4%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: baseline;
+  gap: 0.6cqw;
+  padding: 0.3cqw 1cqw;
+  line-height: 1.05;
+  background: color-mix(in srgb, var(--surface-dark) 75%, transparent);
+  border-radius: 0.4cqw;
+}
+.hud-best span {
+  font: 700 0.8cqw "Rajdhani", sans-serif;
+  letter-spacing: 0.14em;
+  color: var(--ink-muted-on-dark);
+}
+.hud-best b {
+  font: italic 800 1.3cqw "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+.hud-position {
+  top: 12.6%;
+  right: 2.5%;
+  width: 11%;
+  height: 9.4%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8cqw;
+  line-height: 0.9;
+}
+.hud-position span {
+  font: 700 0.95cqw "Rajdhani", sans-serif;
+  letter-spacing: 0.14em;
+}
+.hud-position b {
+  font: italic 900 3.6cqw/0.95 "Oxanium", sans-serif;
+  color: var(--accent);
+  text-shadow: 0 0 1cqw color-mix(in srgb, var(--accent) 60%, transparent);
+}
+.hud-position small {
+  font-size: 0.38em;
+  color: var(--ink-on-dark);
+  text-shadow: none;
+}
+/* Left ranking: the four slots of the frame; only position + car color name. */
+.hud-ranking {
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hud-ranking li {
+  position: absolute;
+  left: 1.2%;
+  width: 11.8%;
+  height: 5%;
+  display: grid;
+  grid-template-columns: 28% 1fr;
+  align-items: center;
+}
+.hud-ranking li:nth-child(1) { top: 16.8%; }
+.hud-ranking li:nth-child(2) { top: 22.5%; }
+.hud-ranking li:nth-child(3) { top: 28.3%; }
+.hud-ranking li:nth-child(4) { top: 34.1%; }
+.hud-ranking b {
+  text-align: center;
+  font: italic 900 1.6cqw "Oxanium", sans-serif;
+  color: var(--accent);
+}
+.hud-ranking span {
+  padding-left: 0.6cqw;
+  font: italic 800 0.95cqw "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 0.35cqw solid var(--car, transparent);
+}
+.hud-ranking li.me span {
+  color: var(--accent);
+}
+/* The two dials at the bottom corners: each box is centered on its circle
+   (measured on the frame: left 7.24% x 87.6%, right 92.94% x 87.7%, inner ~8.6% x 14%). */
+.hud-laps,
+.hud-speed {
+  width: 8.6%;
+  height: 14%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  text-align: center;
+  line-height: 1;
+}
+.hud-laps {
+  left: 7.24%;
+  top: 87.6%;
+}
+.hud-speed {
+  left: 92.94%;
+  top: 87.7%;
+}
+.hud-laps span,
+.hud-speed span {
+  font: 700 0.85cqw "Rajdhani", sans-serif;
+  letter-spacing: 0.14em;
+}
+.hud-laps b {
+  font: italic 900 2.4cqw "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.hud-laps small {
+  font-size: 0.55em;
+  color: var(--ink-muted-on-dark);
+}
+.hud-speed b {
+  font: italic 900 3.4cqw/0.9 "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.hud-laps em,
+.hud-speed em {
+  margin-top: 0.2cqw;
+  font: normal 700 0.6cqw "Rajdhani", sans-serif;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted-on-dark);
+}
+/* This cockpit's car: top-left corner of the window, never in the center. */
+.hud-me {
+  top: 40.6%;
+  left: 1.4%;
+  display: flex;
+  align-items: center;
+  gap: 0.5cqw;
+  padding: 0.35cqw 0.8cqw;
+  font: italic 800 0.95cqw "Rajdhani", sans-serif;
+  letter-spacing: 0.08em;
+  background: color-mix(in srgb, var(--surface-dark) 70%, transparent);
+  border-radius: 0.4cqw;
+}
+.hud-me i {
+  width: 0.5cqw;
+  height: 1.2cqw;
+  background: var(--me);
+  border-radius: 0.1cqw;
+}
+.hud-me em {
+  font-style: normal;
+  font-size: 0.8em;
+  color: var(--ink-muted-on-dark);
+}
+.hud-me em.ok {
+  color: var(--accent);
+}
+
+/* 5: special states: short, at the top of the window, away from the driving area */
+.hud-banner {
+  position: absolute;
+  top: 19.5%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5cqw 1.6cqw;
+  font: italic 800 1.5cqw "Rajdhani", sans-serif;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  color: var(--ink-on-dark);
+  background: color-mix(in srgb, var(--surface-dark) 82%, transparent);
+  border-bottom: 0.25cqw solid var(--accent);
+  border-radius: 0.4cqw;
+}
+.hud-banner.yellow {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+.hud-banner.bad {
+  color: var(--on-danger);
+  background: var(--danger);
+  border-color: var(--danger);
+}
+.hud-banner.checkered {
+  border-bottom: 0.35cqw dashed var(--ink-on-dark);
+}
+
+/* Corner tools (leave the HUD, camera controls): faint until the mouse is over them. */
+.hud-tools {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  max-width: 40vw;
+  opacity: 0.25;
+  transition: opacity 0.2s;
+}
+.hud-tools:hover,
+.hud-tools:focus-within {
+  opacity: 1;
+}
+.hud-tools > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  font: 800 11px "Rajdhani", sans-serif;
+  letter-spacing: 0.08em;
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+  border: 1px solid var(--mid);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.hud-tools .camera-controls .camera-bar {
+  position: static;
+  transform: none;
+  opacity: 1;
+}

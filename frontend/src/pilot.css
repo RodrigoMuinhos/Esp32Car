@@ -1,0 +1,877 @@
+/* View tabs (header) and the "Visão Piloto" race broadcast over the track camera. */
+
+/* ---------- View tabs: mecânico / piloto / corrida ---------- */
+.view-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 0 auto;
+  padding: 3px;
+  border: 1px solid #ffe8d033;
+  border-radius: 6px;
+  background: #00000055;
+}
+.view-tabs button {
+  padding: 6px clamp(8px, 1vw, 16px);
+  font: 700 clamp(9px, 0.72vw, 13px) "Rajdhani", sans-serif;
+  letter-spacing: 0.8px;
+  color: var(--cream);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.view-tabs button.active {
+  border-color: var(--orange);
+  background: #fc6f2033;
+  box-shadow: 0 0 14px #fc6f2040;
+}
+.view-tabs button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.view-tabs small {
+  font-size: 0.7em;
+  margin-left: 4px;
+  color: var(--orange);
+}
+
+/* ---------- Pilot screen: header + broadcast only ---------- */
+.cockpit.pilot-mode {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+  height: 100dvh;
+  min-height: 420px;
+  /* Content sits inside the frame drawn in the background image
+     (top light bar ~7%, side posts ~4.5%, checkered floor ~10%). */
+  padding: 7.2vh 4.6vw 10vh;
+  overflow: hidden;
+  background: #0b0a09 url("/brieffing/bakcgoundpiloto.png") center / 100% 100% no-repeat;
+}
+/* More room for the picture: no session bar or footer here (the
+   simulation / real car switch stays on the mechanic view). */
+.cockpit.pilot-mode .session-bar,
+.cockpit.pilot-mode > footer {
+  display: none;
+}
+.cockpit.pilot-mode .header {
+  position: static;
+  inset: auto;
+  width: auto;
+  height: auto;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 1px solid #fc6f2055;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #2a221ce6, #151515e6);
+}
+.pilot-view {
+  display: grid;
+  /* Video as big as the height allows; the ranking panel takes the rest. */
+  grid-template-columns: auto minmax(300px, 1fr);
+  gap: 14px;
+  align-items: start;
+  min-height: 0;
+}
+
+/* The broadcast frame: as large as fits, always 16:9, centered. */
+.broadcast {
+  position: relative;
+  justify-self: start;
+  width: min(calc((82.8dvh - 64px) * 16 / 9), calc(90.8vw - 14px - 300px));
+  aspect-ratio: 16 / 9;
+  container-type: inline-size;
+  padding: 4px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--orange), #ffb07a 30%, #6b2a08 60%, var(--orange));
+  box-shadow: 0 0 40px #fc6f2040, 0 20px 60px #000c;
+}
+.broadcast .camera-frame {
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  border-radius: 10px;
+}
+.broadcast .camera-video {
+  object-fit: cover; /* frame is 16:9 like the camera: fills without bars */
+}
+
+/* ---------- Camera base ---------- */
+.camera-frame {
+  position: relative;
+  height: 100%;
+  min-height: 220px;
+  overflow: hidden;
+  border: 1px solid #fc6f2088;
+  border-radius: 12px;
+  background: #0b0b0b;
+}
+.camera-frame:fullscreen {
+  border-radius: 0;
+  container-type: inline-size;
+}
+.camera-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #0b0b0b;
+}
+.camera-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  padding: 20px;
+  text-align: center;
+  color: var(--cream);
+  opacity: 0.8;
+}
+/* Camera controls: top center, faded until the pointer is over the picture. */
+.camera-bar {
+  position: absolute;
+  top: 7cqw;
+  left: 50%;
+  z-index: 3;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.25;
+  transition: opacity 0.2s;
+}
+.camera-frame:hover .camera-bar,
+.camera-bar:focus-within {
+  opacity: 1;
+}
+.camera-rec,
+.camera-bar select {
+  padding: 5px 9px;
+  font: 700 12px "Rajdhani", sans-serif;
+  letter-spacing: 0.8px;
+  color: var(--cream);
+  background: #000000b3;
+  border: 1px solid #ffe8d033;
+  border-radius: 4px;
+}
+.camera-rec {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.camera-rec i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #777;
+}
+.camera-rec.on i {
+  background: #ff3b3b;
+  box-shadow: 0 0 8px #ff3b3b;
+  animation: overlay-blink 1.2s steps(2) infinite;
+}
+.camera-bar select {
+  max-width: 220px;
+}
+.camera-bar .icon-button {
+  background: #000000b3;
+}
+
+/* ---------- Broadcast graphics (sizes follow the frame width: cqw) ---------- */
+.broadcast-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  color: #fff;
+  font-family: "Rajdhani", sans-serif;
+}
+.broadcast-overlay button {
+  pointer-events: auto;
+}
+.broadcast-overlay > section,
+.bc-banner {
+  position: absolute;
+  backdrop-filter: blur(6px);
+}
+
+
+/* Race status banner (top center) */
+.bc-banner {
+  top: 2.2cqw;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.55cqw 2cqw;
+  font: italic 700 1.6cqw "Oxanium", sans-serif;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  color: #fff;
+  background: #111111d9;
+  border-radius: 0.4cqw;
+  border-bottom: 0.3cqw solid #ffffff55;
+}
+.bc-banner.green {
+  background: #0c7a2fe6;
+  border-color: #6dff8f;
+}
+.bc-banner.yellow {
+  color: #1a1a1a;
+  background: #ffd23fee;
+  border-color: #fff4b0;
+}
+.bc-banner.checkered {
+  background:
+    linear-gradient(#000c, #000c),
+    repeating-conic-gradient(#111 0 25%, #eee 0 50%) 0 0 / 1.4cqw 1.4cqw;
+  border-color: #fff;
+}
+.bc-banner.idle {
+  border-color: var(--orange);
+}
+
+/* Driver plate (bottom left) */
+.bc-driver {
+  left: 2.2cqw;
+  bottom: 2.2cqw;
+  display: flex;
+  align-items: center;
+  gap: 0.9cqw;
+  padding: 0.5cqw 1.2cqw 0.5cqw 0.5cqw;
+  background: linear-gradient(90deg, #0d0d0fe6, #1a1a1de6);
+  border-radius: 0.5cqw;
+  border-bottom: 0.3cqw solid var(--orange);
+}
+.bc-pos {
+  display: grid;
+  place-items: center;
+  min-width: 4cqw;
+  height: 4cqw;
+  border-radius: 0.4cqw;
+  font: italic 700 2cqw "Oxanium", sans-serif;
+  background: var(--orange);
+}
+.bc-driver strong {
+  display: block;
+  font: italic 700 1.7cqw/1.05 "Oxanium", sans-serif;
+  max-width: 16cqw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bc-driver span {
+  font-size: 0.95cqw;
+  letter-spacing: 0.12em;
+  color: #ffffffa6;
+}
+.bc-driver img {
+  width: 6cqw;
+  filter: drop-shadow(0 0 0.5cqw #000);
+}
+
+/* Onboard telemetry (bottom center) */
+.bc-telemetry {
+  left: 50%;
+  bottom: 2.2cqw;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 1.4cqw;
+  padding: 0.7cqw 1.4cqw;
+  background: #0d0d0fde;
+  border-radius: 0.6cqw;
+  border-bottom: 0.3cqw solid var(--orange);
+}
+.bc-speed,
+.bc-gear {
+  display: grid;
+  justify-items: center;
+}
+.bc-speed strong {
+  font: 700 3.4cqw/1 "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+  min-width: 5cqw;
+  text-align: center;
+}
+.bc-gear strong {
+  display: grid;
+  place-items: center;
+  width: 3.2cqw;
+  height: 3.2cqw;
+  border: 0.2cqw solid var(--orange);
+  border-radius: 50%;
+  font: 700 1.8cqw "Oxanium", sans-serif;
+  color: var(--orange);
+}
+.bc-speed span,
+.bc-gear span {
+  font-size: 0.85cqw;
+  letter-spacing: 0.12em;
+  color: #ffffffa6;
+}
+.bc-pedals {
+  display: grid;
+  gap: 0.35cqw;
+  width: 13cqw;
+}
+.bc-pedals label {
+  display: grid;
+  grid-template-columns: 3.2cqw 1fr;
+  align-items: center;
+  font-size: 0.85cqw;
+  letter-spacing: 0.1em;
+  color: #ffffffb3;
+}
+.bc-pedals i {
+  height: 0.7cqw;
+  border-radius: 0.35cqw;
+  background: #ffffff1f;
+  overflow: hidden;
+}
+.bc-pedals b {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.08s linear;
+}
+.bc-pedals .throttle {
+  background: #3ddc6b;
+}
+.bc-pedals .brake {
+  background: #ff4b4b;
+}
+.bc-pedals .speed {
+  background: var(--orange);
+}
+
+/* Small frames (phones): graphics get a minimum readable size. */
+@container (max-width: 700px) {
+  .bc-pedals {
+    display: none;
+  }
+  .bc-banner {
+    font-size: 11px;
+  }
+  .bc-speed strong,
+  .bc-driver strong {
+    font-size: 12px;
+  }
+  .bc-speed span,
+  .bc-gear span,
+  .bc-driver span {
+    font-size: 8px;
+  }
+  .bc-driver img {
+    display: none;
+  }
+}
+
+/* Tall or narrow screens: the frame follows the width. */
+@media (max-aspect-ratio: 1/1), (max-width: 900px) {
+  .cockpit.pilot-mode {
+    grid-template-rows: auto auto;
+    align-content: start;
+    height: auto;
+    min-height: 100dvh;
+    overflow: auto;
+  }
+  .pilot-view {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .broadcast {
+    width: 100%;
+  }
+  .race-side {
+    max-width: none;
+    max-height: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .side-status {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Narrow screens: the view buttons get their own row under the logo. */
+@media (max-width: 760px) {
+  .header {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+  .view-tabs {
+    order: 10;
+    flex-basis: 100%;
+    justify-content: center;
+    margin: 0;
+  }
+  .view-tabs button {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 4px;
+    font-size: 10px;
+    white-space: normal;
+  }
+  .view-tabs small {
+    display: none;
+  }
+}
+
+/* ---------- Right panel: 4-player ranking and race data ---------- */
+.race-side {
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  max-height: calc(82.8dvh - 64px);
+  overflow: auto;
+}
+.side-card {
+  padding: 14px 16px;
+  color: var(--cream);
+  background: linear-gradient(160deg, #241e1ae8, #131313f0);
+  border: 1px solid #fc6f2055;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px #ffe8d00d, 0 10px 30px #0008;
+}
+.side-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font: 700 clamp(13px, 0.9vw, 16px) "Rajdhani", sans-serif;
+  letter-spacing: 0.1em;
+  color: var(--orange);
+}
+.race-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+.race-grid > div {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #ffffff08;
+  border: 1px solid #ffffff10;
+}
+.race-grid .wide {
+  grid-column: 1 / -1;
+}
+.race-grid span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font: 700 10px "Rajdhani", sans-serif;
+  letter-spacing: 0.12em;
+  color: #ffffff99;
+}
+.race-grid strong {
+  font: 700 clamp(22px, 1.6vw, 30px) / 1.1 "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.race-grid strong small {
+  font-size: 0.55em;
+  color: #ffffff80;
+}
+.race-grid strong.mode {
+  font-size: clamp(14px, 1vw, 18px);
+  color: var(--orange);
+}
+.race-grid .wide strong {
+  font-size: clamp(26px, 2vw, 38px);
+}
+.race-grid .best {
+  background: linear-gradient(90deg, #4b1d8a99, #7a2fd166);
+  border-color: #b98aff66;
+}
+.race-grid .best strong {
+  color: #e9d7ff;
+}
+.side-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.side-status span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  font: 700 11px "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  border-radius: 4px;
+  background: #00000066;
+}
+.side-status .ok {
+  color: #6dff8f;
+}
+.side-status .bad {
+  color: #ff6b6b;
+}
+.side-status .muted {
+  color: #ffffff8c;
+}
+.side-stop {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font: 700 13px "Rajdhani", sans-serif;
+  letter-spacing: 0.08em;
+  color: #fff;
+  background: #b3141b;
+  border: 1px solid #ff8a8a;
+  border-radius: 5px;
+}
+
+/* Shorter screens (notebooks): a more compact right panel so it all fits. */
+@media (max-height: 860px) and (min-aspect-ratio: 1/1) {
+  .race-side {
+    gap: 8px;
+  }
+  .side-card {
+    padding: 10px 12px;
+  }
+  .race-grid {
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .race-grid > div {
+    padding: 5px 8px;
+  }
+  .race-grid strong {
+    font-size: clamp(18px, 1.4vw, 26px);
+  }
+  .race-grid .wide strong {
+    font-size: clamp(22px, 1.7vw, 32px);
+  }
+  .side-status {
+    gap: 6px;
+  }
+  .side-stop {
+    padding: 6px 12px;
+  }
+}
+
+/* ---------- Camera power and USB identification ---------- */
+.camera-empty {
+  z-index: 3;
+}
+.camera-power {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  font: 700 15px "Rajdhani", sans-serif;
+  letter-spacing: 0.1em;
+  color: #fff;
+  background: var(--orange);
+  border: 1px solid #ffb07a;
+  border-radius: 6px;
+  box-shadow: 0 0 24px #fc6f2066;
+  pointer-events: auto;
+}
+.camera-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  font: 700 12px "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  border-radius: 4px;
+  background: #000000b3;
+}
+.camera-id.usb {
+  color: #6dff8f;
+  border: 1px solid #6dff8f55;
+}
+.camera-id.other {
+  color: #ffd23f;
+  border: 1px solid #ffd23f66;
+}
+.camera-toggle.on {
+  color: #6dff8f;
+  border-color: #6dff8f88;
+}
+/* With the camera off the controls stay fully visible. */
+.camera-frame:has(.camera-power) .camera-bar {
+  opacity: 1;
+}
+
+
+/* Camera controls in the side panel: one small row, not over the picture. */
+.camera-controls {
+  flex-basis: 100%;
+}
+.camera-controls:empty {
+  display: none;
+}
+.camera-controls .camera-bar {
+  position: static;
+  transform: none;
+  opacity: 1;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding-top: 8px;
+  border-top: 1px solid #ffffff14;
+}
+.camera-controls .camera-rec.on {
+  display: none; /* the camera name chip already says it is live */
+}
+.camera-controls .camera-rec,
+.camera-controls .camera-id,
+.camera-controls select {
+  padding: 3px 6px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+.camera-controls .camera-id {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.camera-controls select {
+  max-width: 130px;
+}
+.camera-controls .icon-button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+}
+.camera-controls .icon-button svg {
+  width: 13px;
+  height: 13px;
+}
+/* Short screens: tighter ranking and race cards so the camera row fits too. */
+@media (max-height: 860px) and (min-aspect-ratio: 1/1) {
+  .side-sub {
+    display: none;
+  }
+  .race-grid > div {
+    padding: 4px 8px;
+  }
+  .race-grid .wide strong {
+    font-size: clamp(20px, 1.5vw, 28px);
+  }
+  .side-status span {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+  .camera-controls .camera-bar {
+    padding-top: 6px;
+  }
+}
+
+/* ---------- Car panel (side): mechanic data, summarized ---------- */
+.car-panel header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.car-panel header em {
+  font: normal 700 11px "Rajdhani", sans-serif;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.car-panel header em.ok {
+  color: #6dff8f;
+  background: #0c7a2f44;
+}
+.car-panel header em.bad {
+  color: #ff8a8a;
+  background: #b3141b33;
+}
+.car-top {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+}
+.car-speed,
+.car-gear {
+  display: grid;
+  justify-items: center;
+}
+.car-speed strong {
+  font: 700 clamp(30px, 2.4vw, 44px) / 1 "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+  min-width: 2.2ch;
+  text-align: center;
+}
+.car-gear strong {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--orange);
+  border-radius: 50%;
+  font: 700 18px "Oxanium", sans-serif;
+  color: var(--orange);
+}
+.car-speed span,
+.car-gear span,
+.car-wheel span {
+  font: 700 10px "Rajdhani", sans-serif;
+  letter-spacing: 0.12em;
+  color: #ffffff8c;
+}
+.car-wheel {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+.car-wheel img {
+  width: clamp(48px, 3.6vw, 64px);
+  height: clamp(48px, 3.6vw, 64px);
+  object-fit: contain;
+  transition: transform 0.08s linear;
+}
+.car-wheel b {
+  color: var(--cream);
+  font-family: "Oxanium", sans-serif;
+}
+.car-bars {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+.car-bars label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3px 8px;
+  font: 700 10px "Rajdhani", sans-serif;
+  letter-spacing: 0.12em;
+  color: #ffffff99;
+}
+.car-bars label b {
+  font: 600 12px "Oxanium", sans-serif;
+  color: var(--cream);
+}
+.car-bars i {
+  grid-column: 1 / -1;
+  height: 8px;
+  border-radius: 4px;
+  background: #ffffff14;
+  overflow: hidden;
+}
+.car-bars i em {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.08s linear;
+}
+.car-bars .throttle {
+  background: linear-gradient(90deg, #2bbf5a, #6dff8f);
+}
+.car-bars .brake {
+  background: linear-gradient(90deg, #c4161c, #ff6b6b);
+}
+.car-relays {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+.car-relays span {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  padding: 5px 2px;
+  font: 700 12px "Oxanium", sans-serif;
+  color: #ffffff73;
+  background: #ffffff08;
+  border: 1px solid #ffffff14;
+  border-radius: 6px;
+}
+.car-relays span i {
+  font-style: normal;
+  font-size: 10px;
+}
+.car-relays span small {
+  font: 700 9px "Rajdhani", sans-serif;
+  letter-spacing: 0.1em;
+}
+.car-relays span.on {
+  color: #fff;
+  background: #fc6f2040;
+  border-color: var(--orange);
+  box-shadow: 0 0 10px #fc6f2055;
+}
+.car-relays span.on i {
+  color: var(--orange);
+}
+@media (max-height: 860px) and (min-aspect-ratio: 1/1) {
+  .car-top {
+    margin-top: 6px;
+    gap: 10px;
+  }
+  .car-bars,
+  .car-relays {
+    margin-top: 6px;
+  }
+  .car-relays span {
+    padding: 3px 2px;
+  }
+}
+
+/* Very short screens: the car panel puts speed, gear and wheel in one tight row. */
+@media (max-height: 760px) and (min-aspect-ratio: 1/1) {
+  .side-card {
+    padding: 8px 10px;
+  }
+  .race-side {
+    gap: 6px;
+  }
+  .car-speed strong {
+    font-size: 28px;
+  }
+  .car-gear strong {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+  .car-wheel img {
+    width: 40px;
+    height: 40px;
+  }
+  .car-bars {
+    gap: 3px;
+  }
+  .car-bars i {
+    height: 6px;
+  }
+  .race-grid {
+    gap: 4px;
+  }
+  .race-grid > div {
+    padding: 3px 8px;
+  }
+  .race-grid strong {
+    font-size: 18px;
+  }
+  .race-grid .wide strong {
+    font-size: 22px;
+  }
+}
+
+/* SIMULAÇÃO: the demonstration video fills the camera area (no clicks: it is not a player). */
+.demo-feed .demo-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: none;
+}

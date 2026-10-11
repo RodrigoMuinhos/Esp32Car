@@ -1,0 +1,711 @@
+/* Visão Corrida (operator panel for the 4 cars), telão and per-color accents. */
+
+/* ---------- Each cockpit follows its color ---------- */
+.cockpit.pilot-mode .broadcast {
+  background: linear-gradient(135deg, var(--slot-color), var(--slot-accent) 30%, #111 60%, var(--slot-color));
+}
+.cockpit.pilot-mode .bc-pos,
+.cockpit.pilot-mode .car-relays span.on {
+  background: var(--slot-color);
+}
+.cockpit.pilot-mode .bc-driver,
+.cockpit.pilot-mode .bc-telemetry {
+  border-bottom-color: var(--slot-color);
+}
+.cockpit.pilot-mode .car-panel h3,
+.cockpit.pilot-mode .race-data h3 {
+  color: var(--slot-color);
+}
+
+/* ---------- Visão Corrida: page (light, flat; colors from theme.css) ---------- */
+.cockpit.race-mode {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-auto-flow: row;
+  gap: 10px;
+  height: auto;
+  min-height: 100dvh;
+  padding: 10px clamp(10px, 1.4vw, 24px) 16px;
+  color: var(--ink);
+  background: var(--surface);
+}
+.cockpit.race-mode .session-bar {
+  position: static;
+  height: auto;
+  order: -1;
+}
+/* Light screens (Visão Corrida and Visão Mecânico): shared header colors. */
+.cockpit:is(.race-mode, .mech-mode) h1,
+.cockpit:is(.race-mode, .mech-mode) .eyebrow {
+  color: var(--ink);
+}
+.cockpit:is(.race-mode, .mech-mode) h1 span {
+  color: var(--ink-soft);
+}
+.cockpit:is(.race-mode, .mech-mode) .environment-toggle {
+  background: var(--surface);
+  border-color: var(--mid);
+}
+.cockpit:is(.race-mode, .mech-mode) .environment-toggle button {
+  color: var(--ink);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.cockpit:is(.race-mode, .mech-mode) .environment-toggle button.active {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.cockpit:is(.race-mode, .mech-mode) .session-actions .icon-button {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--mid);
+}
+.cockpit:is(.race-mode, .mech-mode) .brand strong {
+  color: var(--ink-on-dark);
+}
+.cockpit:is(.race-mode, .mech-mode) .brand strong span {
+  color: var(--accent);
+}
+.cockpit:is(.race-mode, .mech-mode) .brand-mark {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+.cockpit:is(.race-mode, .mech-mode) .brand small,
+.cockpit:is(.race-mode, .mech-mode) .header-status > span {
+  color: var(--ink-muted-on-dark);
+}
+.cockpit:is(.race-mode, .mech-mode) .header-status .online {
+  color: var(--ink-on-dark);
+}
+.cockpit:is(.race-mode, .mech-mode) .online i {
+  background: var(--ink-on-dark);
+}
+/* Not connected: an alert, so danger fill with text (danger is too dark for text on graphite). */
+.cockpit:is(.race-mode, .mech-mode) .header-status .connection:not(.online) {
+  padding: 3px 7px;
+  border-radius: 3px;
+  color: var(--on-danger);
+  background: var(--danger);
+}
+.cockpit:is(.race-mode, .mech-mode) .connection:not(.online) i {
+  background: var(--on-danger);
+}
+.cockpit:is(.race-mode, .mech-mode) .view-tabs {
+  border-color: var(--mid);
+  background: transparent;
+}
+.cockpit:is(.race-mode, .mech-mode) .view-tabs button {
+  color: var(--ink-on-dark);
+}
+.cockpit:is(.race-mode, .mech-mode) .view-tabs button.active {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: none;
+}
+.cockpit:is(.race-mode, .mech-mode) .header .icon-button {
+  color: var(--ink-on-dark);
+  background: transparent;
+  border-color: var(--mid);
+}
+.cockpit:is(.race-mode, .mech-mode) .sound-meter i {
+  background: var(--accent);
+}
+.cockpit:is(.race-mode, .mech-mode) .header {
+  border: 0;
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+  box-shadow: none;
+}
+.cockpit.race-mode .header {
+  position: static;
+  inset: auto;
+  width: auto;
+  height: auto;
+  min-height: 52px;
+  padding: 0 14px;
+  border-radius: 10px;
+}
+.cockpit.race-mode > footer {
+  display: none;
+}
+.race-control {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  min-width: 0;
+}
+.fleet-wait {
+  padding: 40px;
+  text-align: center;
+  color: var(--ink);
+  font-size: 15px;
+}
+.fleet-warning {
+  margin: 0;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Global bar (graphite) */
+.fleet-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+}
+.fleet-bar button,
+.fleet-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  font: 700 13px "Rajdhani", sans-serif;
+  letter-spacing: 0.08em;
+  color: var(--ink-on-dark);
+  background: transparent;
+  border: 1px solid var(--mid);
+  border-radius: 6px;
+  text-decoration: none;
+}
+/* Main action: brand blue, bold label. */
+.fleet-bar .start-all {
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+}
+.fleet-bar .stop-all {
+  color: var(--on-danger);
+  background: var(--danger);
+  border-color: var(--danger);
+}
+.fleet-bar button:disabled {
+  opacity: 0.45;
+  box-shadow: none;
+}
+.fleet-mode {
+  display: inline-flex;
+  gap: 4px;
+}
+.fleet-mode button {
+  padding: 7px 10px;
+  font-size: 12px;
+}
+.fleet-mode button.active {
+  color: var(--on-accent);
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.fleet-auto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-on-dark);
+}
+.fleet-auto input {
+  accent-color: var(--accent);
+}
+.fleet-ready {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  font: 700 13px "Rajdhani", sans-serif;
+  letter-spacing: 0.08em;
+  color: var(--ink-on-dark);
+}
+
+/* Camera + side column */
+.fleet-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
+  gap: 12px;
+  min-height: 0;
+}
+.fleet-camera {
+  aspect-ratio: 16 / 9;
+  min-height: 0;
+}
+.fleet-camera .camera-frame {
+  height: 100%;
+  border: 0;
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+}
+.fleet-camera .camera-video {
+  background: var(--surface-dark);
+}
+.fleet-camera .camera-empty {
+  color: var(--ink-on-dark);
+}
+.fleet-camera .camera-power {
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
+  box-shadow: none;
+}
+.fleet-camera .camera-rec,
+.fleet-camera .camera-bar .icon-button {
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+  border-color: var(--mid);
+}
+.fleet-camera .camera-rec i {
+  background: var(--line);
+}
+.fleet-camera .camera-bar {
+  position: absolute;
+  top: auto;
+  bottom: 10px;
+  left: 50%;
+  opacity: 0.85;
+}
+.fleet-side {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+}
+.fleet-side > section {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.fleet-side h3,
+.standings-board h3 {
+  margin: 0 0 8px;
+  font: 700 13px "Rajdhani", sans-serif;
+  letter-spacing: 0.12em;
+  color: var(--orange);
+}
+.fleet-side h3 {
+  color: var(--ink);
+}
+/* A new board waiting for a slot: race element, orange edge. */
+.spare-boards {
+  border-color: var(--line) !important;
+  border-left: 4px solid var(--accent) !important;
+}
+.spare-boards h3 {
+  color: var(--ink);
+}
+.spare {
+  display: grid;
+  gap: 6px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+.spare > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 13px "Oxanium", sans-serif;
+}
+.spare small {
+  font: 700 11px "Rajdhani", sans-serif;
+  color: var(--ink);
+}
+.spare > div {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+/* Slot buttons: neutral, the car color is a stripe next to its name. */
+.spare button {
+  padding: 5px 2px;
+  font: 700 11px "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--mid);
+  border-left: 5px solid var(--slot-color);
+  border-radius: 4px;
+}
+.spare button:disabled {
+  opacity: 0.4;
+}
+.fleet-events ul {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.fleet-events p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.tablet-links {
+  margin-top: 8px !important;
+  color: var(--ink-soft) !important;
+}
+.tablet-links b {
+  font-family: "Oxanium", sans-serif;
+  color: var(--ink);
+}
+
+/* Standings (operator side and telão) */
+.standings-board {
+  padding: 12px 14px;
+  border: 1px solid #fc6f2055;
+  border-radius: 10px;
+  background: #1a1716e8;
+  color: var(--cream);
+}
+.standings-board ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.standings-board li {
+  display: grid;
+  grid-template-columns: 44px 54px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 0;
+  border-radius: 8px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--slot-color) 30%, #111), #151515 60%);
+  border: 1px solid color-mix(in srgb, var(--slot-color) 60%, transparent);
+  overflow: hidden;
+}
+.standings-board .pos {
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  font: italic 700 20px "Oxanium", sans-serif;
+  color: #fff;
+  background: var(--slot-color);
+}
+.standings-board img {
+  width: 54px;
+  object-fit: contain;
+}
+.standings-board .who {
+  display: grid;
+  min-width: 0;
+}
+.standings-board .who strong {
+  font: 700 15px "Rajdhani", sans-serif;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.standings-board .who small {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: #ffffff99;
+}
+.standings-board .time {
+  font: normal 700 16px "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.standings-empty {
+  margin: 0;
+  font-size: 13px;
+  color: #ffe8d0aa;
+}
+
+/* Standings inside the Visão Corrida: light rows, car color as a stripe. */
+.race-control .standings-board li {
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 6px solid var(--slot-color);
+}
+.race-control .standings-board .pos {
+  color: var(--ink-on-dark);
+  background: var(--surface-dark);
+}
+.race-control .standings-board .who small {
+  color: var(--ink-soft);
+}
+.race-control .standings-empty {
+  color: var(--ink-soft);
+}
+
+/* The 4 car cards */
+.fleet-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.fleet-card {
+  display: grid;
+  gap: 8px;
+  padding: 0 0 10px;
+  border: 1px solid var(--line);
+  border-top: 5px solid var(--slot-color);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  overflow: hidden;
+}
+.fleet-card > * {
+  margin: 0 12px;
+}
+/* Graphite header; the number carries the car color, the name says it. */
+.fleet-card header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 12px;
+  background: var(--surface-dark);
+  color: var(--ink-on-dark);
+}
+/* Number in sand next to a block of the car color: readable for all 16 colors. */
+.fleet-card header b {
+  font: italic 700 20px "Oxanium", sans-serif;
+  padding-left: 7px;
+  color: var(--ink-on-dark);
+  border-left: 8px solid var(--slot-color, var(--mid));
+}
+.fleet-card header strong {
+  font: 700 16px "Rajdhani", sans-serif;
+  letter-spacing: 0.12em;
+}
+.fleet-card .phase {
+  margin-left: auto;
+  padding: 2px 8px;
+  font: normal 700 11px "Rajdhani", sans-serif;
+  letter-spacing: 0.1em;
+  color: var(--ink-on-dark);
+  background: transparent;
+  border: 1px solid var(--mid);
+  border-radius: 4px;
+}
+.fleet-card .phase.blocked {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--on-danger);
+  background: var(--danger);
+  border-color: var(--danger);
+}
+.fleet-card .phase.running {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.fleet-card .phase.countdown,
+.fleet-card .phase.starting {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--surface);
+}
+.fleet-body {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+.fleet-car {
+  width: 90px;
+  object-fit: contain;
+}
+.fleet-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.fleet-chips span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  font: 700 10px "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+}
+.fleet-chips .ok {
+  color: var(--ink);
+}
+/* Missing board or wheel: failure alert. */
+.fleet-chips .bad {
+  color: var(--on-danger);
+  background: var(--danger);
+  border-color: var(--danger);
+}
+.fleet-relays {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.fleet-relays span {
+  display: grid;
+  justify-items: center;
+  padding: 3px 0;
+  font: 700 12px "Oxanium", sans-serif;
+  color: var(--ink-soft);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+.fleet-relays small {
+  font: 700 9px "Rajdhani", sans-serif;
+}
+/* Relay on: active state in orange. */
+.fleet-relays span.on {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.fleet-relays span.fail {
+  color: var(--danger);
+  border: 2px solid var(--danger);
+}
+.fleet-times {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+.fleet-times div {
+  display: grid;
+  padding: 4px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+}
+.fleet-times span {
+  font: 700 9px "Rajdhani", sans-serif;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+}
+.fleet-times strong {
+  font: 700 14px "Oxanium", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.fleet-times small {
+  font-size: 0.7em;
+  color: var(--ink-soft);
+}
+.fleet-status {
+  min-height: 2.6em;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.fleet-card footer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+  position: static;
+  height: auto;
+}
+.fleet-card footer button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 4px;
+  font: 700 11px "Rajdhani", sans-serif;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--mid);
+  border-radius: 5px;
+}
+/* Waiting for A on this wheel: active selection. */
+.fleet-card footer button.active {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.fleet-card footer button.danger {
+  color: var(--on-danger);
+  background: var(--danger);
+  border-color: var(--danger);
+}
+.fleet-card footer button:disabled {
+  opacity: 0.4;
+}
+
+@media (max-width: 1200px) {
+  .fleet-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .fleet-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .fleet-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- Telão (audience screen) ---------- */
+.cockpit.telao-mode {
+  display: grid;
+  height: 100dvh;
+  padding: 2vh 2vw;
+  background: #0b0a09 url("/brieffing/bakcgoundpiloto.png") center / 100% 100% no-repeat;
+}
+.telao {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(320px, 28vw, 560px);
+  gap: 2vw;
+  padding: 6vh 3vw 9vh;
+  min-height: 0;
+}
+.telao {
+  align-items: center;
+}
+.telao-camera {
+  min-height: 0;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 100%;
+}
+.telao-camera .camera-frame {
+  height: 100%;
+  border: 3px solid var(--orange);
+}
+.telao .camera-bar {
+  opacity: 0;
+}
+.telao .camera-frame:hover .camera-bar {
+  opacity: 1;
+}
+.standings-board.big {
+  align-self: center;
+  padding: 2vh 1.4vw;
+}
+.standings-board.big h3 {
+  font-size: clamp(18px, 1.8vw, 34px);
+}
+.standings-board.big ol {
+  gap: 1.4vh;
+}
+.standings-board.big li {
+  grid-template-columns: 4.4vw 6vw minmax(0, 1fr) auto;
+  min-height: 9vh;
+}
+.standings-board.big .pos {
+  font-size: clamp(22px, 2.4vw, 46px);
+}
+.standings-board.big img {
+  width: 6vw;
+}
+.standings-board.big .who strong {
+  font-size: clamp(16px, 1.4vw, 28px);
+}
+.standings-board.big .time {
+  font-size: clamp(18px, 1.6vw, 32px);
+}
