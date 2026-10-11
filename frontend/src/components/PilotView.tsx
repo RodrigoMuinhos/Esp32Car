@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import type { Fleet, RaceState } from "../types/telemetry";
+import type { Fleet, RaceState, RaceTimes } from "../types/telemetry";
 import { formatTime } from "../hooks/useRaceTimer";
-import { CameraFeed } from "./CameraFeed";
+import { TrackMap } from "./TrackMap";
+import { simulationArena } from "../arena";
 import { carInfo } from "../slots";
 
 /** Rows of the left ranking (the frame has four). */
@@ -12,9 +12,9 @@ const lapTime = (ms: number) => formatTime(ms).replace(/^00:/, "");
 /**
  * "Visão Piloto": a driver HUD, not a page. Five layers on a stage that fills the screen (every
  * position in % of the stage, so the data follows the frame on any screen):
- * 1) live camera behind the frame, inside a thin black margin;
- * 2) a light vignette for legibility;  3) the HUD frame (PNG), solid and glowing
- * and glowing over the camera; 4) the race data in the frame's own slots;
+ * 1) the track map behind the frame, inside a thin black margin (SIMULAÇÃO: a dot for this car);
+ * 2) a light vignette for legibility; 3) the HUD frame (PNG), solid and glowing
+ * over the map; 4) the race data in the frame's own slots;
  * 5) special states (start, finish, no board / no wheel). The center stays free:
  * it is the driver's view of the track. Drivers are anonymous: cars by color.
  */
@@ -27,6 +27,7 @@ export function PilotView({
   raceMode,
   lapCount,
   session,
+  times,
   best,
   speed,
   connected,
@@ -44,6 +45,8 @@ export function PilotView({
   raceMode: number;
   lapCount: number;
   session: number;
+  /** This car's race clock from the server (moves the dot on the track map). */
+  times: RaceTimes | null;
   best: number | null;
   /** Estimated from the throttle: the car has no speed sensor. */
   speed: number | null;
@@ -51,8 +54,6 @@ export function PilotView({
   wheelConnected: boolean;
   onExit: () => void;
 }) {
-  // Camera controls live in the corner tools, not over the picture.
-  const [cameraSlot, setCameraSlot] = useState<HTMLElement | null>(null);
   const order = fleet?.classification ?? [];
   const colorOf = (slot: number) => fleet?.slots.find((s) => s.number === slot)?.color ?? slot;
   const mine = order.find((row) => row.slot === slotNumber);
@@ -73,15 +74,30 @@ export function PilotView({
               ? { tone: "checkered", text: "BANDEIRADA" }
               : { tone: "idle", text: "ACELERE PARA LARGAR" };
   const me = carInfo(colorNumber ?? slotNumber);
+  // After the last lap: the champion (first to complete the race, decided by the server).
+  const podium = fleet?.finishOrder ?? [];
+  const champion = state === "finished" && podium.length ? podium[0] : null;
+  const myPlace = podium.find((r) => r.slot === slotNumber)?.position ?? null;
   return (
     <div className="pilot-hud" style={{ "--me": me.color } as React.CSSProperties}>
-      {/* 1-2: the camera fills the whole screen behind the frame, with a light vignette */}
-      <div className="hud-camera">
-        <CameraFeed label="CÂMERA 1 · AÉREA" controlsSlot={cameraSlot} />
+      {/* 1-2: the arena background and the track map behind the frame (in SIMULAÇÃO, a dot shows where this car is) */}
+      <div className="hud-camera hud-arena">
+        <TrackMap
+          me={slotNumber}
+          simulation={simulationArena()}
+          cars={(fleet?.slots ?? [])
+            .filter((s) => s.number <= (fleet?.available ?? 0))
+            .map((s) => ({
+              slot: s.number,
+              color: carInfo(s.color ?? s.number).color,
+              racing: s.phase === "running",
+              times: s.number === slotNumber ? (times ?? s.times) : s.times,
+            }))}
+        />
         <i className="hud-vignette" aria-hidden="true" />
       </div>
       <div className="hud-stage">
-        {/* 3: the frame, glowing and slightly see-through over the camera */}
+        {/* 3: the frame, glowing and slightly see-through over the map */}
         <img className="hud-frame" src="/hud/pilot-frame.png" alt="" draggable={false} />
         {/* 4: race data in the frame's slots */}
         <div className="hud-data" aria-label="Dados da corrida">
@@ -99,7 +115,8 @@ export function PilotView({
           </div>
           <ol className="hud-ranking" aria-label="Classificação">
             {Array.from({ length: RANK_ROWS }, (_, i) => {
-              const row = order[i];
+              // During the race: the live order; after it, the finishing order (the podium).
+              const row = order.length ? order[i] : podium[i];
               const info = row ? carInfo(colorOf(row.slot)) : null;
               return (
                 <li key={i} className={row && row.slot === slotNumber ? "me" : ""}>
@@ -131,7 +148,18 @@ export function PilotView({
           </div>
         </div>
         {/* 5: special states, short and away from the driving area */}
-        {banner && (
+        {champion ? (
+          <div className="hud-champion" role="status" aria-live="polite">
+            <small>CAMPEÃO</small>
+            <strong style={{ "--car": carInfo(champion.color || champion.slot).color } as React.CSSProperties}>
+              🏆 {String(champion.slot).padStart(2, "0")} {carInfo(champion.color || champion.slot).name}
+            </strong>
+            <span>
+              {formatTime(champion.durationMs)}
+              {myPlace ? ` · VOCÊ: ${myPlace}º LUGAR` : ""}
+            </span>
+          </div>
+        ) : banner && (
           <div className={`bc-banner hud-banner ${banner.tone}`} aria-live="polite">
             {banner.text}
           </div>
@@ -141,7 +169,6 @@ export function PilotView({
         <button onClick={onExit} aria-label="Sair da visão piloto">
           <ArrowLeft size={14} /> VISÕES
         </button>
-        <div className="camera-controls" ref={setCameraSlot} aria-label="Câmera da pista" />
       </div>
     </div>
   );

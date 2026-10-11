@@ -234,6 +234,7 @@ class ArenaTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(sim['slots'][0]['port'], 'SIM1')
         self.assertEqual(sim['slots'][10]['blockReason'], 'battery')  # one empty battery to see the warning
         self.assertEqual(sim['slots'][0]['acceptance']['passed'], 0)  # acceptance to be tested
+        self.assertEqual(sim['slots'][0]['raceMode'], 5)  # a full 5-lap race
         real = await self.fleet('')
         self.assertEqual(real['slots'][0]['port'], 'COM7')
         self.assertFalse(any((s['port'] or '').startswith('SIM') for s in real['slots']))
@@ -265,6 +266,25 @@ class ArenaTests(unittest.IsolatedAsyncioTestCase):
             self.sim.fleet.pads = self.sim.autopilot.fill(self.sim.fleet.pads, now, self.sim.fleet)
             pads.append(self.sim.fleet.pads[0]['steering'])
         self.assertEqual(len(set(pads)), 3)  # not frozen after the first tick
+
+    def test_simulation_starts_the_next_race_by_itself_after_the_champion(self):
+        from backend.server import SIM_NEXT_RACE
+        f = self.sim.fleet
+        f.scan(0)
+        t = 0.0
+        while t < 3:  # boards connected and their self-test done, virtual drivers on the wheels
+            t += .05
+            self.sim.read_pads(); f.pads = self.sim.autopilot.fill(f.pads, t, f); f.step(t)
+        f.finish_order = [dict(slot=7, color=7, durationMs=46000, position=1)]  # a race just ended
+        self.sim.next_simulated_race(t)
+        self.assertEqual(f.finish_order, [dict(slot=7, color=7, durationMs=46000, position=1)])  # champion on screen
+        self.sim.next_simulated_race(t + SIM_NEXT_RACE + .1)
+        self.assertEqual(f.finish_order, [])  # a new race
+        self.assertTrue(any(s.controller.phase == 'countdown' for s in f.slots))
+        self.assertEqual(f.battery_state(f.slots[0])['percent'], 100)
+        self.real.fleet.finish_order = [dict(slot=1, color=1, durationMs=1, position=1)]
+        self.real.next_simulated_race(1000)  # the real cars never start by themselves
+        self.assertEqual(len(self.real.fleet.finish_order), 1)
 
     def test_simulation_restarts_ready(self):
         from backend.server import seed_simulation

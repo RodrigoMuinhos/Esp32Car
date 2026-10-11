@@ -42,6 +42,8 @@ export function TelaoView({ fleet, embedded = false, onExit }: { fleet: Fleet | 
   }, []);
   // Final result: the last order the server sent before the race ended (shown, not computed).
   const lastOrder = useRef<Row[]>([]);
+  const lastSeen = useRef<Row[]>([]);
+  if (order.length) lastSeen.current = order;
   const [final, setFinal] = useState<{ rows: Row[]; at: number } | null>(null);
   useEffect(() => {
     if (racing) {
@@ -55,7 +57,11 @@ export function TelaoView({ fleet, embedded = false, onExit }: { fleet: Fleet | 
   useEffect(() => {
     if (countdown > 0) setFinal(null);
   }, [countdown]);
-  const showFinal = final && now - final.at < RESULT_MS ? final : null;
+  // The server's finishing order (time trial completed) is the official result; otherwise the last order seen.
+  const podium = fleet?.finishOrder ?? [];
+  const official = podium.map((r) => order.find((o) => o.slot === r.slot) ?? lastSeen.current.find((o) => o.slot === r.slot) ??
+    ({ slot: r.slot, name: "", driver: "", position: r.position, laps: target, elapsedMs: r.durationMs, bestLapMs: null, lastLapMs: null, lastMarkMs: null } as Row));
+  const showFinal = final && now - final.at < RESULT_MS ? (official.length ? { ...final, rows: official } : final) : null;
   // Last lap of a time trial: a short notice over the video, once per car's last lap.
   const [lastLap, setLastLap] = useState<{ at: number } | null>(null);
   const lastLapKey = useRef("");

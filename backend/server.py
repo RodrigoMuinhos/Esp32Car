@@ -40,6 +40,8 @@ DATA = Path(os.environ.get('LOCALAPPDATA') or Path.home()) / 'RC Racing'
 DB_FILE = DATA / 'rc-racing.db'
 SIM_DB_FILE = DATA / 'rc-racing-simulado.db'
 SIM_COCKPITS = 16  # the simulation fills every grid
+SIM_RACE_LAPS = 5
+SIM_NEXT_RACE = 8.0  # seconds the champion stays on screen before the next simulated race
 # Minutes used of each virtual battery when the simulation starts: most charged,
 # a few low / critical / empty, so the warnings can be seen and tested.
 SIM_BATTERY_MINUTES = (2, 6, 4, 9, 3, 12, 5, 8, 25, 27.5, 29, 7, 1, 10, 4, 6)
@@ -110,6 +112,7 @@ class Server:
                            **({'wheels': wheels} if wheels else {}))
         # Test server only: no camera to measure, the camera check passes as "simulada".
         self.fleet.simulated_camera = autopilot is not None
+        self.sim_done_at = None  # SIMULAÇÃO: when the last race ended (the next one starts by itself)
         self.fleet.acceptance_required = bool(self.history.current_event())
         # Event record (fastest lap saved) and the alerts the operator panel shows once each.
         self.event = self.history.current_event()
@@ -167,10 +170,26 @@ class Server:
                     if slot.controller.finished_race: await self.save_race(slot)
                     await self.close_short_race(slot)
                 self.refresh_hints(now)
+                self.next_simulated_race(time.monotonic())
                 await asyncio.sleep(.02)
         finally:
             self.fleet.stop_all('Serviço encerrado.')
             self.fleet.shutdown()
+
+    def next_simulated_race(self, now):
+        """SIMULAÇÃO only: the champion is shown for a while, then the batteries are refilled and a
+        new race starts by itself, so the screens never sit still. The real cars wait for the operator."""
+        if not self.autopilot: return
+        fleet = self.fleet
+        busy = any(s.controller.phase in ('starting', 'countdown', 'running') for s in fleet.slots)
+        if busy or not fleet.finish_order:
+            self.sim_done_at = None
+            return
+        if self.sim_done_at is None: self.sim_done_at = now
+        if now - self.sim_done_at < SIM_NEXT_RACE: return
+        for slot in fleet.slots[:fleet.available]: fleet.battery(slot.number, 'new', now)
+        fleet.start_all(now)
+        self.sim_done_at = None
 
     def refresh_hints(self, now):
         """Explains a missing board or wheel; the Windows queries run off the control loop."""
@@ -301,6 +320,7 @@ class Server:
     async def save_race(self, slot):
         """Stores the race that just ended in this color and publishes the result."""
         race, slot.controller.finished_race = slot.controller.finished_race, None
+        if race.get('completed'): self.fleet.finished(slot, race['duration_ms'])
         best = min(race['laps_ms']) if race['laps_ms'] else None
         row, slot.race_row = (slot.race_row if slot.race_key == slot.controller.race_id else None), None
         try:
@@ -454,8 +474,10 @@ def simulation_server(db=SIM_DB_FILE, cockpits=SIM_COCKPITS):
     seed_simulation(history, cockpits)
     ports, factory = with_simulated(cockpits, lambda: [])
     # Virtual wheels are not limited by XInput: one per cockpit.
-    return Server(history=history, serial_factory=factory, ports=ports, xinput=False, autopilot=AutoPilot(),
-                  cockpits=cockpits, wheels=cockpits)
+    server = Server(history=history, serial_factory=factory, ports=ports, xinput=False, autopilot=AutoPilot(),
+                    cockpits=cockpits, wheels=cockpits)
+    server.fleet.set_mode(SIM_RACE_LAPS)  # a full race (contract: 5 laps), not a free run
+    return server
 
 
 def create_app(server=None, sim=None):

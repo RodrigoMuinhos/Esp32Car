@@ -62,13 +62,20 @@ class AutoPilot:
     """Simulated drivers for the wheels that are not plugged in (test mode only).
 
     Each one throttles and steers in its own rhythm and marks a lap every few
-    seconds while its car is racing, so a full 4-car race can be watched.
+    seconds while its car is racing. Every lap time is drawn at random (no car is
+    always faster), so positions change during the race and the winner changes
+    from race to race.
     """
 
-    LAP_SECONDS = (9.0, 9.8, 10.6, 11.5)
+    LAP_MIN, LAP_MAX = 8.5, 11.5  # seconds per lap, drawn for every lap
 
-    def __init__(self):
+    def __init__(self, rng=None):
+        import random
         self.next_lap = {}
+        self.rng = rng or random.Random()
+
+    def lap_time(self):
+        return self.rng.uniform(self.LAP_MIN, self.LAP_MAX)
 
     def fill(self, pads, now, fleet):
         import math
@@ -78,12 +85,11 @@ class AutoPilot:
             slot = fleet.slots[fleet.pad_map.index(index)]
             racing = slot.controller.phase == 'running'
             lap = False
-            rhythm = self.LAP_SECONDS[index % len(self.LAP_SECONDS)]
             if racing:
-                if self.next_lap.get(index) is None: self.next_lap[index] = now + rhythm
+                if self.next_lap.get(index) is None: self.next_lap[index] = now + self.lap_time()
                 elif now >= self.next_lap[index]:
                     lap = True
-                    self.next_lap[index] = now + rhythm * (0.92 + 0.16 * ((now * 7.3 + index) % 1))
+                    self.next_lap[index] = now + self.lap_time()
             else:
                 self.next_lap[index] = None
             pads[index] = dict(

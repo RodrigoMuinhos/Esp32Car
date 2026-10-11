@@ -36,6 +36,28 @@ def run(fleet, t0, t1, step=.05):
 
 
 class FleetTests(unittest.TestCase):
+    def test_finishing_order_names_the_champion_and_resets_on_the_next_start(self):
+        f = fleet_with(['COM3', 'COM4'], {'COM3': 'AAA', 'COM4': 'BBB'})
+        f.set_auto_test(False); f.available = 2
+        run(f, 0, .5)
+        f.pads = [pad(), pad(), None, None]
+        self.assertEqual(f.start_all(.5), [1, 2])
+        f.finished(f.slots[1], 40000); f.finished(f.slots[0], 41000); f.finished(f.slots[1], 40000)
+        order = f.summary(1)['finishOrder']
+        self.assertEqual([(r['slot'], r['position']) for r in order], [(2, 1), (1, 2)])  # 02 is the champion
+        run(f, .55, 4)
+        f.stop_all(); run(f, 4.05, 4.2)
+        f.pads = [pad(), pad(), None, None]
+        f.start_all(4.3)
+        self.assertEqual(f.summary(4.3)['finishOrder'], [])
+
+    def test_virtual_drivers_draw_every_lap_time(self):
+        from backend.simulated import AutoPilot
+        pilot = AutoPilot()
+        times = {round(pilot.lap_time(), 3) for _ in range(20)}
+        self.assertGreater(len(times), 15)  # no fixed rhythm: positions change, the winner changes
+        self.assertTrue(all(AutoPilot.LAP_MIN <= t <= AutoPilot.LAP_MAX for t in times))
+
     def test_boards_fill_the_color_slots_and_run_the_self_test(self):
         f = fleet_with(['COM3', 'COM4'], {'COM3': 'AAA', 'COM4': 'BBB'})
         run(f, 0, 2)

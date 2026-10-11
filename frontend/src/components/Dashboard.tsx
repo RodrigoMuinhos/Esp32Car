@@ -340,6 +340,7 @@ export function Dashboard() {
           raceMode={data.raceMode}
           lapCount={data.lapCount}
           session={data.times?.elapsedMs ?? 0}
+          times={data.times}
           best={data.times?.bestLapMs ?? null}
           speed={data.speed ?? estimatedSpeed}
           connected={data.connected}

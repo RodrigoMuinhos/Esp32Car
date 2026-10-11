@@ -211,6 +211,8 @@ class Fleet:
         # whether the camera check passes by itself (simulated test server).
         self.acceptance_required = False
         self.simulated_camera = False
+        # Finishing order of the current start (time trial completed), for the champion.
+        self.finish_order = []
         self.load()
 
     # ---------- persistence ----------
@@ -618,8 +620,16 @@ class Fleet:
         return 'READY'
 
     def start_all(self, now):
-        """Operator start: 3-2-1 for every car that is ready."""
-        return [s.number for s in self.slots if s.controller.start_countdown(now)]
+        """Operator start: 3-2-1 for every car that is ready (a new race: a new finishing order)."""
+        started = [s.number for s in self.slots if s.controller.start_countdown(now)]
+        if started: self.finish_order = []
+        return started
+
+    def finished(self, slot, duration_ms):
+        """A car completed the time trial: it takes the next place (the first one is the champion)."""
+        if any(r['slot'] == slot.number for r in self.finish_order): return
+        self.finish_order.append(dict(slot=slot.number, color=slot.color, durationMs=duration_ms,
+                                      position=len(self.finish_order) + 1))
 
     def stop_all(self, reason='Parada geral pelo operador.'):
         for slot in self.slots: slot.controller.stop(reason)
@@ -696,5 +706,5 @@ class Fleet:
         return dict(slots=slots, spareBoards=spare, classification=self.classification(now),
                     pairing=self.pairing[0] if self.pairing else None, autoTest=self.auto_test, available=self.available,
                     cockpits=len(self.slots), capacity=self.capacity(), wheels=self.wheels,
-                    setup=self.setup_summary(now), colors=len(CAR_NAMES),
+                    setup=self.setup_summary(now), colors=len(CAR_NAMES), finishOrder=list(self.finish_order),
                     events=[e['text'] for e in self.events])

@@ -239,6 +239,8 @@ export interface Fleet {
   ranking: EventRanking;
   /** Latest alerts for the operator, newest first; each id is shown once. */
   alerts: FleetAlert[];
+  /** Finishing order of the current start (time trial completed): the first is the champion. */
+  finishOrder?: { slot: number; color: number; durationMs: number; position: number }[];
   events: string[];
 }
 export interface SelfTest {
@@ -460,6 +462,7 @@ export function parseTelemetry(raw: string): Partial<Telemetry> | null {
             ? fleet.ranking
             : { topN: 8, total: 0, cutMs: null, rows: [] },
         events: Array.isArray(fleet.events) ? fleet.events.filter((e: unknown) => typeof e === "string") : [],
+        finishOrder: Array.isArray(fleet.finishOrder) ? fleet.finishOrder : [],
       } as Fleet;
     return Object.keys(out).length ? out : null;
   } catch {

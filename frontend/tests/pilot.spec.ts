@@ -1,25 +1,21 @@
 import { test, expect } from "@playwright/test";
 import { fleet, serve, slotTelemetry } from "./helpers";
-// Fake camera: a moving test pattern, permission granted automatically.
-test.use({ launchOptions: { args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"] } });
-
-test("visão piloto: HUD sobre a câmera, dados nos espaços da moldura e o centro livre para dirigir", async ({ page }) => {
+test("visão piloto: HUD sobre o mapa da pista, dados nos espaços da moldura, campeão e o ponto do carrinho na simulação", async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   const f = fleet(4);
   const live: Record<string, unknown> = { phase: "idle", carEnabled: false, times: { elapsedMs: null, laps: 0, bestLapMs: null, lastLapMs: null, lastMarkMs: null } };
   await serve(page, (_, vaga) => slotTelemetry(f, vaga, live));
-  await page.goto("/?grade=4"); // real cars: the USB camera. No view in the URL: the chosen view is remembered
+  await page.goto("/?grade=4"); // real cars. No view in the URL: the chosen view is remembered
   await page.getByRole("button", { name: "VISÃO PILOTO", exact: true }).click();
   const hud = page.locator(".pilot-hud");
   await expect(hud.locator(".hud-frame")).toBeVisible();
-  // The camera fills the screen behind the frame, inside a thin black margin; off until turned on.
-  const camera = await hud.locator(".hud-camera").boundingBox();
-  expect(camera!.x).toBeGreaterThan(5); // the black margin
-  expect(camera!.x).toBeLessThan(40);
-  expect(camera!.width).toBeGreaterThan(1920 - 80);
-  await expect(page.locator(".camera-empty")).toContainText("Câmera da pista desligada");
-  await page.getByRole("button", { name: "LIGAR CÂMERA", exact: true }).click();
-  await expect(page.locator(".camera-rec.on")).toContainText("CÂMERA 1", { timeout: 10000 });
+  // The arena background and the track map behind the frame, inside a thin black margin; no video.
+  const back = await hud.locator(".hud-camera").boundingBox();
+  expect(back!.x).toBeGreaterThan(5); // the black margin
+  expect(back!.x).toBeLessThan(40);
+  await expect(hud.locator(".hud-track img")).toHaveAttribute("src", "/hud/pista.png");
+  await expect(hud.locator("video, iframe")).toHaveCount(0);
+  await expect(hud.locator(".hud-track-dot")).toHaveCount(0); // real cars: no position sensor, no dot
   await expect(page.locator(".bc-banner")).toHaveText("ACELERE PARA LARGAR");
   await expect(hud.locator(".hud-me")).toContainText("01 AZUL ELÉTRICO");
   await expect(hud.locator(".hud-ranking li")).toHaveCount(4);
@@ -57,6 +53,13 @@ test("visão piloto: HUD sobre a câmera, dados nos espaços da moldura e o cent
   await expect(page.locator(".bc-banner")).toContainText("LARGADA EM");
   Object.assign(live, { phase: "finished", countdown: null, carEnabled: false });
   await expect(page.locator(".bc-banner")).toHaveText("BANDEIRADA");
+  // After the last lap: the champion from the server's finishing order, and this car's place.
+  Object.assign(f, { finishOrder: [{ slot: 2, color: 2, durationMs: 47210, position: 1 }, { slot: 1, color: 1, durationMs: 48003, position: 2 }] });
+  const champion = page.locator(".hud-champion");
+  await expect(champion).toContainText("CAMPEÃO");
+  await expect(champion).toContainText("02 LARANJA");
+  await expect(champion).toContainText("VOCÊ: 2º LUGAR");
+  Object.assign(f, { finishOrder: [] });
   Object.assign(live, { connected: false });
   await expect(page.locator(".bc-banner")).toHaveText("SEM SINAL DO CARRINHO");
   Object.assign(live, { connected: true });
@@ -65,18 +68,17 @@ test("visão piloto: HUD sobre a câmera, dados nos espaços da moldura e o cent
   await page.screenshot({ path: "test-results/hud-1366.png" });
   await page.reload();
   await expect(page.getByRole("button", { name: "VISÃO PILOTO", exact: true })).toHaveAttribute("aria-pressed", "true");
-  // Remembered as on (the fake test camera cannot always be reopened, so only the on/off state is checked).
-  await page.locator(".hud-tools").hover();
-  await expect(page.getByRole("button", { name: "Desligar câmera" })).toBeVisible();
-  await page.getByRole("button", { name: "Desligar câmera" }).click();
-  await expect(page.locator(".camera-rec")).toContainText("CÂMERA DESLIGADA");
   // Leaving the HUD from its corner.
   await page.getByRole("button", { name: "Sair da visão piloto" }).click();
   await expect(page.getByRole("button", { name: "VISÃO MECÂNICO" })).toHaveAttribute("aria-pressed", "true");
-  // SIMULAÇÃO: a demonstration race video plays where the camera would be (never in the real arena).
+  // SIMULAÇÃO: this car is a glowing dot running around the track, the opponents smaller dots.
+  Object.assign(live, { phase: "running", carEnabled: true, times: { elapsedMs: 3000, laps: 0, bestLapMs: null, lastLapMs: null, lastMarkMs: 0 } });
+  f.slots.forEach((s) => Object.assign(s, { phase: "running", times: { elapsedMs: 3000, laps: 0, bestLapMs: null, lastLapMs: null, lastMarkMs: 0 } }));
   await page.goto("/?mode=simulation&view=piloto");
-  const demo = page.locator(".hud-camera iframe.demo-video");
-  await expect(demo).toHaveAttribute("src", /MnxgyUUX43U/);
-  await expect(page.locator(".hud-camera video")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "LIGAR CÂMERA", exact: true })).toHaveCount(0);
+  const dot = page.locator(".hud-track-dot");
+  await expect(dot).toHaveCount(1);
+  await expect(page.locator(".hud-track-rival")).toHaveCount(3);
+  const first = await dot.getAttribute("transform");
+  await page.waitForTimeout(600);
+  expect(await dot.getAttribute("transform")).not.toBe(first); // it moves
 });
