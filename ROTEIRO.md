@@ -6,7 +6,7 @@ Atualizado em 10/10/2026. Legenda: ✅ pronto · 🧪 pronto, só testado em sim
 
 ## ▶ Próxima ação
 
-**Etapa 0 — proteger o código.** O último envio ao GitHub é de 04/10. Desde então, tudo (frota, assistente, bateria, eventos, TOP 8, identidade visual, Central Técnica) existe só neste PC. Os testes automáticos passam (78 servidor / Vitest / 20 navegador). Plano: commits em blocos (servidor, painel, identidade visual, testes, documentação) direto na `main`, com push quando o Rodrigo pedir.
+**Etapa 0 — enviar ao GitHub.** Os commits foram feitos em 11/10 (backend, frontend, documentação) na `main`, com testes passando (78 servidor / 8 Vitest / 22 navegador). Falta só o **push**, quando o Rodrigo pedir: até lá o código existe só neste PC.
 
 Depois dela: **etapa 1 (validar no hardware) usando o aceite técnico da Central** como roteiro de teste de cada carrinho. Assim a validação vira um procedimento repetível em vez de um teste solto.
 
@@ -31,8 +31,8 @@ Depois dela: **etapa 1 (validar no hardware) usando o aceite técnico da Central
 
 ## A fazer, em ordem
 
-### Etapa 0 — Proteger ⏳ (próxima)
-- [ ] Commits em blocos na `main` (sem banco de dados; `public/brieffing` e `public/MD` fora do Git).
+### Etapa 0 — Proteger ⏳ (próxima: push)
+- [x] Commits em blocos na `main` (11/10/2026), sem banco de dados; `public/brieffing` e `public/MD` fora do Git.
 - [ ] Push quando pedido.
 
 ### Etapa 1 — Validar no hardware 🔒 (precisa das placas, volantes e carrinho suspenso)
