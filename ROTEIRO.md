@@ -6,7 +6,7 @@ Atualizado em 10/10/2026. Legenda: ✅ pronto · 🧪 pronto, só testado em sim
 
 ## ▶ Próxima ação
 
-**Etapa 0 — enviar ao GitHub.** Os commits foram feitos em 11/10 (backend, frontend, documentação) na `main`, com testes passando (78 servidor / 8 Vitest / 22 navegador). Falta só o **push**, quando o Rodrigo pedir: até lá o código existe só neste PC.
+**Etapa 1 — validar no hardware.** O código está no GitHub (`main`, 11/10/2026): pronto para o deploy e o teste em rede. Próximo passo: gravar o firmware v6 e rodar o aceite técnico da Central em cada carrinho real.
 
 Depois dela: **etapa 1 (validar no hardware) usando o aceite técnico da Central** como roteiro de teste de cada carrinho. Assim a validação vira um procedimento repetível em vez de um teste solto.
 
@@ -31,9 +31,9 @@ Depois dela: **etapa 1 (validar no hardware) usando o aceite técnico da Central
 
 ## A fazer, em ordem
 
-### Etapa 0 — Proteger ⏳ (próxima: push)
+### Etapa 0 — Proteger ✅
 - [x] Commits em blocos na `main` (11/10/2026), sem banco de dados; `public/brieffing` e `public/MD` fora do Git.
-- [ ] Push quando pedido.
+- [x] Push para o GitHub (11/10/2026).
 
 ### Etapa 1 — Validar no hardware 🔒 (precisa das placas, volantes e carrinho suspenso)
 - [ ] Gravar o firmware v6 em cada placa (confirmar `Pronto CONTROLE v6 ID ...`).
