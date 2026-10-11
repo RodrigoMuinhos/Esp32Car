@@ -9,20 +9,21 @@ if (-not (Test-Path -LiteralPath $pythonPath)) {
 }
 & $pythonPath -c 'import aiohttp, serial'
 if ($LASTEXITCODE -ne 0) {
-    & $pythonPath -m pip install -r requirements-cockpit.txt
+    & $pythonPath -m pip install -r backend\requirements.txt
     if ($LASTEXITCODE -ne 0) { throw 'Nao foi possivel instalar a ponte com a placa.' }
 }
-if (-not (Test-Path -LiteralPath (Join-Path $projectRoot 'node_modules\vite\bin\vite.js'))) {
-    & npm.cmd install
+$frontend = Join-Path $projectRoot 'frontend'
+if (-not (Test-Path -LiteralPath (Join-Path $frontend 'node_modules\vite\bin\vite.js'))) {
+    & npm.cmd --prefix $frontend install
     if ($LASTEXITCODE -ne 0) { throw 'Nao foi possivel instalar o painel.' }
 }
-$indexPath = Join-Path $projectRoot 'dist\index.html'
+$indexPath = Join-Path $frontend 'dist\index.html'
 $rebuild = -not (Test-Path -LiteralPath $indexPath)
 if (-not $rebuild) {
     $buildTime = (Get-Item -LiteralPath $indexPath).LastWriteTimeUtc
-    $rebuild = [bool](Get-ChildItem -Path (Join-Path $projectRoot 'web'),(Join-Path $projectRoot 'public') -Recurse -File | Where-Object { $_.LastWriteTimeUtc -gt $buildTime } | Select-Object -First 1)
+    $rebuild = [bool](Get-ChildItem -Path (Join-Path $frontend 'src'),(Join-Path $frontend 'public') -Recurse -File | Where-Object { $_.LastWriteTimeUtc -gt $buildTime } | Select-Object -First 1)
 }
-if ($rebuild) { & npm.cmd run build; if ($LASTEXITCODE -ne 0) { throw 'Erro ao compilar o painel.' } }
+if ($rebuild) { & npm.cmd --prefix $frontend run build; if ($LASTEXITCODE -ne 0) { throw 'Erro ao compilar o painel.' } }
 # Release the serial port by closing only this project's legacy controller.
 $legacyScripts = @((Join-Path $projectRoot 'diagnostico_controle.py'), (Join-Path $projectRoot 'controle_reles.py'))
 $legacy = @(Get-CimInstance Win32_Process | Where-Object {

@@ -4,18 +4,19 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $projectRoot
 $python = Join-Path $projectRoot '.venv-controle\Scripts\python.exe'
 
-& npm.cmd run build
+# Frontend (frontend/) -> frontend/dist; backend (backend/) -> the app.
+& npm.cmd --prefix frontend run build
 if ($LASTEXITCODE -ne 0) { throw 'Erro ao compilar o painel.' }
 
-& $python -m pip install --quiet -r requirements-cockpit.txt pyinstaller pillow
+& $python -m pip install --quiet -r backend\requirements.txt pyinstaller pillow
 if ($LASTEXITCODE -ne 0) { throw 'Erro ao instalar as ferramentas de build.' }
 
-# App icon from the RM steering wheel artwork (public/app-icon.png, cropped from favicon.png).
-& $python -c "from PIL import Image; Image.open('public/app-icon.png').save('packaging/rc-racing.ico', sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])"
+# App icon: the RC Racing steering wheel (frontend/public/icons/volante.png, made from frontend/arte/Favincon.png).
+& $python -c "from PIL import Image; Image.open('frontend/public/icons/volante.png').save('packaging/rc-racing.ico', sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])"
 if ($LASTEXITCODE -ne 0) { throw 'Erro ao gerar o icone.' }
 
 & $python -m PyInstaller --noconfirm --clean --windowed --name 'RC Racing' `
-    --icon "$projectRoot\packaging\rc-racing.ico" --add-data "$projectRoot\dist;dist" --paths "$projectRoot" `
+    --icon "$projectRoot\packaging\rc-racing.ico" --add-data "$projectRoot\frontend\dist;dist" --paths "$projectRoot" `
     --distpath build\pyinstaller\dist --workpath build\pyinstaller\work --specpath build\pyinstaller `
     backend\app.py
 if ($LASTEXITCODE -ne 0) { throw 'Erro ao empacotar o app.' }
