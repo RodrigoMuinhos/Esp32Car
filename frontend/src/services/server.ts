@@ -10,6 +10,12 @@
  */
 const KEY = "rc-racing-servidor";
 
+/**
+ * Public demonstration build (VITE_DEMO=1, e.g. on Vercel): the server is a simulation-only
+ * demo, so the panel opens in SIMULAÇÃO, has no CARRINHO REAL and runs the virtual race.
+ */
+export const DEMO = import.meta.env.VITE_DEMO === "1";
+
 const privateHost = (host: string) =>
   host === "localhost" ||
   /^127\./.test(host) ||

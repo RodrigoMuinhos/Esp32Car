@@ -1,0 +1,16 @@
+.git
+.venv-controle
+**/node_modules
+frontend/dist
+frontend/arte
+frontend/tests
+build
+installer
+dist
+capturas
+test-results
+public
+.pio
+src
+packaging
+*.db

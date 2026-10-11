@@ -113,6 +113,8 @@ class Server:
         # Test server only: no camera to measure, the camera check passes as "simulada".
         self.fleet.simulated_camera = autopilot is not None
         self.sim_done_at = None  # SIMULAÇÃO: when the last race ended (the next one starts by itself)
+        # Public demonstration (simulation only, on the internet): the panel origins allowed, or None.
+        self.public_origins = None
         self.fleet.acceptance_required = bool(self.history.current_event())
         # Event record (fastest lap saved) and the alerts the operator panel shows once each.
         self.event = self.history.current_event()
@@ -409,12 +411,18 @@ class Server:
         elif kind == 'start': slot.controller.start_countdown(now)
         else: slot.controller.message(payload, now)
 
+    def public_origin(self, origin):
+        """Demonstration only: the published panel (e.g. https://….vercel.app) may connect."""
+        return self.public_origins is not None and ('*' in self.public_origins or origin in self.public_origins)
+
     async def websocket(self, request):
         origin = urlsplit(request.headers.get('Origin', ''))
-        if not origin.hostname or not local_address(origin.hostname) or not local_address(request.remote or ''):
+        demo = self.public_origin(f'{origin.scheme}://{origin.netloc}')
+        if not demo and (not origin.hostname or not local_address(origin.hostname) or not local_address(request.remote or '')):
             raise web.HTTPForbidden(text='Origem não autorizada.')
         loopback = ipaddress.ip_address(request.remote).is_loopback if request.remote else False
-        operator = request.query.get('painel') == '1' and loopback  # race control only from this PC
+        # Race control only from the PC Central; in the public demonstration (virtual cars only) from the panel.
+        operator = request.query.get('painel') == '1' and (loopback or demo)
         try: number = int(request.query.get('vaga', '1'))
         except ValueError: number = 1
         if not self.fleet.slot(number): number = 1
@@ -493,7 +501,8 @@ def create_app(server=None, sim=None):
     def cors(request):
         origin = request.headers.get('Origin')
         host = urlsplit(origin or '').hostname
-        return {'Access-Control-Allow-Origin': origin} if host and local_address(host) else {}
+        ok = (host and local_address(host)) or (origin and any(a.public_origin(origin) for a in (server, sim) if a))
+        return {'Access-Control-Allow-Origin': origin} if ok else {}
 
     async def health(request):
         number = int(request.query.get('vaga', '1')) if request.query.get('vaga', '1').isdigit() else 1
@@ -526,11 +535,13 @@ def create_app(server=None, sim=None):
 
     @web.middleware
     async def local_only(request, handler):
-        if not local_address(request.remote or ''): raise web.HTTPForbidden(text='Somente a rede local do evento.')
+        # The public demonstration (simulation only) answers the internet; the event server only its network.
+        if server.public_origins is None and not local_address(request.remote or ''):
+            raise web.HTTPForbidden(text='Somente a rede local do evento.')
         return await handler(request)
 
     async def lifecycle(_):
-        arenas = [a for a in (server, sim) if a is not None]
+        arenas = list(dict.fromkeys(a for a in (server, sim) if a is not None))  # the demo is both
         tasks = [asyncio.create_task(a.hardware_loop()) for a in arenas]
         yield
         for a in arenas:
@@ -556,9 +567,19 @@ if __name__ == '__main__':
     parser.add_argument('--port', type=int, default=8080)
     parser.add_argument('--host', default='0.0.0.0', help='0.0.0.0 = rede local (tablets); 127.0.0.1 = só este PC')
     parser.add_argument('--cockpits', type=int, default=None, help='quantos cockpits a instalação tem (1-16; padrão: o salvo, ou 4)')
+    parser.add_argument('--demo', action='store_true', default=os.environ.get('RC_DEMO') == '1',
+                        help='demonstração pública: só a SIMULAÇÃO (sem placas nem volantes), para publicar na internet')
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
     DATA.mkdir(parents=True, exist_ok=True)
-    # Real arena (only what is plugged in) + SIMULAÇÃO arena (virtual cars, own database).
-    web.run_app(create_app(Server(history=History(DB_FILE), cockpits=args.cockpits), simulation_server()),
-                host=args.host, port=args.port)
+    port = int(os.environ.get('PORT', args.port))
+    if args.demo:
+        # Virtual cars only: nothing here can reach a real car. RC_ORIGINS = the published panels
+        # (comma separated, e.g. https://esp32-car-three.vercel.app), or * for any.
+        demo = simulation_server(db=DATA / 'rc-racing-demo.db')
+        demo.public_origins = {o.strip().rstrip('/') for o in os.environ.get('RC_ORIGINS', '*').split(',') if o.strip()}
+        web.run_app(create_app(demo, demo), host='0.0.0.0', port=port)
+    else:
+        # Real arena (only what is plugged in) + SIMULAÇÃO arena (virtual cars, own database).
+        web.run_app(create_app(Server(history=History(DB_FILE), cockpits=args.cockpits), simulation_server()),
+                    host=args.host, port=port)

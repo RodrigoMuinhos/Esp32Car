@@ -286,6 +286,24 @@ class ArenaTests(unittest.IsolatedAsyncioTestCase):
         self.real.next_simulated_race(1000)  # the real cars never start by themselves
         self.assertEqual(len(self.real.fleet.finish_order), 1)
 
+    async def test_public_demo_is_simulation_only_and_accepts_the_published_panel(self):
+        from backend.server import simulation_server
+        demo = simulation_server(db=':memory:')
+        demo.public_origins = {'https://esp32-car-three.vercel.app'}
+        client = TestClient(TestServer(create_app(demo, demo)))
+        await client.start_server()
+        try:
+            ws = await client.ws_connect('/ws/telemetry?painel=1', headers={'Origin': 'https://esp32-car-three.vercel.app'})
+            data = (await ws.receive_json())['data']
+            self.assertTrue(data['controlAvailable'])  # the demo panel runs the virtual race
+            self.assertEqual(len(data['fleet']['slots']), 16)
+            await ws.close()
+            with self.assertRaises(WSServerHandshakeError):
+                await client.ws_connect('/ws/telemetry', headers={'Origin': 'https://evil.example'})
+        finally:
+            await client.close()
+        self.assertIsNone(self.real.public_origins)  # the event server never answers the internet
+
     def test_simulation_restarts_ready(self):
         from backend.server import seed_simulation
         from backend.history import History

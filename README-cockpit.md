@@ -40,6 +40,14 @@ O número de cockpits é um **parâmetro da instalação** (padrão 4, até 16):
 - **SIMULAÇÃO (testar sem hardware):** o botão **SIMULAÇÃO** no topo mostra **exatamente as mesmas telas** do carrinho real (grade, Central Técnica, aceite, Visão Corrida, piloto, telão), mas numa **arena simulada do servidor**: 16 carrinhos e pilotos virtuais (placas SIM1…SIM16), banco separado (`rc-racing-simulado.db`). Ela sempre começa pronta para teste e validação (todas as vagas configuradas, baterias quase cheias com alguns avisos, aceite pendente). O selo azul **SIMULAÇÃO · NADA MOVE CARRINHO REAL** fica sempre visível. No modo **CARRINHO REAL** aparece só o que está ligado neste PC Central; nada simulado entra lá. `POST /api/simular?porta=SIM2&acao=desplugar` / `?porta=SIM17&acao=plugar` simula carrinho quebrado e reserva (só na simulação).
 - Na primeira vez que o servidor escuta na rede, o Windows pergunta sobre o firewall: permita em **redes privadas**.
 
+## Demonstração online (só SIMULAÇÃO)
+
+O evento real roda no **PC Central** (placas na USB, volantes, rede local). Para mostrar o sistema pela internet existe um **modo demonstração**: só a arena SIMULAÇÃO, sem placas nem volantes, então nada pode mover um carrinho real.
+
+- **Servidor (Railway, Render ou qualquer host com Docker):** o `Dockerfile` da raiz gera um serviço completo (painel + corrida simulada) com `python -m backend.server --demo`. Variáveis: `PORT` (o host define) e `RC_ORIGINS` = endereços dos painéis publicados que podem se conectar (ex.: `https://esp32-car-three.vercel.app`; `*` = qualquer um). O endereço do próprio serviço já abre o painel funcionando.
+- **Painel no Vercel (raiz `frontend/`):** `frontend/vercel.json` gera o painel em modo demonstração (`VITE_DEMO=1`: abre na SIMULAÇÃO, sem CARRINHO REAL). Defina no Vercel a variável `VITE_SERVER_URL` = endereço HTTPS do servidor de demonstração e publique de novo.
+- Sem servidor configurado, o painel publicado mostra "Este endereço só tem o painel" em vez de quebrar.
+
 ## Usar
 
 - O painel inicia em **CARRINHO REAL**. Aguarde a indicação de placa conectada.

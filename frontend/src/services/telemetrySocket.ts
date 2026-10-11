@@ -5,7 +5,7 @@ import {
   type Telemetry,
 } from "../types/telemetry";
 import { arenaQuery } from "../arena";
-import { socketBase } from "./server";
+import { DEMO, socketBase } from "./server";
 export class TelemetrySocket {
   private socket: WebSocket | null = null;
   private retry = 0;
@@ -24,7 +24,7 @@ export class TelemetrySocket {
     // the operator (the server only accepts that from this computer).
     const params = new URLSearchParams(window.location?.search ?? "");
     const vaga = params.get("vaga") ?? "1";
-    const local = ["localhost", "127.0.0.1"].includes(host);
+    const local = ["localhost", "127.0.0.1"].includes(host) || DEMO; // the demo panel runs the virtual race
     const base = socketBase();
     if (base === null) {
       // No server to talk to (static host without ?servidor=): stay offline, never crash.

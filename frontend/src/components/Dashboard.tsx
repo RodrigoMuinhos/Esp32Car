@@ -5,7 +5,7 @@ import { useTelemetry } from "../hooks/useTelemetry";
 import { useEstimatedSpeed } from "../hooks/useEstimatedSpeed";
 import { useRaceAudio } from "../audio/useRaceAudio";
 import { simulationArena } from "../arena";
-import { serverBase } from "../services/server";
+import { DEMO, serverBase } from "../services/server";
 import { RankingModal } from "./Ranking";
 import { SoundPanel } from "./SoundPanel";
 import { RaceOverlay } from "./RaceOverlay";
@@ -158,7 +158,8 @@ export function Dashboard() {
   // This screen's slot (cockpit tablet ?vaga=N, or the car opened in the Central Técnica).
   const mySlotNumber = data.slot?.number ?? pageSlot();
   const mySlot = { ...carInfo(data.slot?.color ?? mySlotNumber), number: mySlotNumber };
-  const isCentralPc = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  // The PC Central runs the race; so does the public demonstration (virtual cars only).
+  const isCentralPc = ["localhost", "127.0.0.1"].includes(window.location.hostname) || DEMO;
   // Open one car in the Central Técnica (another car: reconnect as its slot).
   const openCar = (number: number) => {
     if (number !== mySlot.number && !isCentralPc) return; // a cockpit tablet stays on its own car
@@ -303,9 +304,10 @@ export function Dashboard() {
         <div className="session-actions">
           {simulation && (
             <span className="arena-badge" role="status">
-              <FlaskConical size={13} /> SIMULAÇÃO · CARRINHOS VIRTUAIS · NADA MOVE CARRINHO REAL
+              <FlaskConical size={13} /> {DEMO ? "DEMONSTRAÇÃO · " : ""}SIMULAÇÃO · CARRINHOS VIRTUAIS · NADA MOVE CARRINHO REAL
             </span>
           )}
+          {!DEMO && (
           <div className="environment-toggle" aria-label="Modo de conexão">
             <button className={simulation ? "active" : ""} onClick={() => changeArena(true)} disabled={busy}>
               SIMULAÇÃO
@@ -314,6 +316,7 @@ export function Dashboard() {
               <Radio size={13} /> CARRINHO REAL
             </button>
           </div>
+          )}
           {centralSlot && (
             <span className={`env-port ${data.connected ? "online" : ""}`}>
               <i /> {data.port} · {data.connected ? "ONLINE" : "OFFLINE"}
